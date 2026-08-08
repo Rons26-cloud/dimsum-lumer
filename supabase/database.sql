@@ -1,6 +1,5 @@
 -- ============================================================
 -- DIMSUM LUMER — DATABASE SCHEMA
--- Jalankan file ini pertama kali di Supabase SQL Editor.
 -- ============================================================
 
 create extension if not exists "uuid-ossp";
@@ -11,7 +10,7 @@ create table if not exists profiles (
   full_name text,
   phone text,
   avatar_url text,
-  role text default 'customer', -- customer | admin | superadmin
+  role text default 'customer', 
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
@@ -160,7 +159,7 @@ create table if not exists promos (
   title text not null,
   description text,
   code text unique,
-  discount_type text default 'percentage', -- percentage | fixed
+  discount_type text default 'percentage', 
   discount_value numeric(12,2) default 0,
   banner_url text,
   is_active boolean default true,
@@ -191,7 +190,7 @@ create table if not exists activity_logs (
 -- ---------- MAINTENANCE ----------
 create table if not exists maintenance (
   id uuid primary key default uuid_generate_v4(),
-  target text unique not null, -- 'frontend-web' | 'mobile-apk'
+  target text unique not null,
   is_active boolean default false,
   message text,
   updated_at timestamptz default now()
