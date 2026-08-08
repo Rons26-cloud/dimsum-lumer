@@ -1,6 +1,6 @@
 ## Dimsum Lumer — Monorepo
 
-Ini project lengkap yang aku bikin buat jualan dimsum online. Isinya ada 4 bagian yang saling nyambung jadi satu ekosistem: website customer, dashboard admin, aplikasi mobile, sama backend Supabase.
+Ini project lengkap yang aku bikin buat bisnis dimsum online. Isinya ada 4 bagian yang saling nyambung jadi satu ekosistem: website customer, dashboard admin, aplikasi mobile, sama backend Supabase.
 
 ## 📁 Struktur Proyek
 
