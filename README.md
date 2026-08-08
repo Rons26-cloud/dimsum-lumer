@@ -172,6 +172,8 @@ Hasil build web berada di folder dist/, sedangkan APK Flutter berada di mobile-a
 frontend-web — desain mobile-first, bottom navigation, safe area, action bar checkout, pencarian katalog, realtime badge, dan dukungan instalasi PWA
 mobile-apk — Material 3 dengan navigation bar 5 tab: Beranda, Menu, Pesanan, Favorit, dan Profil. Produk serta pesanan mengikuti perubahan Supabase secara realtime
 admin-dashboard — sidebar pada desktop dan bottom navigation pada mobile. Konten memiliki padding safe area dan route operasional yang bisa dibuka langsung dari navigasi
+
+
 📌 Catatan Repository
 
 Kalau kalian mau nyalin proyek ini, gak masalah kok Cuma perlu diinget, salinan ini gak nyertain metadata .git, jadi kalau ada folder baru gak bakal kebeda otomatis lewat git status. Struktur yang dijelasin di atas disusun langsung dari folder dan source code yang tersedia pas dokumentasi ini diperbarui.
