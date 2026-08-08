@@ -1,0 +1,2 @@
+import { Search } from "lucide-react";
+export default function NotificationFilter({value,onChange}){return <label className="relative block"><Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"/><input type="search" value={value} onChange={(event)=>onChange(event.target.value)} placeholder="Cari notifikasi" className="h-11 w-full rounded-2xl border border-gray-200 bg-white pl-10 pr-3 text-xs outline-none focus:border-primary"/></label>;}

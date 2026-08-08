@@ -1,0 +1,5 @@
+import { BellRing } from "lucide-react";
+export default function NotificationPermission({ onEnable, permission, loading }) {
+  const active=permission==="granted";
+  return <section id="notification-permission" className="mx-3 rounded-3xl border border-gray-100 bg-white p-4 shadow-sm"><div className="flex gap-3"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-gray-100 bg-white text-primary"><BellRing size={20}/></span><div><h2 className="text-sm font-extrabold">{active?'Notifikasi Aktif':'Aktifkan Notifikasi'}</h2><p className="mt-1 text-[10px] leading-relaxed text-gray-500">{active?'Update pesanan, promo, reward, dan akun akan dikirimkan ke perangkat ini.':'Aktifkan push notification untuk mendapatkan update pesanan, promo, reward dan informasi terbaru.'}</p></div></div>{!active&&<button onClick={onEnable} disabled={loading||permission==='unsupported'} className="mt-3 h-10 w-full rounded-xl bg-primary text-xs font-bold text-white disabled:opacity-50">{loading?'Memproses':permission==='unsupported'?'Tidak Didukung':'Aktifkan'}</button>}</section>;
+}

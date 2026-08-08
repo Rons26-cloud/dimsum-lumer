@@ -1,0 +1,5 @@
+const levels = ["Bronze", "Silver", "Gold", "Platinum"];
+
+export default function ProgressLevel({ progress }) {
+  return <div><div className="relative h-2 overflow-hidden rounded-full bg-gray-100"><div className="h-full rounded-full bg-primary transition-[width] duration-700 ease-out" style={{ width: `${progress.percent}%` }} /></div><div className="mt-1.5 grid grid-cols-4">{levels.map((level,index) => <span key={level} className={`relative text-center text-[7px] font-semibold ${level === progress.level ? "text-primary" : "text-gray-400"}`}><i className={`mx-auto mb-1 block h-1.5 w-1.5 rounded-full ${index <= levels.indexOf(progress.level) ? "bg-primary" : "bg-gray-200"}`} />{level}</span>)}</div><p className="mt-2 text-[9px] font-medium text-gray-600">{progress.remaining ? `${progress.remaining.toLocaleString('id-ID')} koin lagi menuju level berikutnya` : "Level tertinggi telah tercapai"}</p><p className="mt-1 text-[8px] text-primary">{progress.benefit} · 2 koin setiap pesanan selesai</p></div>;
+}

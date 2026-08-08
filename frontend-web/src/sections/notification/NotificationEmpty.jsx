@@ -1,0 +1,2 @@
+import { BellOff } from "lucide-react";
+export default function NotificationEmpty() { return <div className="flex flex-col items-center px-6 py-16 text-center"><span className="grid h-20 w-20 place-items-center rounded-3xl bg-primary-100 text-primary"><BellOff size={34}/></span><h2 className="mt-4 text-sm font-extrabold">Tidak Ada Notifikasi</h2><p className="mt-1 max-w-xs text-[11px] leading-relaxed text-gray-500">Update pesanan, promo, reward, dan informasi akun akan muncul di sini.</p></div>; }

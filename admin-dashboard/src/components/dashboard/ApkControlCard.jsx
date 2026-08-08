@@ -1,0 +1,6 @@
+import { Smartphone, Upload } from "lucide-react";
+import Card from "../ui/Card.jsx";
+
+export default function ApkControlCard({ apk, storage, onManage }) {
+  return <Card title="Versi Aplikasi APK"><div className="flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-xl bg-blue-50 text-blue-600"><Smartphone/></div><div><p className="font-bold">v{apk.version||"-"}</p><p className="text-xs text-gray-400">{apk.uploaded_at?new Date(apk.uploaded_at).toLocaleString("id-ID"):"Belum pernah diunggah"}</p></div></div><div className="mt-4 rounded-xl bg-gray-50 p-3 text-xs"><div className="flex justify-between"><span>APK aktif</span><strong>{((apk.file_size||0)/1048576).toFixed(1)} MB</strong></div><div className="mt-2 flex justify-between"><span>Storage bucket</span><strong>{((storage?.bytes||0)/1048576).toFixed(1)} MB · {storage?.files||0} file</strong></div><div className="mt-2 flex justify-between"><span>Force update</span><strong>{apk.force_update?"Aktif":"Tidak aktif"}</strong></div></div><button onClick={onManage} className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gray-900 py-2.5 text-sm font-bold text-white"><Upload size={15}/>Kelola APK</button></Card>;
+}

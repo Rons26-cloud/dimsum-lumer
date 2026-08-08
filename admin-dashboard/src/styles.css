@@ -1,0 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* { box-sizing: border-box; }
+html, body { margin: 0; font-family: 'Poppins', system-ui, sans-serif; background: #F7F8FA; overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; }
+#root { min-height: 100dvh; padding-top: env(safe-area-inset-top); }
+button, a { touch-action: manipulation; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 999px; }

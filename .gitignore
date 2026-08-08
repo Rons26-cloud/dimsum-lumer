@@ -1,0 +1,16 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+*.log
+.DS_Store
+.vscode/
+.idea/
+
+# Flutter
+mobile-apk/.dart_tool/
+mobile-apk/.flutter-plugins
+mobile-apk/.flutter-plugins-dependencies
+mobile-apk/build/
+mobile-apk/.packages

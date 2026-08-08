@@ -1,0 +1,156 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', system-ui, sans-serif;
+  /* mencegah bounce/overscroll putih di iOS agar terasa seperti app */
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+  color: #171717;
+  min-height: 100%;
+  background: #f9fafb;
+  overflow-x: clip;
+}
+
+/* Teks sekunder tetap hitam; warna brand hanya dipakai pada state aktif. */
+#root :is(.text-gray-300, .text-gray-400, .text-gray-500, .text-gray-600, .text-gray-700, .text-gray-800,
+  .text-neutral-300, .text-neutral-400, .text-neutral-500, .text-neutral-600, .text-neutral-700, .text-neutral-800) {
+  color: #171717;
+}
+
+#root {
+  min-height: 100dvh;
+  /* aman untuk notch / safe area saat dijalankan sebagai PWA fullscreen */
+  padding-top: env(safe-area-inset-top);
+  /* Safe-area bawah ditangani oleh layout/nav agar tidak dihitung dua kali. */
+  padding-bottom: 0;
+}
+
+a { text-decoration: none; color: inherit; }
+button { font-family: inherit; cursor: pointer; }
+img { max-width: 100%; display: block; }
+button, a { touch-action: manipulation; }
+input, select, textarea { font-size: 16px; }
+@media (min-width: 640px) { input, select, textarea { font-size: inherit; } }
+
+/* Header halaman lengkap tetap terlihat ketika isi halaman digulir. */
+#root header:not(.fixed) {
+  position: sticky !important;
+  top: 0;
+  z-index: 30;
+  background-color: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Container halaman Akun tetap compact dan stabil pada semua lebar layar. */
+#root .mx-auto.min-h-dvh.w-full.max-w-2xl {
+  width: 100%;
+  max-width: 28rem;
+  min-height: 100vh;
+  padding-bottom: 6rem;
+  background: #f9fafb;
+}
+
+/* Detail produk: header penuh diganti tombol kembali transparan di atas gambar. */
+.mx-auto.min-h-dvh.max-w-3xl.bg-white.pb-6 > header:first-child {
+  position: absolute !important;
+  inset: 0 0 auto 0;
+  z-index: 35;
+  width: 100%;
+  height: calc(3rem + env(safe-area-inset-top));
+  padding: env(safe-area-inset-top) 0.75rem 0;
+  border: 0;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  pointer-events: none;
+}
+
+.mx-auto.min-h-dvh.max-w-3xl.bg-white.pb-6 > header:first-child > button:first-child {
+  pointer-events: auto;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  background: transparent;
+  color: #171717;
+  box-shadow: none;
+}
+
+.mx-auto.min-h-dvh.max-w-3xl.bg-white.pb-6 > header:first-child > button:first-child:active {
+  color: #ff7a00;
+  background: transparent;
+}
+
+.mx-auto.min-h-dvh.max-w-3xl.bg-white.pb-6 > header:first-child > h1,
+.mx-auto.min-h-dvh.max-w-3xl.bg-white.pb-6 > header:first-child > span {
+  display: none;
+}
+
+/* Seluruh detail produk tetap dapat digulir secara vertikal pada layar sentuh. */
+.mx-auto.min-h-dvh.max-w-3xl.bg-white.pb-6 {
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: visible;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Transisi halus default untuk elemen interaktif — dipakai luas di seluruh app
+   supaya perubahan state (hover, active, warna) terasa smooth, bukan patah. */
+a, button, input, .transition-base {
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+/* Detail produk tampil immersive: tanpa bar header, hanya panah kembali yang
+   tetap terlihat saat halaman digulir. */
+main > div.max-w-3xl > header:has(> button[aria-label="Kembali"]) {
+  position: fixed;
+  top: calc(0.75rem + env(safe-area-inset-top));
+  left: 0.75rem;
+  z-index: 50;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  pointer-events: none;
+}
+
+main > div.max-w-3xl > header:has(> button[aria-label="Kembali"]) > h1,
+main > div.max-w-3xl > header:has(> button[aria-label="Kembali"]) > span {
+  display: none;
+}
+
+main > div.max-w-3xl > header:has(> button[aria-label="Kembali"]) > button {
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 0;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  pointer-events: auto;
+}
+
+main > main.max-w-xl > div:first-child > button[aria-label="Kembali"] {
+  position: fixed;
+  top: calc(0.75rem + env(safe-area-inset-top));
+  left: 0.75rem;
+  z-index: 50;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
