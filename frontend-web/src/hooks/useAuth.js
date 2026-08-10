@@ -65,12 +65,13 @@ export function useAuth() {
     let isMounted = true;
 
     // Ambil sesi awal pengguna saat aplikasi dimuat
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (isMounted) {
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    });
+    supabase.auth.getSession()
+      .then(({ data }) => { if (isMounted) setUser(data?.session?.user ?? null); })
+      .catch((error) => {
+        console.warn("Sesi lokal tidak dapat dipulihkan:", error?.message || error);
+        if (isMounted) setUser(null);
+      })
+      .finally(() => { if (isMounted) setLoading(false); });
 
     // Mendengarkan perubahan status autentikasi (login/logout) secara real-time
     const {

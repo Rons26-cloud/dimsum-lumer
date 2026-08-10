@@ -193,6 +193,8 @@ create table if not exists maintenance (
   target text unique not null,
   is_active boolean default false,
   message text,
+  start_time timestamptz,
+  end_time timestamptz,
   updated_at timestamptz default now()
 );
 

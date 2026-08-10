@@ -11,6 +11,7 @@ import ProductCard from "../components/cards/ProductCard.jsx";
 import { mergeProductCatalog, resolveProductImage } from "../features/products/productAssets.js";
 import { upsertCartItem } from "../services/cartService.js";
 import { useStoreStatus } from "../hooks/useStoreStatus.js";
+import { runtimeId } from "../utils/runtimeId.js";
 
 function productInfo(product) {
   const name = (product?.name || "").toLowerCase();
@@ -57,6 +58,49 @@ export default function ProductDetail() {
     })();
     return () => { active = false; };
   }, [slug, catalogData]);
+
+  // Dengarkan baris produk yang sedang dibuka secara langsung. Subscription ini
+  // membuat harga, stok, gambar, deskripsi, dan status berubah tanpa refresh
+  // ketika admin menyimpan perubahan dari Dashboard.
+  useEffect(() => {
+    const productId = product?.id;
+    if (!productId || !/^[0-9a-f-]{36}$/i.test(productId)) return undefined;
+
+    const refreshProduct = async () => {
+      const { data, error } = await supabase.from("products").select("*").eq("id", productId).maybeSingle();
+      if (error) {
+        console.error("Gagal menyinkronkan detail produk:", error.message);
+        return;
+      }
+      if (!data || data.is_active === false) {
+        setProduct(null);
+        return;
+      }
+      setProduct((current) => ({ ...current, ...data }));
+      setQty((current) => Math.max(1, Math.min(current, Number(data.stock || 1))));
+    };
+
+    const channel = supabase
+      .channel(`product-detail-${productId}-${runtimeId()}`)
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "products", filter: `id=eq.${productId}` }, ({ new: next }) => {
+        if (next.is_active === false) { setProduct(null); return; }
+        setProduct((current) => ({ ...current, ...next }));
+        setQty((current) => Math.max(1, Math.min(current, Number(next.stock || 1))));
+      })
+      .on("postgres_changes", { event: "DELETE", schema: "public", table: "products", filter: `id=eq.${productId}` }, () => setProduct(null))
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") refreshProduct();
+      });
+
+    const onVisible = () => { if (document.visibilityState === "visible") refreshProduct(); };
+    window.addEventListener("focus", refreshProduct);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.removeEventListener("focus", refreshProduct);
+      document.removeEventListener("visibilitychange", onVisible);
+      supabase.removeChannel(channel);
+    };
+  }, [product?.id]);
 
   const catalog = mergeProductCatalog(catalogData);
   const related = useMemo(() => catalog.filter((item) => item.id !== product?.id).slice(0, 10), [catalog, product?.id]);

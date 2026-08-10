@@ -2,6 +2,7 @@ import { ArrowLeft, Clock, MapPin, Navigation, Phone, Store } from "lucide-react
 import { useNavigate } from "react-router-dom";
 import StoreMap, { STORE_LOCATION } from "../components/maps/StoreMap.jsx";
 import { useStoreLocation } from "../hooks/useStoreStatus.js";
+import MapsIcon from "../components/maps/MapsIcon.jsx";
 
 export default function StoreLocation() {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ export default function StoreLocation() {
           {location.phone&&<p className="flex items-center gap-2 text-[10px] text-slate-600 sm:text-xs"><Phone size={14} className="text-slate-500"/>{location.phone}</p>}
           <p className="flex items-center gap-2 text-[10px] text-slate-600 sm:text-xs"><Navigation size={14} className="text-slate-500"/>{location.is_open===false?'Toko sedang tutup':location.deliveryArea||'Melayani area sekitar toko'}</p>
         </div>
-        <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-[10px] font-bold text-slate-800 shadow-sm transition-colors hover:bg-slate-50 sm:text-xs"><img src="https://www.gstatic.com/images/branding/product/2x/maps_96in128dp.png" alt="" className="h-5 w-5 object-contain"/>Buka di Google Maps</a>
+        <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-[10px] font-bold text-slate-800 shadow-sm transition-colors hover:bg-slate-50 sm:text-xs"><MapsIcon size={22}/>Buka di Google Maps</a>
       </div>
     </section>
   </main>;

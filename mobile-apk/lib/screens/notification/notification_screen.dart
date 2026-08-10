@@ -18,7 +18,33 @@ class NotificationScreen extends StatelessWidget {
             label: const Text('Baca semua',
                 style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
           ),
-          const SizedBox(width: 6),
+          IconButton(
+            tooltip: 'Hapus semua',
+            color: Colors.redAccent,
+            onPressed: () async {
+              final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (dialogContext) => AlertDialog(
+                      title: const Text('Hapus semua notifikasi?'),
+                      content: const Text(
+                          'Notifikasi yang dihapus tidak dapat dikembalikan.'),
+                      actions: [
+                        TextButton(
+                            onPressed: () =>
+                                Navigator.pop(dialogContext, false),
+                            child: const Text('Batal')),
+                        FilledButton(
+                            onPressed: () => Navigator.pop(dialogContext, true),
+                            child: const Text('Hapus')),
+                      ],
+                    ),
+                  ) ??
+                  false;
+              if (confirmed) await NotificationService.deleteAll();
+            },
+            icon: const Icon(Icons.delete_outline_rounded, size: 19),
+          ),
+          const SizedBox(width: 4),
         ],
       ),
       body: StreamBuilder<List<Map<String, dynamic>>>(

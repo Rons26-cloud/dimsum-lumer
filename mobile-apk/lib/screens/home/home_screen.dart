@@ -110,6 +110,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SliverToBoxAdapter(child: _SearchBox()),
                 SliverToBoxAdapter(child: _heroSlider()),
                 const SliverToBoxAdapter(child: _CategoryList()),
+                const SliverToBoxAdapter(child: _StoreAddress()),
+                const SliverToBoxAdapter(child: _FaqSection()),
                 const SliverToBoxAdapter(
                   child: _SectionHeader(
                       title: 'Produk Terlaris', action: 'Lihat Semua'),
@@ -481,72 +483,77 @@ class _ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(6),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: const Color(0xFFF3F4F6)),
-        borderRadius: BorderRadius.circular(13),
-        boxShadow: const [
-          BoxShadow(
-              color: Color(0x0D000000), blurRadius: 8, offset: Offset(0, 2))
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: ProductImage(product: product)),
-                Positioned(
-                  right: 5,
-                  top: 5,
-                  child: Container(
-                    width: 25,
-                    height: 25,
-                    decoration: const BoxDecoration(
-                        color: Color(0xEEFFFFFF), shape: BoxShape.circle),
-                    child: const Icon(Icons.favorite_border_rounded,
-                        size: 14, color: Color(0xFF6B7280)),
+    return InkWell(
+      borderRadius: BorderRadius.circular(13),
+      onTap: () =>
+          context.push('/products/${product['id'] ?? product['slug']}'),
+      child: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: const Color(0xFFF3F4F6)),
+          borderRadius: BorderRadius.circular(13),
+          boxShadow: const [
+            BoxShadow(
+                color: Color(0x0D000000), blurRadius: 8, offset: Offset(0, 2))
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: ProductImage(product: product)),
+                  Positioned(
+                    right: 5,
+                    top: 5,
+                    child: Container(
+                      width: 25,
+                      height: 25,
+                      decoration: const BoxDecoration(
+                          color: Color(0xEEFFFFFF), shape: BoxShape.circle),
+                      child: const Icon(Icons.favorite_border_rounded,
+                          size: 14, color: Color(0xFF6B7280)),
+                    ),
                   ),
-                ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              '${product['name'] ?? 'Dimsum'}',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                  fontSize: 9,
+                  height: 1.35,
+                  fontWeight: FontWeight.w700,
+                  color: _dark),
+            ),
+            const Spacer(),
+            Text('Rp$formattedPrice',
+                maxLines: 1,
+                style: const TextStyle(
+                    fontSize: 9, fontWeight: FontWeight.w800, color: _dark)),
+            const SizedBox(height: 2),
+            Row(
+              children: [
+                const Icon(Icons.star_rounded,
+                    size: 11, color: Color(0xFFFFC107)),
+                const SizedBox(width: 2),
+                Text('${product['rating'] ?? '4.8'}',
+                    style: const TextStyle(
+                        fontSize: 8,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF6B7280))),
               ],
             ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            '${product['name'] ?? 'Dimsum'}',
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-                fontSize: 9,
-                height: 1.35,
-                fontWeight: FontWeight.w700,
-                color: _dark),
-          ),
-          const Spacer(),
-          Text('Rp$formattedPrice',
-              maxLines: 1,
-              style: const TextStyle(
-                  fontSize: 9, fontWeight: FontWeight.w800, color: _dark)),
-          const SizedBox(height: 2),
-          Row(
-            children: [
-              const Icon(Icons.star_rounded,
-                  size: 11, color: Color(0xFFFFC107)),
-              const SizedBox(width: 2),
-              Text('${product['rating'] ?? '4.8'}',
-                  style: const TextStyle(
-                      fontSize: 8,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF6B7280))),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -569,6 +576,171 @@ class _EmptyProducts extends StatelessWidget {
       ),
     );
   }
+}
+
+class _StoreAddress extends StatelessWidget {
+  const _StoreAddress();
+
+  @override
+  Widget build(BuildContext context) {
+    final store = RealtimeAppConfig.instance.storeInfo;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 20, 12, 0),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const Text('Alamat Toko',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 8),
+        InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => context.push('/store-location'),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 80),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+              boxShadow: const [
+                BoxShadow(
+                    color: Color(0x0D000000),
+                    blurRadius: 5,
+                    offset: Offset(0, 1))
+              ],
+            ),
+            child: Row(children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                    color: const Color(0xFFEFF6FF),
+                    borderRadius: BorderRadius.circular(12)),
+                child: const Icon(Icons.map_rounded,
+                    color: Color(0xFF4285F4), size: 25),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                    Text(
+                        '${store['name'] ?? 'Dimsum Lumer - Hongkong Fashion'}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 4),
+                    Row(children: [
+                      const Icon(Icons.navigation_rounded,
+                          size: 12, color: Color(0xFF64748B)),
+                      const SizedBox(width: 4),
+                      Expanded(
+                          child: Text(
+                              '${store['address'] ?? 'Jalan Sisingamangaraja, Medan Amplas'}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  fontSize: 12, color: Color(0xFF64748B)))),
+                    ]),
+                  ])),
+              const Icon(Icons.chevron_right_rounded,
+                  size: 18, color: Color(0xFF9CA3AF)),
+            ]),
+          ),
+        ),
+      ]),
+    );
+  }
+}
+
+class _FaqSection extends StatefulWidget {
+  const _FaqSection();
+  @override
+  State<_FaqSection> createState() => _FaqSectionState();
+}
+
+class _FaqSectionState extends State<_FaqSection> {
+  int? open;
+  static const faqs = [
+    (
+      'Berapa lama pengiriman?',
+      'Estimasi 30–60 menit tergantung lokasi dan layanan pengiriman yang dipilih.'
+    ),
+    (
+      'Apakah bisa custom pesanan?',
+      'Bisa, tulis permintaan khusus pada kolom catatan saat checkout.'
+    ),
+    (
+      'Apakah tersedia produk frozen?',
+      'Tersedia. Pilih jenis Frozen pada detail produk untuk paket 20 Pcs siap masak.'
+    ),
+    (
+      'Di mana lokasi tokonya?',
+      'Hongkong Fashion, Jalan Sisingamangaraja, Medan Amplas, Kota Medan.'
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.fromLTRB(12, 20, 12, 0),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const Text('Pertanyaan Umum',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 8),
+          ...List.generate(faqs.length, (index) {
+            final expanded = open == index;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Container(
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFF3F4F6))),
+                child: Column(children: [
+                  InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () => setState(() => open = expanded ? null : index),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(minHeight: 48),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 12),
+                        child: Row(children: [
+                          Expanded(
+                              child: Text(faqs[index].$1,
+                                  style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600))),
+                          AnimatedRotation(
+                              turns: expanded ? .5 : 0,
+                              duration: const Duration(milliseconds: 200),
+                              child: const Icon(
+                                  Icons.keyboard_arrow_down_rounded,
+                                  size: 18,
+                                  color: Color(0xFF9CA3AF))),
+                        ]),
+                      ),
+                    ),
+                  ),
+                  AnimatedSize(
+                    duration: const Duration(milliseconds: 200),
+                    child: expanded
+                        ? Padding(
+                            padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+                            child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(faqs[index].$2,
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        height: 1.65,
+                                        color: Color(0xFF6B7280)))))
+                        : const SizedBox.shrink(),
+                  ),
+                ]),
+              ),
+            );
+          }),
+        ]),
+      );
 }
 
 class _PromoStrip extends StatelessWidget {

@@ -1,5 +1,8 @@
 import { useMemo, useState } from "react";
-import { Clock3, ExternalLink, LocateFixed, MapPin, Phone, Save, Store } from "lucide-react";
+import { Clock3, LocateFixed, MapPin, Phone, Save, Store } from "lucide-react";
+import GoogleMapsLogo from "../ui/GoogleMapsLogo.jsx";
+
+const ExternalLink=GoogleMapsLogo;
 
 const fieldClass = "mt-1.5 w-full rounded-xl border border-gray-200 bg-white px-3.5 py-3 text-sm text-gray-800 outline-none transition focus:border-primary focus:ring-4 focus:ring-orange-50";
 

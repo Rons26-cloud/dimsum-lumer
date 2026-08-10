@@ -22,9 +22,10 @@ export default function HeroSliderSection() {
   const refreshBanners = async () => {
     const { data, error } = await supabase.from("app_config").select("value,config_value").eq("key", "home_banners").maybeSingle();
     if (error) return;
-    const value = data?.value || data?.config_value || {};
+    if (!data) { setSlides(fallbackSlides); return; }
+    const value = data.value || data.config_value || {};
     const configured = Array.isArray(value.items) ? value.items.filter((item) => item?.is_active !== false && /^https?:\/\//i.test(item?.image_url || "")) : [];
-    if (configured.length) {
+    if (Array.isArray(value.items)) {
       setSlides(configured.map((item) => ({ eyebrow: "Promo pilihan", title: item.title || "Promo Dimsum Lumer", subtitle: item.subtitle || "", cta: "Lihat Sekarang", to: item.target_url || "/promo", image: item.image_url, position: "center" })));
       setActive(0);
     } else setSlides(fallbackSlides);
@@ -34,12 +35,12 @@ export default function HeroSliderSection() {
   useRealtime("app_config", "*", refreshBanners, "key=eq.home_banners");
 
   useEffect(() => {
-    if (paused) return undefined;
+    if (paused || slides.length < 2) return undefined;
     const timer = window.setInterval(() => setActive((current) => (current + 1) % slides.length), 4500);
     return () => window.clearInterval(timer);
   }, [paused, slides.length]);
 
-  const move = (direction) => setActive((current) => (current + direction + slides.length) % slides.length);
+  const move = (direction) => { if (slides.length) setActive((current) => (current + direction + slides.length) % slides.length); };
   const handleTouchEnd = (event) => {
     if (touchStart.current === null) return;
     const distance = event.changedTouches[0].clientX - touchStart.current;
@@ -49,7 +50,7 @@ export default function HeroSliderSection() {
 
   return (
     <section className="mt-3 px-3 xs:px-4" aria-roledescription="carousel" aria-label="Promo Dimsum Lumer">
-      <div className="relative aspect-[16/7] overflow-hidden rounded-xl shadow-sm xs:aspect-[16/7] sm:rounded-2xl md:aspect-[21/8]" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onTouchStart={(e) => { touchStart.current = e.touches[0].clientX; setPaused(true); }} onTouchEnd={(e) => { handleTouchEnd(e); setPaused(false); }}>
+      {slides.length > 0 && <div className="relative aspect-[16/7] overflow-hidden rounded-xl shadow-sm xs:aspect-[16/7] sm:rounded-2xl md:aspect-[21/8]" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onTouchStart={(e) => { touchStart.current = e.touches[0].clientX; setPaused(true); }} onTouchEnd={(e) => { handleTouchEnd(e); setPaused(false); }}>
         {slides.map((slide, index) => (
           <div key={slide.title} className={`absolute inset-0 transition-opacity duration-700 ${index === active ? "opacity-100 z-10" : "opacity-0"}`} aria-hidden={index !== active}>
             <img src={slide.image} alt="" className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: slide.position }} loading={index === 0 ? "eager" : "lazy"} />
@@ -69,7 +70,7 @@ export default function HeroSliderSection() {
         <div className="absolute z-20 bottom-2.5 sm:bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
           {slides.map((slide, index) => <button key={slide.title} onClick={() => setActive(index)} className={`h-1.5 rounded-full transition-all ${index === active ? "w-6 bg-white" : "w-1.5 bg-white/50"}`} aria-label={`Tampilkan banner ${index + 1}`} aria-current={index === active} />)}
         </div>
-      </div>
+      </div>}
     </section>
   );
 }

@@ -12,10 +12,10 @@ export default function Navbar({ sticky = true }) {
   const navigate = useNavigate();
 
   return (
-    <header className={`${sticky ? "sticky top-0 z-30" : "relative z-10"} h-14 shrink-0 border-b border-gray-100 bg-white sm:h-16`}>
-      <div className="mx-auto flex h-full w-full max-w-6xl items-center justify-between px-3 sm:px-4">
+    <header className={`${sticky ? "sticky top-0 z-30" : "relative z-10"} h-[calc(3.5rem+env(safe-area-inset-top))] shrink-0 border-b border-gray-100 bg-white/95 pt-[env(safe-area-inset-top)] backdrop-blur-md sm:h-[calc(4rem+env(safe-area-inset-top))]`}>
+      <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4 sm:h-16">
         <Link to="/" className="flex items-center gap-2 min-w-0">
-          <img src={logo} alt="Dimsum Lumer" className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover shrink-0" />
+          <img src={logo} alt="Dimsum Lumer" className="h-10 w-10 shrink-0 object-contain sm:h-11 sm:w-11" />
           <span className="font-extrabold text-sm sm:text-base text-primary leading-tight truncate">
             Dimsum Lumer
           </span>
@@ -30,7 +30,7 @@ export default function Navbar({ sticky = true }) {
         <div className="flex items-center gap-1.5 sm:gap-3">
           <Link
             to="/keranjang"
-            className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-700 hover:bg-gray-100 active:scale-95 transition-all"
+            className="relative flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 text-gray-700 transition-all hover:bg-gray-100 active:scale-95"
             aria-label="Keranjang"
           >
             <ShoppingCart size={17} strokeWidth={2} />
@@ -43,7 +43,7 @@ export default function Navbar({ sticky = true }) {
 
           <button
             onClick={() => navigate("/notifikasi")}
-            className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-700 hover:bg-gray-100 active:scale-95 transition-all"
+            className="relative flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 text-gray-700 transition-all hover:bg-gray-100 active:scale-95"
             aria-label="Notifikasi"
           >
             <Bell size={17} strokeWidth={2} />

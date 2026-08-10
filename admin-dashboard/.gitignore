@@ -1,0 +1,7 @@
+.env
+.env.local
+.env.*.local
+admin-vite.out.log
+admin-vite.err.log
+node_modules/
+dist/

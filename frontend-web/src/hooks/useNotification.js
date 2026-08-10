@@ -3,6 +3,7 @@ import { useAuth } from "./useAuth.js";
 import { supabase } from "../supabase/client.js";
 import { TABLES } from "../supabase/constants.js";
 import * as service from "../services/notificationService.js";
+import { runtimeId } from "../utils/runtimeId.js";
 
 export function useNotification() {
   const { user } = useAuth();
@@ -20,7 +21,7 @@ export function useNotification() {
   useEffect(() => {
     refresh();
     if (!user) return undefined;
-    const channel = supabase.channel(`notification-center-${user.id}-${crypto.randomUUID()}`)
+    const channel = supabase.channel(`notification-center-${user.id}-${runtimeId()}`)
       .on("postgres_changes", { event: "*", schema: "public", table: TABLES.NOTIFICATIONS, filter: `user_id=eq.${user.id}` }, refresh)
       .subscribe();
     return () => { supabase.removeChannel(channel); };
@@ -28,7 +29,7 @@ export function useNotification() {
 
   useEffect(() => {
     if (typeof Notification === "undefined" || Notification.permission !== "granted") return undefined;
-    const channel = supabase.channel(`notification-push-${user?.id || "guest"}-${crypto.randomUUID()}`)
+    const channel = supabase.channel(`notification-push-${user?.id || "guest"}-${runtimeId()}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: TABLES.NOTIFICATIONS, ...(user ? { filter: `user_id=eq.${user.id}` } : {}) }, ({ new: item }) => {
         if (document.visibilityState === "visible") new Notification(item.title || "Dimsum Lumer", { body: item.message || "", icon: "/logo.png", tag: item.id });
       }).subscribe();

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../supabase/client.js";
 import { TABLES } from "../supabase/constants.js";
 import { useAuth } from "./useAuth.js";
+import { runtimeId } from "../utils/runtimeId.js";
 
 /**
  * Custom Hook useNotifications
@@ -38,7 +39,7 @@ export function useNotifications() {
       });
 
     const channel = supabase
-      .channel(`realtime-notifications-${user.id}-${crypto.randomUUID()}`)
+      .channel(`realtime-notifications-${user.id}-${runtimeId()}`)
       .on(
         "postgres_changes",
         { 

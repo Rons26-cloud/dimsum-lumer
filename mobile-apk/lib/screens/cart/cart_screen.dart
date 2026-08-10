@@ -74,6 +74,10 @@ class CartScreen extends StatelessWidget {
                                         <String, dynamic>{};
                                 final quantity =
                                     int.tryParse('${row['quantity']}') ?? 1;
+                                final stock =
+                                    num.tryParse('${product['stock'] ?? 0}')
+                                            ?.round() ??
+                                        0;
                                 return Card(
                                     child: Padding(
                                         padding: const EdgeInsets.all(10),
@@ -106,6 +110,17 @@ class CartScreen extends StatelessWidget {
                                                     style: Theme.of(context)
                                                         .textTheme
                                                         .bodySmall),
+                                                if (stock <= 0)
+                                                  const Padding(
+                                                      padding: EdgeInsets.only(
+                                                          top: 4),
+                                                      child: Text('Stok habis',
+                                                          style: TextStyle(
+                                                              fontSize: 10,
+                                                              color: Colors.red,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w700))),
                                                 const SizedBox(height: 9),
                                                 Row(children: [
                                                   _QuantityButton(
@@ -125,7 +140,8 @@ class CartScreen extends StatelessWidget {
                                                                       .w700))),
                                                   _QuantityButton(
                                                       icon: Icons.add,
-                                                      onTap: quantity >= 99
+                                                      onTap: stock <= 0 ||
+                                                              quantity >= stock
                                                           ? null
                                                           : () => CartService
                                                               .updateQuantity(
@@ -169,8 +185,21 @@ class CartScreen extends StatelessWidget {
                                 SizedBox(
                                     width: double.infinity,
                                     child: FilledButton.icon(
-                                        onPressed: () =>
-                                            context.push('/checkout'),
+                                        onPressed: rows.any((row) {
+                                          final product = products[
+                                                  '${row['product_id']}'] ??
+                                              const <String, dynamic>{};
+                                          final stock = num.tryParse(
+                                                      '${product['stock'] ?? 0}')
+                                                  ?.round() ??
+                                              0;
+                                          final quantity = int.tryParse(
+                                                  '${row['quantity']}') ??
+                                              1;
+                                          return stock <= 0 || quantity > stock;
+                                        })
+                                            ? null
+                                            : () => context.push('/checkout'),
                                         icon: const Icon(Icons.payment_rounded,
                                             size: 18),
                                         label:

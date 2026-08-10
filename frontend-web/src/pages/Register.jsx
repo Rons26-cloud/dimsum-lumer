@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { User, Mail, Phone, Lock, Eye, EyeOff } from "lucide-react";
-import { signUp, signIn, signInWithGoogle } from "../services/authService.js";
+import { signUp, signInWithGoogle } from "../services/authService.js";
 import Button from "../components/ui/Button.jsx";
 
 export default function Register() {
@@ -35,8 +35,8 @@ export default function Register() {
         navigate("/", { replace: true });
         return;
       }
-      try { await signIn({ email:sanitizedEmail,password:form.password });navigate("/",{replace:true}); }
-      catch(loginError){if(/email.*confirm|not confirmed/i.test(loginError.message||""))setSuccess("Pendaftaran berhasil. Konfirmasi email diperlukan oleh pengaturan Supabase sebelum akun dapat masuk.");else throw loginError;}
+      setSuccess("Pendaftaran berhasil. Silakan buka email konfirmasi, lalu masuk menggunakan akun Anda.");
+      setForm((current) => ({ ...current, password: "" }));
     } catch (err) {
       setError(err.message || "Terjadi kesalahan saat mendaftar. Silakan coba lagi.");
     } finally {

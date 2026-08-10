@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin } from 'lucide-react';
+import MapsIcon from '../maps/MapsIcon.jsx';
 
 /**
  * Komponen LocationPicker / LocationSelector
@@ -90,7 +90,7 @@ export default function LocationPicker({ supabase, onLocationChange }) {
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center justify-between gap-3">
       <div className="flex items-center gap-3 overflow-hidden">
         <div className="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center text-orange-600 flex-shrink-0">
-          <MapPin size={18}/>
+          <MapsIcon size={22}/>
         </div>
         <div className="overflow-hidden">
           <p className="text-xs text-gray-400 font-medium">Lokasi Pengiriman / Outlet</p>

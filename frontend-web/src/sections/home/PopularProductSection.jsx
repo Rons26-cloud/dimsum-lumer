@@ -16,6 +16,8 @@ export default function PopularProductSection() {
   // segera setelah tersedia.
   const catalog = mergeProductCatalog(products).slice(0, 12);
 
+  if (Array.isArray(products) && catalog.length === 0) return null;
+
   return (
     <section className="mt-4 px-3 xs:px-4">
       <div className="mb-2 flex items-center justify-between">

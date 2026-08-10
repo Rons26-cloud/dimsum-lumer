@@ -1,7 +1,21 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+val releaseKeystoreProperties = Properties()
+val releaseKeystoreFile = rootProject.file("key.properties")
+val releaseBuildRequested = gradle.startParameter.taskNames.any {
+    it.contains("release", ignoreCase = true)
+}
+if (releaseKeystoreFile.exists()) {
+    FileInputStream(releaseKeystoreFile).use(releaseKeystoreProperties::load)
+} else if (releaseBuildRequested) {
+    throw GradleException("Release signing belum dikonfigurasi. Salin key.properties.example menjadi key.properties dan gunakan keystore produksi dari secret CI/local.")
 }
 
 android {
@@ -25,10 +39,24 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        if (releaseKeystoreFile.exists()) {
+            create("release") {
+                keyAlias = releaseKeystoreProperties.getProperty("keyAlias")
+                keyPassword = releaseKeystoreProperties.getProperty("keyPassword")
+                storeFile = file(releaseKeystoreProperties.getProperty("storeFile"))
+                storePassword = releaseKeystoreProperties.getProperty("storePassword")
+                enableV1Signing = true
+                enableV2Signing = true
+                enableV3Signing = true
+                enableV4Signing = true
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // Release sengaja tidak memakai debug key. Tambahkan release
-            // keystore privat melalui CI/local signing sebelum distribusi.
+            signingConfig = signingConfigs.findByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
         }

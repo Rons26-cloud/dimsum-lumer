@@ -1,0 +1,6 @@
+# Copy to key.properties locally or generate it in CI from encrypted secrets.
+# Never commit the real key.properties or keystore.
+storePassword=replace-with-secret
+keyPassword=replace-with-secret
+keyAlias=release
+storeFile=../keystore/dimsum-lumer-release.jks

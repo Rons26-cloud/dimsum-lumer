@@ -2,6 +2,7 @@ import { useCallback,useEffect,useRef } from "react";
 import { supabase } from "../supabase/client.js";
 import { useAuth } from "./useAuth.js";
 import { useCart } from "./useCart.js";
+import { runtimeId } from "../utils/runtimeId.js";
 
 function mapCartRow(row){
   const product=row.products||{};
@@ -37,7 +38,7 @@ export function useRealtimeCart(){
     if(loading)return undefined;
     refresh();
     if(!user)return undefined;
-    const channel=supabase.channel(`cart-sync-${user.id}-${crypto.randomUUID()}`).on('postgres_changes',{event:'*',schema:'public',table:'cart_items',filter:`user_id=eq.${user.id}`},refresh).subscribe();
+    const channel=supabase.channel(`cart-sync-${user.id}-${runtimeId()}`).on('postgres_changes',{event:'*',schema:'public',table:'cart_items',filter:`user_id=eq.${user.id}`},refresh).subscribe();
     const reconcile=()=>{if(document.visibilityState==='visible')refresh();};
     window.addEventListener('focus',refresh);document.addEventListener('visibilitychange',reconcile);window.addEventListener('cart:refresh',refresh);
     return()=>{supabase.removeChannel(channel);window.removeEventListener('focus',refresh);document.removeEventListener('visibilitychange',reconcile);window.removeEventListener('cart:refresh',refresh);};

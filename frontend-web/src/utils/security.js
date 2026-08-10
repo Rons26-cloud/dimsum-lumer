@@ -2,6 +2,29 @@ const SAFE_EXTERNAL_PROTOCOLS = new Set(["https:", "tel:"]);
 const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const PAYMENT_TYPES = new Set([...IMAGE_TYPES, "application/pdf"]);
 
+const DEFAULT_PAYMENT_HOSTS = new Set([
+  "app.midtrans.com",
+  "app.sandbox.midtrans.com",
+  "checkout.xendit.co",
+]);
+
+export function safePaymentUrl(value) {
+  if (typeof value !== "string" || !value.trim()) return "";
+  try {
+    const url = new URL(value);
+    const configured = String(import.meta.env?.VITE_PAYMENT_ALLOWED_HOSTS || "")
+      .split(",")
+      .map((host) => host.trim().toLowerCase())
+      .filter(Boolean);
+    const allowedHosts = new Set([...DEFAULT_PAYMENT_HOSTS, ...configured]);
+    if (url.protocol !== "https:" || url.username || url.password) return "";
+    if (!allowedHosts.has(url.hostname.toLowerCase())) return "";
+    return url.href;
+  } catch {
+    return "";
+  }
+}
+
 export function safeExternalUrl(value, { allowTel = false } = {}) {
   if (typeof value !== "string" || !value.trim()) return "";
   try {

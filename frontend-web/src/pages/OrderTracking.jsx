@@ -1,83 +1,36 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { ExternalLink, Loader2, MapPin, MessageSquare, Navigation, Radio, Square } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, CheckCircle2, Clock3, Copy, CreditCard, ExternalLink, Loader2, MapPin, MessageSquare, Navigation, PackageCheck, Radio, ReceiptText, ShieldCheck, ShoppingBag, Square, Truck } from 'lucide-react';
 import { supabase } from '../supabase/client';
 import { useOrderRealtime } from '../hooks/useRealtime';
 import { useLiveGeolocation } from '../hooks/useLiveGeolocation';
+import MapsIcon from '../components/maps/MapsIcon.jsx';
 
-const STATUS_LABEL = { pending: 'Menunggu konfirmasi', processing: 'Sedang diproses', shipping: 'Dalam pengiriman', completed: 'Selesai', cancelled: 'Dibatalkan' };
-const TRACKING_STEPS = [['pending','Konfirmasi'],['processing','Diproses'],['shipping','Dikirim'],['completed','Selesai']];
+const STATUS = { pending:{label:'Menunggu konfirmasi',description:'Pesanan menunggu konfirmasi penjual',color:'bg-amber-50 text-amber-700',step:0},processing:{label:'Sedang diproses',description:'Pesanan sedang disiapkan',color:'bg-orange-50 text-primary',step:1},shipping:{label:'Dalam pengiriman',description:'Pesanan sedang menuju lokasimu',color:'bg-blue-50 text-blue-700',step:2},completed:{label:'Pesanan selesai',description:'Pesanan sudah diterima',color:'bg-emerald-50 text-emerald-700',step:3},cancelled:{label:'Dibatalkan',description:'Pesanan telah dibatalkan',color:'bg-red-50 text-red-700',step:-1} };
+const STEPS = [[Clock3,'Diterima'],[PackageCheck,'Diproses'],[Truck,'Dikirim'],[CheckCircle2,'Selesai']];
+const PAYMENT = {unpaid:'Belum dibayar',waiting_verification:'Menunggu verifikasi',paid:'Lunas',verified:'Lunas',failed:'Gagal',refunded:'Dikembalikan'};
+const money=(value)=>`Rp${Number(value||0).toLocaleString('id-ID')}`;
+const date=(value)=>value?new Date(value).toLocaleString('id-ID',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}):'-';
 
-export default function OrderTracking() {
-  const { orderId } = useParams();
-  const [order, setOrder] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [syncing, setSyncing] = useState(false);
-  const lastSync = useRef(0);
-  const { coords, status: gpsStatus, error: gpsError, start, stop } = useLiveGeolocation();
-  const adminWhatsApp = import.meta.env.VITE_ADMIN_WA_NUMBER || '';
-
-  const fetchOrder = useCallback(async () => {
-    if (!orderId) return;
-    setLoading(true);
-    const { data } = await supabase.from('orders').select('*').eq('id', orderId).maybeSingle();
-    setOrder(data || null);
-    setLoading(false);
-  }, [orderId]);
-
-  useEffect(() => { fetchOrder(); }, [fetchOrder]);
-  useOrderRealtime(orderId, ({ new: nextOrder }) => setOrder(nextOrder));
-
-  useEffect(() => {
-    if (!coords || !orderId || Date.now() - lastSync.current < 5000) return;
-    lastSync.current = Date.now();
-    setSyncing(true);
-    supabase.rpc('update_own_order_location', {
-      p_order_id: orderId,
-      p_latitude: coords.lat,
-      p_longitude: coords.lng,
-      p_accuracy: coords.accuracy || 0,
-    }).then(({ error }) => {
-      setSyncing(false);
-      if (error) console.error('GPS sync failed:', error.message);
-    });
-  }, [coords, orderId]);
-
-  const sendWhatsApp = () => {
-    const lat = coords?.lat || order?.delivery_latitude;
-    const lng = coords?.lng || order?.delivery_longitude;
-    if (!lat || !lng || !adminWhatsApp) return;
-    const text = encodeURIComponent(`Halo Admin Dimsum Lumer, ini lokasi pesanan ${order.order_code}: https://www.google.com/maps?q=${lat},${lng}`);
-    window.open(`https://wa.me/${adminWhatsApp}?text=${text}`, '_blank', 'noopener,noreferrer');
-  };
-
-  if (loading) return <div className="min-h-[60vh] grid place-items-center"><Loader2 className="animate-spin text-primary" size={32} /></div>;
-  if (!order) return <div className="text-center py-12 text-gray-500">Pesanan tidak ditemukan atau bukan milik Anda.</div>;
-  const lat = coords?.lat || order.delivery_latitude;
-  const lng = coords?.lng || order.delivery_longitude;
-  const sharing = gpsStatus === 'loading' || gpsStatus === 'success';
-  const activeStep = TRACKING_STEPS.findIndex(([value]) => value === order.status);
-
-  return (
-    <div className="max-w-2xl mx-auto px-3 xs:px-4 py-5 pb-24 space-y-4">
-      <section className="bg-white p-4 sm:p-6 rounded-2xl shadow-card border border-gray-100">
-        <div className="flex justify-between items-start gap-3 border-b border-gray-100 pb-4"><div><span className="text-[10px] text-gray-400">No. Pesanan</span><h1 className="font-extrabold text-lg">{order.order_code || order.id}</h1></div><span className="px-3 py-1 rounded-full text-[10px] font-bold bg-primary-50 text-primary">{STATUS_LABEL[order.status] || order.status}</span></div>
-        <div className="mt-4 bg-emerald-50 border border-emerald-100 p-3 rounded-xl flex items-center gap-3"><Radio className={`text-emerald-600 ${sharing ? 'animate-pulse' : ''}`} size={21} /><div><p className="text-xs font-bold text-emerald-800">{sharing ? 'GPS live sedang dibagikan' : 'GPS live belum aktif'}</p><p className="text-[10px] text-emerald-600">{syncing ? 'Menyinkronkan titik terbaru…' : 'Update maksimal setiap 5 detik saat posisi berubah.'}</p></div></div>
-
-        <div className="mt-4 grid grid-cols-4 gap-1" aria-label="Progres pesanan">{TRACKING_STEPS.map(([value,label],index)=><div key={value} className="text-center"><div className={`mx-auto grid h-7 w-7 place-items-center rounded-full text-[10px] font-bold ${order.status!=='cancelled'&&index<=activeStep?'bg-primary text-white':'bg-gray-100 text-gray-400'}`}>{index+1}</div><div className={`mt-1 h-1 rounded ${order.status!=='cancelled'&&index<=activeStep?'bg-primary':'bg-gray-100'}`}/><span className="mt-1 block text-[9px] text-gray-500">{label}</span></div>)}</div>
-        {order.status==='cancelled'&&<p className="mt-3 rounded-xl bg-red-50 p-3 text-center text-xs font-bold text-red-600">Pesanan dibatalkan</p>}
-        <div className="mt-4 h-48 rounded-2xl bg-gradient-to-br from-gray-100 to-primary-50 border border-gray-100 relative overflow-hidden grid place-items-center text-center">
-          <div className="absolute inset-0 opacity-30 bg-[radial-gradient(#FF7A00_1px,transparent_1px)] [background-size:18px_18px]" />
-          <div className="relative"><MapPin className="text-primary mx-auto" size={38} /><p className="text-xs font-semibold mt-2">Titik pengiriman</p><span className="text-[10px] text-gray-500">{lat && lng ? `${Number(lat).toFixed(6)}, ${Number(lng).toFixed(6)}` : 'Belum ada koordinat'}</span>{coords?.accuracy && <p className="text-[9px] text-gray-400">Akurasi ±{Math.round(coords.accuracy)} meter</p>}</div>
-        </div>
-        {gpsError && <p className="mt-3 rounded-xl bg-red-50 p-3 text-[10px] text-red-700">{gpsError}</p>}
-
-        <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 mt-4">
-          <button onClick={sharing ? stop : start} disabled={['completed','cancelled'].includes(order.status)} className={`min-h-11 rounded-xl text-xs font-bold flex items-center justify-center gap-2 ${sharing ? 'border border-red-200 text-red-600' : 'bg-primary text-white'} disabled:opacity-40`}>{sharing ? <><Square size={14} /> Hentikan GPS</> : <><Navigation size={15} /> Aktifkan GPS Live</>}</button>
-          <button onClick={sendWhatsApp} disabled={!lat || !lng || !adminWhatsApp} className="min-h-11 rounded-xl bg-emerald-600 disabled:bg-gray-200 text-white text-xs font-bold flex items-center justify-center gap-2"><MessageSquare size={15} /> Kirim ke WhatsApp</button>
-        </div>
-        {lat && lng && <a href={`https://www.google.com/maps?q=${lat},${lng}`} target="_blank" rel="noreferrer" className="mt-3 min-h-10 rounded-xl bg-gray-50 text-gray-500 flex items-center justify-center gap-2 text-[10px] font-semibold"><ExternalLink size={13} /> Buka Google Maps</a>}
-      </section>
-    </div>
-  );
+export default function OrderTracking(){
+  const {orderId}=useParams();const navigate=useNavigate();
+  const [order,setOrder]=useState(null);const [items,setItems]=useState([]);const [loading,setLoading]=useState(true);const [syncing,setSyncing]=useState(false);const [copied,setCopied]=useState(false);const [error,setError]=useState('');
+  const lastSync=useRef(0);const {coords,status:gpsStatus,error:gpsError,start,stop}=useLiveGeolocation();const adminWhatsApp=import.meta.env.VITE_ADMIN_WA_NUMBER||'';
+  const fetchOrder=useCallback(async()=>{if(!orderId)return;setLoading(true);setError('');const [orderResult,itemResult]=await Promise.all([supabase.from('orders').select('*').eq('id',orderId).maybeSingle(),supabase.from('order_detail').select('*').eq('order_id',orderId).order('created_at')]);if(orderResult.error)setError(orderResult.error.message);setOrder(orderResult.data||null);setItems(itemResult.data||[]);setLoading(false);},[orderId]);
+  useEffect(()=>{fetchOrder();},[fetchOrder]);useOrderRealtime(orderId,({new:nextOrder})=>setOrder(nextOrder));
+  useEffect(()=>{if(!coords||!orderId||Date.now()-lastSync.current<5000)return;lastSync.current=Date.now();setSyncing(true);supabase.rpc('update_own_order_location',{p_order_id:orderId,p_latitude:coords.lat,p_longitude:coords.lng,p_accuracy:coords.accuracy||0}).then(({error:syncError})=>{setSyncing(false);if(syncError)setError('Lokasi belum dapat disinkronkan.');});},[coords,orderId]);
+  const copyCode=async()=>{try{await navigator.clipboard.writeText(order.order_code||order.id);setCopied(true);window.setTimeout(()=>setCopied(false),1600);}catch{setError('Kode pesanan tidak dapat disalin otomatis.');}};
+  const sendWhatsApp=()=>{const lat=coords?.lat||order?.delivery_latitude;const lng=coords?.lng||order?.delivery_longitude;if(!lat||!lng||!adminWhatsApp)return;window.open(`https://wa.me/${adminWhatsApp}?text=${encodeURIComponent(`Halo Admin Dimsum Lumer, ini lokasi pesanan ${order.order_code}: https://www.google.com/maps?q=${lat},${lng}`)}`,'_blank','noopener,noreferrer');};
+  if(loading)return <div className="grid min-h-dvh place-items-center bg-slate-50"><Loader2 className="animate-spin text-primary" size={30}/></div>;
+  if(!order)return <div className="grid min-h-dvh place-items-center bg-slate-50 px-5 text-center"><div><ShoppingBag size={36} className="mx-auto text-slate-300"/><h1 className="mt-3 text-sm font-bold">Pesanan tidak ditemukan</h1><p className="mt-1 text-[10px] text-slate-400">Pesanan mungkin sudah dihapus atau bukan milik akun ini.</p><button onClick={()=>navigate('/orders')} className="mt-4 rounded-xl bg-primary px-4 py-2.5 text-[10px] font-bold text-white">Kembali ke Pesanan Saya</button></div></div>;
+  const meta=STATUS[order.status]||STATUS.pending;const lat=coords?.lat||order.delivery_latitude;const lng=coords?.lng||order.delivery_longitude;const sharing=gpsStatus==='loading'||gpsStatus==='success';const subtotal=Number(order.subtotal||order.total_price||order.total_amount||0);const shipping=Number(order.shipping_cost||order.shipping_fee||0);const discount=Number(order.discount_amount||0);const total=Number(order.total_amount||order.total_price||0);
+  return <div className="min-h-dvh bg-slate-50 pb-28 text-slate-900"><header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur"><div className="mx-auto flex h-16 max-w-2xl items-center px-3"><button onClick={()=>navigate(-1)} className="grid h-10 w-10 place-items-center rounded-full hover:bg-slate-100" aria-label="Kembali"><ArrowLeft size={20}/></button><div className="min-w-0 flex-1 text-center"><h1 className="text-sm font-extrabold">Detail Pesanan</h1><p className="text-[9px] text-slate-400">Informasi lengkap dan pelacakan realtime</p></div><span className="grid h-10 w-10 place-items-center rounded-full bg-emerald-50 text-emerald-600"><ShieldCheck size={18}/></span></div></header><main className="mx-auto max-w-2xl space-y-4 px-3 py-4 sm:px-5">
+    <section className="overflow-hidden rounded-3xl bg-slate-950 text-white shadow-xl shadow-slate-900/10"><div className="p-5"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="text-[9px] font-semibold uppercase tracking-[.18em] text-white/45">Nomor pesanan</p><h2 className="mt-2 break-all font-mono text-base font-black tracking-wide">{order.order_code||order.id}</h2><p className="mt-1 text-[9px] text-white/45">Dibuat {date(order.created_at)}</p></div><button onClick={copyCode} className="flex min-h-9 shrink-0 items-center gap-1.5 rounded-xl bg-white px-3 text-[9px] font-bold text-slate-900">{copied?<CheckCircle2 size={13} className="text-emerald-600"/>:<Copy size={13}/>} {copied?'Tersalin':'Salin'}</button></div></div><div className="flex items-center justify-between gap-3 border-t border-white/10 bg-white/5 px-5 py-4"><div><p className="text-[9px] text-white/40">Status saat ini</p><strong className="mt-1 block text-[11px]">{meta.description}</strong></div><span className={`shrink-0 rounded-full px-3 py-1.5 text-[8px] font-extrabold ${meta.color}`}>{meta.label}</span></div></section>
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"><div className="flex items-center justify-between"><h3 className="text-sm font-extrabold">Progres pesanan</h3><span className="flex items-center gap-1 text-[8px] font-bold text-emerald-600"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500"/>REALTIME</span></div><div className="mt-5 grid grid-cols-4">{STEPS.map(([Icon,label],index)=><div key={label} className="relative text-center"><span className={`relative z-10 mx-auto grid h-9 w-9 place-items-center rounded-full ${meta.step>=index&&order.status!=='cancelled'?'bg-primary text-white shadow-md shadow-orange-200':'bg-slate-100 text-slate-300'}`}><Icon size={15}/></span>{index<3&&<span className={`absolute left-[62%] top-4 h-0.5 w-[76%] ${meta.step>index?'bg-primary':'bg-slate-100'}`}/>}<p className={`mt-2 text-[8px] font-bold ${meta.step>=index?'text-slate-700':'text-slate-300'}`}>{label}</p></div>)}</div>{order.status==='cancelled'&&<p className="mt-4 rounded-xl bg-red-50 p-3 text-center text-[10px] font-bold text-red-600">Pesanan ini telah dibatalkan</p>}</section>
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"><div className="flex items-center gap-2"><ShoppingBag size={16} className="text-primary"/><h3 className="text-sm font-extrabold">Rincian produk</h3><span className="ml-auto text-[9px] text-slate-400">{items.length} item</span></div><div className="mt-3 divide-y divide-slate-100">{items.length?items.map((item,index)=>{const qty=Number(item.quantity??item.jumlah??1);const price=Number(item.unit_price??item.harga??0);return <div key={item.id||index} className="flex items-center justify-between gap-3 py-3"><div className="min-w-0"><strong className="block truncate text-[11px] text-slate-700">{item.product_name||'Produk'}</strong><span className="mt-1 block text-[9px] text-slate-400">{qty} × {money(price)} · {item.variant||'Original'}</span></div><strong className="shrink-0 text-[11px]">{money(item.subtotal||qty*price)}</strong></div>}):<p className="py-5 text-center text-[10px] text-slate-400">Rincian produk belum tersedia.</p>}</div></section>
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"><div className="flex items-center gap-2"><CreditCard size={16} className="text-emerald-600"/><h3 className="text-sm font-extrabold">Pembayaran</h3></div><div className="mt-4 space-y-3 text-[10px]"><Row label="Metode" value={String(order.payment_method||'-').toUpperCase()}/><Row label="Status" value={PAYMENT[order.payment_status]||order.payment_status||'Belum dibayar'}/><Row label="Subtotal" value={money(subtotal)}/><Row label="Pengiriman & layanan" value={money(shipping)}/>{discount>0&&<Row label="Diskon" value={`- ${money(discount)}`} green/>}<div className="flex items-center justify-between border-t border-dashed border-slate-200 pt-4"><strong>Total pembayaran</strong><strong className="text-base text-primary">{money(total)}</strong></div></div></section>
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"><div className="flex items-center gap-2"><MapPin size={16} className="text-primary"/><h3 className="text-sm font-extrabold">Alamat pengiriman</h3></div><p className="mt-3 text-[10px] leading-5 text-slate-500">{order.shipping_address||order.delivery_notes||'Alamat pengiriman belum tercatat.'}</p>{order.shipping_method&&<p className="mt-3 rounded-xl bg-slate-50 p-3 text-[9px] font-semibold text-slate-600">Metode pengiriman: {String(order.shipping_method).toUpperCase()}</p>}</section>
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"><div className="flex items-start gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-600"><Radio className={sharing?'animate-pulse':''} size={18}/></span><div><h3 className="text-sm font-extrabold">Lokasi pengiriman realtime</h3><p className="mt-1 text-[9px] leading-4 text-slate-400">{sharing?(syncing?'Menyinkronkan lokasi terbaru...':'GPS aktif dan lokasi diperbarui otomatis.'):'Aktifkan GPS agar admin dapat membantu memantau lokasi.'}</p></div></div><div className="relative mt-4 grid h-44 place-items-center overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-100 to-orange-50 text-center"><div className="absolute inset-0 opacity-30 bg-[radial-gradient(#FF7A00_1px,transparent_1px)] [background-size:18px_18px]"/><div className="relative"><MapPin className="mx-auto text-primary" size={34}/><p className="mt-2 text-[10px] font-bold">{lat&&lng?`${Number(lat).toFixed(6)}, ${Number(lng).toFixed(6)}`:'Koordinat belum tersedia'}</p>{coords?.accuracy&&<p className="mt-1 text-[8px] text-slate-400">Akurasi ±{Math.round(coords.accuracy)} meter</p>}</div></div>{(gpsError||error)&&<p className="mt-3 rounded-xl bg-red-50 p-3 text-[9px] text-red-600">{gpsError||error}</p>}<div className="mt-3 grid grid-cols-2 gap-2"><button onClick={sharing?stop:start} disabled={['completed','cancelled'].includes(order.status)} className={`flex min-h-11 items-center justify-center gap-2 rounded-xl text-[10px] font-bold ${sharing?'border border-red-200 text-red-600':'bg-primary text-white'} disabled:opacity-40`}>{sharing?<><Square size={13}/>Hentikan GPS</>:<><Navigation size={14}/>Aktifkan GPS</>}</button><button onClick={sendWhatsApp} disabled={!lat||!lng||!adminWhatsApp} className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 text-[10px] font-bold text-white disabled:bg-slate-200"><MessageSquare size={14}/>Kirim Lokasi</button></div>{lat&&lng&&<a href={`https://www.google.com/maps?q=${lat},${lng}`} target="_blank" rel="noreferrer" className="mt-2 flex min-h-10 items-center justify-center gap-2 rounded-xl bg-slate-50 text-[9px] font-semibold text-slate-500"><MapsIcon size={17}/>Buka Google Maps<ExternalLink size={12}/></a>}</section>
+  </main></div>;
 }
+function Row({label,value,green=false}){return <div className={`flex justify-between gap-3 ${green?'text-emerald-600':'text-slate-500'}`}><span>{label}</span><strong className={green?'':'text-slate-700'}>{value}</strong></div>;}

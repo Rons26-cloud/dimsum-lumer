@@ -8,8 +8,10 @@ import InsightsGrid from "../../components/dashboard/InsightsGrid.jsx";
 import ApkControlCard from "../../components/dashboard/ApkControlCard.jsx";
 import RecentOrdersTable from "../../components/dashboard/RecentOrdersTable.jsx";
 import ApkReleaseModal from "../../components/dashboard/ApkReleaseModal.jsx";
+import ProductCatalogOverview from "../../components/dashboard/ProductCatalogOverview.jsx";
 import { useDashboardStats } from "../../hooks/useDashboardStats.js";
 import { updateConfig, updateOrderStatus, updateStoreInfo, uploadApk } from "../../services/dashboardService.js";
+import { mergeFrontendCatalog } from "../../data/frontendCatalog.js";
 
 export default function DashboardHome() {
   const data=useDashboardStats();
@@ -45,6 +47,7 @@ export default function DashboardHome() {
     <MetricsGrid data={data}/>
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-3"><SalesChartCard data={data.salesChart}/><StoreControlCard compact store={store} saving={saving} onChange={setStore} onSave={()=>saveStore()} onToggle={toggleStore}/></div>
     <InsightsGrid bestSellers={data.bestSellers} categories={data.categories} statuses={data.orderStatuses||{}} totalOrders={data.totalOrders}/>
+    <ProductCatalogOverview products={mergeFrontendCatalog(data.productCatalog)}/>
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-3"><ApkControlCard apk={apk} storage={data.apkStorage} onManage={()=>setApkOpen(true)}/><RecentOrdersTable orders={data.recentOrders} saving={saving} onStatusChange={changeOrderStatus}/></div>
     <ApkReleaseModal open={apkOpen} apk={apk} file={file} saving={saving} onClose={()=>setApkOpen(false)} onApkChange={setApk} onFileChange={setFile} onSubmit={saveApk}/>
   </div>;

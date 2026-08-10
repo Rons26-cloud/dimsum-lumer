@@ -4,6 +4,7 @@ export const TABLES = {
   FLASH_SALES: "flash_sales",
   CATEGORIES: "categories",
   ORDERS: "orders",
+  ORDER_ITEMS: "order_items",
   ORDER_DETAIL: "order_detail",
   MEMBER_POINT: "member_point",
   REWARDS: "reward",
@@ -14,6 +15,10 @@ export const TABLES = {
   STORES: "stores",
   PROMOS: "promos",
   ADMIN_USERS: "admin_users",
+  ADMIN_SESSIONS: "admin_sessions",
+  WISHLIST: "wishlist",
+  APK_VERSIONS: "apk_versions",
+  STORE_SETTINGS: "store_settings",
   APP_CONFIG: "app_config",
 };
 

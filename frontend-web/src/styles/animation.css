@@ -3,3 +3,31 @@
 
 @keyframes pulseSoft { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 .animate-pulse-soft { animation: pulseSoft 1.6s ease-in-out infinite; }
+
+@keyframes errorMascotFloat {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
+}
+
+@keyframes errorMascotHalo {
+  0%, 100% { opacity: .42; transform: translate(-50%, -50%) scale(.86); }
+  50% { opacity: .72; transform: translate(-50%, -50%) scale(1.08); }
+}
+
+.error-mascot-wrap { position: relative; width: fit-content; }
+.error-mascot { animation: errorMascotFloat 3.4s ease-in-out infinite; }
+.error-mascot-halo {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  width: 8rem;
+  height: 8rem;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(251, 191, 36, .34), rgba(249, 115, 22, .08) 62%, transparent 72%);
+  animation: errorMascotHalo 3.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .error-mascot,
+  .error-mascot-halo { animation: none; }
+}

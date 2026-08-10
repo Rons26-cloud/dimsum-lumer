@@ -29,3 +29,9 @@ export const updateOrderStatus = (id, status) => updateRow(TABLES.ORDERS, id, { 
 
 export const updateOrderStatusAndLocation = (id, status, lat, lng) => 
   updateRow(TABLES.ORDERS, id, { status, customer_lat: lat, customer_lng: lng });
+
+export async function reorderOrder(orderId){
+  const {data,error}=await supabase.rpc('reorder_order',{p_order_id:orderId});
+  if(error)throw error;
+  return typeof data==='string'?JSON.parse(data):data;
+}

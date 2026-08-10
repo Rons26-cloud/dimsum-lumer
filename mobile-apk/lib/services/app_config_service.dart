@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'supabase_realtime_service.dart';
 
 class AppConfigService {
+  static Set<String> get _downloadHosts {
+    final configured = dotenv.env['APK_DOWNLOAD_HOSTS'] ?? '';
+    final supabaseHost = Uri.tryParse(dotenv.env['SUPABASE_URL'] ?? '')?.host;
+    return {
+      ...configured.split(',').map((value) => value.trim().toLowerCase()),
+      if (supabaseHost != null) supabaseHost.toLowerCase(),
+    }..removeWhere((value) => value.isEmpty);
+  }
+
   static int _compare(String a, String b) {
     final left = a.split('.').map((e) => int.tryParse(e) ?? 0).toList();
     final right = b.split('.').map((e) => int.tryParse(e) ?? 0).toList();
@@ -30,6 +40,8 @@ class AppConfigService {
         url.scheme != 'https' ||
         url.host.isEmpty ||
         url.userInfo.isNotEmpty ||
+        !_downloadHosts.contains(url.host.toLowerCase()) ||
+        !url.path.toLowerCase().endsWith('.apk') ||
         !await launchUrl(url, mode: LaunchMode.externalApplication)) {
       throw Exception('Link unduhan APK tidak valid atau tidak aman.');
     }

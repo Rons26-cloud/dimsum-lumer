@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { maxPurchasable } from "../utils/productStock.js";
 
 // State keranjang belanja global menggunakan Zustand
 export const useCart = create(
@@ -16,11 +17,11 @@ export const useCart = create(
           if (existing) {
             return {
               items: state.items.map((i) =>
-                i.cart_key === cartKey ? { ...i, qty: Number(i.qty || 0) + Number(qty || 1) } : i
+                i.cart_key === cartKey ? { ...i, qty: Math.min(maxPurchasable(i), Number(i.qty || 0) + Number(qty || 1)) } : i
               ),
             };
           }
-          return { items: [...state.items, { ...product, cart_key: cartKey, qty: Number(qty || 1) }] };
+          return { items: [...state.items, { ...product, cart_key: cartKey, qty: Math.min(maxPurchasable(product), Number(qty || 1)) }] };
         }),
 
       // Menghapus item tertentu dari keranjang
@@ -36,7 +37,7 @@ export const useCart = create(
             return { items: state.items.filter((i) => (i.cart_key || i.id) !== id) };
           }
           return {
-            items: state.items.map((i) => ((i.cart_key || i.id) === id ? { ...i, qty } : i)),
+            items: state.items.map((i) => ((i.cart_key || i.id) === id ? { ...i, qty: Math.min(maxPurchasable(i), qty) } : i)),
           };
         }),
 

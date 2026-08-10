@@ -29,7 +29,7 @@ alter table if exists public.app_config enable row level security;
 do $$
 declare table_name text;
 begin
-  foreach table_name in array array['products','categories','flash_sales','promos','orders','profiles','stores','app_config']
+  foreach table_name in array array['products','categories','flash_sales','promos','orders','stores','app_config']
   loop
     execute format('drop policy if exists admin_manage on public.%I', table_name);
     execute format(
@@ -43,5 +43,5 @@ end $$;
 drop policy if exists admin_manage_dashboard_files on storage.objects;
 create policy admin_manage_dashboard_files
 on storage.objects for all to authenticated
-using (bucket_id in ('product-images','category-images','banners','apk') and public.is_admin())
-with check (bucket_id in ('product-images','category-images','banners','apk') and public.is_admin());
+using (bucket_id in ('product-images','category-images','banners') and public.is_admin())
+with check (bucket_id in ('product-images','category-images','banners') and public.is_admin());

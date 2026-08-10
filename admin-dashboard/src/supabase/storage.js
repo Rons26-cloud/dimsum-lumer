@@ -3,6 +3,7 @@ import { supabase } from "./client.js";
 const ALLOWED_BUCKETS = new Set(["product-images", "banners", "apk", "category-images"]);
 const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+const MAX_APK_SIZE = 250 * 1024 * 1024;
 
 function assertBucket(bucket) {
   if (!ALLOWED_BUCKETS.has(bucket)) throw new Error("Bucket penyimpanan tidak diizinkan.");
@@ -21,10 +22,21 @@ export function validateImageFile(file) {
   return file;
 }
 
+export async function validateApkFile(file) {
+  if (!(file instanceof File)) throw new Error("File APK tidak valid.");
+  if (!/\.apk$/i.test(file.name)) throw new Error("File aplikasi wajib menggunakan ekstensi .apk.");
+  if (file.size <= 0 || file.size > MAX_APK_SIZE) throw new Error("Ukuran APK maksimal 250 MB.");
+  const signature = new Uint8Array(await file.slice(0, 4).arrayBuffer());
+  const isZip = signature[0] === 0x50 && signature[1] === 0x4b && [0x03, 0x05, 0x07].includes(signature[2]);
+  if (!isZip) throw new Error("Isi file bukan paket APK/ZIP yang valid.");
+  return file;
+}
+
 export async function uploadFile(bucket, path, file) {
   assertBucket(bucket);
   assertSafePath(path);
-  if (bucket !== "apk") validateImageFile(file);
+  if (bucket === "apk") await validateApkFile(file);
+  else validateImageFile(file);
   const { data, error } = await supabase.storage.from(bucket).upload(path, file, {
     upsert: true,
     contentType: file.type,

@@ -5,9 +5,21 @@
 @tailwind utilities;
 
 * { box-sizing: border-box; }
+html { font-size: 15px; }
 html, body { margin: 0; font-family: 'Poppins', system-ui, sans-serif; background: #F7F8FA; overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; }
 #root { min-height: 100dvh; padding-top: env(safe-area-inset-top); }
 button, a { touch-action: manipulation; }
+
+/* Skala dashboard mengikuti ukuran perangkat. Seluruh utility Tailwind berbasis
+   rem ikut membesar secara proporsional tanpa merusak grid responsif. */
+@media (min-width: 640px) { html { font-size: 15.5px; } }
+@media (min-width: 1024px) { html { font-size: 16px; } }
+@media (min-width: 1280px) { html { font-size: 17px; } }
+@media (min-width: 1920px) { html { font-size: 18px; } }
+@media (max-width: 639px) {
+  input, select, textarea, button { font-size: max(16px, 1rem); }
+  table { font-size: .9rem; }
+}
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 999px; }

@@ -13,6 +13,7 @@ class CheckoutScreen extends StatefulWidget {
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
   final _address = TextEditingController();
+  final _promo = TextEditingController();
   String _shipping = 'gojek';
   String _payment = 'transfer';
   bool _agreed = false;
@@ -20,6 +21,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   bool _saving = false;
   List<Map<String, dynamic>> _items = [];
   String _error = '';
+  String _promoError = '';
+  Map<String, dynamic>? _appliedPromo;
+  bool _checkingPromo = false;
 
   @override
   void initState() {
@@ -30,6 +34,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   void dispose() {
     _address.dispose();
+    _promo.dispose();
     super.dispose();
   }
 
@@ -81,7 +86,60 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 (int.tryParse('${row['quantity']}') ?? 1);
       });
   num get _shippingCost =>
-      _shipping == 'pickup' ? 0 : (_shipping == 'gojek' ? 18000 : 20000);
+      _shipping == 'pickup' ? 0 : (_shipping == 'gojek' ? 15000 : 17000);
+  num get _insuranceCost =>
+      _items.isNotEmpty && _shipping != 'pickup' ? 3000 : 0;
+  num get _discount =>
+      num.tryParse('${_appliedPromo?['discount_amount'] ?? 0}') ?? 0;
+
+  Future<void> _applyPromo() async {
+    final code = _promo.text.trim();
+    if (code.isEmpty || _checkingPromo) return;
+    setState(() {
+      _checkingPromo = true;
+      _promoError = '';
+    });
+    try {
+      final raw = await SupabaseService.client
+          .from('promos')
+          .select()
+          .ilike('code', code)
+          .maybeSingle();
+      if (raw == null || raw['is_active'] == false) {
+        throw Exception('Kode promo tidak ditemukan atau sudah tidak aktif.');
+      }
+      final now = DateTime.now();
+      final starts = DateTime.tryParse('${raw['starts_at'] ?? ''}');
+      final ends = DateTime.tryParse('${raw['ends_at'] ?? ''}');
+      if (starts != null && starts.isAfter(now))
+        throw Exception('Promo belum dimulai.');
+      if (ends != null && ends.isBefore(now))
+        throw Exception('Promo sudah berakhir.');
+      final minimum = num.tryParse('${raw['min_purchase'] ?? 0}') ?? 0;
+      if (_subtotal < minimum)
+        throw Exception('Minimum belanja ${_money(minimum)}.');
+      final limit = num.tryParse('${raw['usage_limit']}');
+      final used = num.tryParse('${raw['used_count'] ?? 0}') ?? 0;
+      if (limit != null && used >= limit)
+        throw Exception('Kuota promo sudah habis.');
+      final value =
+          num.tryParse('${raw['discount_value'] ?? raw['discount'] ?? 0}') ?? 0;
+      num discount = raw['discount_type'] == 'percentage'
+          ? _subtotal * value / 100
+          : value;
+      final maximum = num.tryParse('${raw['max_discount']}');
+      if (maximum != null && discount > maximum) discount = maximum;
+      if (discount > _subtotal) discount = _subtotal;
+      setState(() => _appliedPromo = {...raw, 'discount_amount': discount});
+    } catch (error) {
+      setState(() {
+        _appliedPromo = null;
+        _promoError = error.toString().replaceFirst('Exception: ', '');
+      });
+    } finally {
+      if (mounted) setState(() => _checkingPromo = false);
+    }
+  }
 
   Future<void> _checkout() async {
     if (_items.isEmpty || _address.text.trim().length < 8 || !_agreed) {
@@ -104,13 +162,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           .toList();
       final result =
           await SupabaseService.client.rpc('checkout_order_v2', params: {
-        'p_shipping_cost': _shippingCost,
+        'p_shipping_cost': _shippingCost + _insuranceCost,
         'p_shipping_method': _shipping,
         'p_payment_method': _payment,
         'p_shipping_address': _address.text.trim(),
         'p_customer_lat': position.latitude,
         'p_customer_lng': position.longitude,
-        'p_items': payload
+        'p_items': payload,
+        'p_promo_code': _appliedPromo?['code']
       });
       final order = result is Map ? result : <String, dynamic>{};
       if (!mounted) return;
@@ -190,6 +249,80 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       if (_shipping == 'pickup') _payment = 'cod';
                     })),
             const SizedBox(height: 16),
+            Card(
+                child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Row(children: [
+                            Icon(Icons.local_offer_outlined,
+                                size: 18, color: Color(0xFFFF7A00)),
+                            SizedBox(width: 8),
+                            Text('Voucher Promo',
+                                style: TextStyle(fontWeight: FontWeight.w800))
+                          ]),
+                          const SizedBox(height: 4),
+                          const Text(
+                              'Diskon diverifikasi kembali oleh Supabase.',
+                              style: TextStyle(
+                                  fontSize: 10, color: Colors.black45)),
+                          const SizedBox(height: 12),
+                          if (_appliedPromo != null)
+                            Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                    color: const Color(0xFFECFDF5),
+                                    borderRadius: BorderRadius.circular(12)),
+                                child: Row(children: [
+                                  Expanded(
+                                      child: Text(
+                                          '${_appliedPromo?['code']} berhasil dipakai',
+                                          style: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w700,
+                                              color: Color(0xFF047857)))),
+                                  IconButton(
+                                      onPressed: () => setState(() {
+                                            _appliedPromo = null;
+                                            _promo.clear();
+                                            _promoError = '';
+                                          }),
+                                      icon: const Icon(Icons.close_rounded,
+                                          size: 18))
+                                ]))
+                          else
+                            Row(children: [
+                              Expanded(
+                                  child: TextField(
+                                      controller: _promo,
+                                      textCapitalization:
+                                          TextCapitalization.characters,
+                                      decoration: const InputDecoration(
+                                          hintText: 'Masukkan kode promo'))),
+                              const SizedBox(width: 8),
+                              FilledButton(
+                                  style: FilledButton.styleFrom(
+                                      backgroundColor: const Color(0xFF171717)),
+                                  onPressed:
+                                      _checkingPromo ? null : _applyPromo,
+                                  child: _checkingPromo
+                                      ? const SizedBox(
+                                          width: 16,
+                                          height: 16,
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: Colors.white))
+                                      : const Text('Gunakan'))
+                            ]),
+                          if (_promoError.isNotEmpty)
+                            Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Text(_promoError,
+                                    style: const TextStyle(
+                                        fontSize: 10, color: Colors.red))),
+                        ]))),
+            const SizedBox(height: 16),
             const Text('Metode Pembayaran Akun',
                 style: TextStyle(fontWeight: FontWeight.w800)),
             const Text(
@@ -235,7 +368,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         children: [
                       const Text('Total pembayaran',
                           style: TextStyle(fontSize: 10)),
-                      Text(_money(_subtotal + _shippingCost),
+                      Text(
+                          _money(_subtotal +
+                              _shippingCost +
+                              _insuranceCost -
+                              _discount),
                           style: const TextStyle(
                               fontWeight: FontWeight.w900,
                               color: Color(0xFFFF7A00)))

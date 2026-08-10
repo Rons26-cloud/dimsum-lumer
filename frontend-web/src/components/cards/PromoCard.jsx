@@ -3,6 +3,9 @@ import { Sparkles, ArrowRight } from "lucide-react";
 
 export default function PromoCard({ promo, onUsePromo }) {
   const [copied, setCopied] = useState(false);
+  const discountLabel = promo?.discount_label || (promo?.discount_type === 'percentage'
+    ? `DISKON ${Number(promo?.discount_value || 0).toLocaleString('id-ID')}%`
+    : `DISKON Rp${Number(promo?.discount_value || 0).toLocaleString('id-ID')}`);
 
   const handleAction = () => {
     if (!promo?.code) return;
@@ -21,7 +24,7 @@ export default function PromoCard({ promo, onUsePromo }) {
           <span>{promo?.badge || 'Paling Populer'}</span>
         </div>
         <span className="text-[10px] font-extrabold bg-white text-orange-600 px-2 py-0.5 rounded-md shadow-sm">
-          {promo?.discount_label || 'DISKON 30%'}
+          {discountLabel}
         </span>
       </div>
 

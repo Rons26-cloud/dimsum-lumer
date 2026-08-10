@@ -20,6 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _loading = false;
   bool _showPassword = false;
   String? _error;
+  String? _success;
 
   @override
   void dispose() {
@@ -35,11 +36,23 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _loading = true;
       _error = null;
+      _success = null;
     });
     try {
       if (_register) {
-        await AuthService.signUp(
+        final response = await AuthService.signUp(
             _email.text, _password.text, _name.text, _phone.text);
+        if (response.session == null) {
+          if (mounted) {
+            setState(() {
+              _success =
+                  'Pendaftaran berhasil. Silakan buka email konfirmasi, lalu masuk menggunakan akun Anda.';
+              _password.clear();
+              _register = false;
+            });
+          }
+          return;
+        }
       } else {
         await AuthService.signIn(_email.text, _password.text);
       }
@@ -203,6 +216,22 @@ class _LoginScreenState extends State<LoginScreen> {
                                               color: Theme.of(context)
                                                   .colorScheme
                                                   .onErrorContainer)))),
+                            if (_success != null)
+                              Padding(
+                                  padding: const EdgeInsets.only(top: 14),
+                                  child: Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                          color: const Color(0xFFECFDF5),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          border: Border.all(
+                                              color: const Color(0xFFA7F3D0))),
+                                      child: Text(_success!,
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                              color: Color(0xFF047857),
+                                              fontSize: 11)))),
                             const SizedBox(height: 20),
                             FilledButton(
                                 onPressed: _loading ? null : _submit,
@@ -213,9 +242,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         child: CircularProgressIndicator(
                                             strokeWidth: 2,
                                             color: Colors.white))
-                                    : Text(_register
-                                        ? 'Daftar dan masuk'
-                                        : 'Masuk')),
+                                    : Text(_register ? 'Buat Akun' : 'Masuk')),
                             const SizedBox(height: 8),
                             TextButton(
                                 onPressed: _loading

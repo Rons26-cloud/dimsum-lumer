@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../supabase/client.js";
 import { TABLES } from "../supabase/constants.js";
 import { useAuth } from "./useAuth.js";
+import { runtimeId } from "../utils/runtimeId.js";
 
 /**
  * Custom Hook useWishlist
@@ -46,7 +47,7 @@ export function useWishlist() {
 
     // Sinkronisasi realtime perubahan wishlist
     const channel = supabase
-      .channel(`realtime-wishlist-${user.id}-${crypto.randomUUID()}`)
+      .channel(`realtime-wishlist-${user.id}-${runtimeId()}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: TABLES.WISHLIST, filter: `user_id=eq.${user.id}` },

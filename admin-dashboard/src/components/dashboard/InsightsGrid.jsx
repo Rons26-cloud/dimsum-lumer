@@ -1,8 +1,9 @@
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import Card from "../ui/Card.jsx";
+import { formatCurrency } from "../../utils/formatCurrency.js";
 
 const COLORS=["#f97316","#3b82f6","#f59e0b","#22c55e","#a855f7"];
-const rupiah=(value)=>`Rp${Number(value||0).toLocaleString("id-ID")}`;
+const rupiah = formatCurrency;
 export default function InsightsGrid({ bestSellers, categories, statuses, totalOrders }) {
   return <div className="grid grid-cols-1 gap-4 xl:grid-cols-3"><Card title="Produk Terlaris">{bestSellers.length?<div className="space-y-3">{bestSellers.map((product,index)=><div key={product.id} className="flex items-center gap-3"><span className="grid h-7 w-7 place-items-center rounded-full bg-orange-50 text-xs font-bold text-primary">{index+1}</span><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{product.name}</p><p className="text-xs text-gray-400">{product.sold} terjual</p></div><strong className="text-xs">{rupiah(product.price)}</strong></div>)}</div>:<p className="py-8 text-center text-sm text-gray-400">Belum ada penjualan selesai.</p>}</Card><Card title="Kategori Produk"><ResponsiveContainer width="100%" height={180}><PieChart><Pie data={categories.filter((category)=>category.value>0)} dataKey="value" nameKey="name" innerRadius={45} outerRadius={72}>{categories.map((_,index)=><Cell key={index} fill={COLORS[index%COLORS.length]}/>)}</Pie><Tooltip/></PieChart></ResponsiveContainer><div className="flex justify-between border-t pt-3 text-sm"><span className="text-gray-500">Total kategori</span><strong>{categories.length}</strong></div></Card><Card title="Statistik Pesanan">{[["Total Pesanan",totalOrders],["Selesai",statuses.completed||0],["Diproses",statuses.processing||0],["Dikirim",statuses.shipping||0],["Dibatalkan",statuses.cancelled||0]].map(([label,value])=><div key={label} className="flex justify-between border-b border-gray-50 py-2.5 text-sm"><span className="text-gray-600">{label}</span><strong>{value}</strong></div>)}</Card></div>;
 }

@@ -25,13 +25,13 @@ export default function EmptyState({
   };
 
   return (
-    <div className={`flex flex-col items-center justify-center py-14 sm:py-16 text-center px-4 animate-fade-in ${className}`.trim()}>
+    <div className={`flex flex-col items-center justify-center px-4 py-9 text-center animate-fade-in sm:py-12 ${className}`.trim()}>
       <div className="w-14 h-14 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 mb-3 border border-gray-100 shadow-xs">
         {renderIcon()}
       </div>
       <h3 className="font-semibold text-dark text-sm mb-1">{title}</h3>
       {description && (
-        <p className="text-xs sm:text-sm text-gray-500 max-w-xs leading-relaxed">
+        <p className="max-w-xs text-sm leading-relaxed text-gray-500">
           {description}
         </p>
       )}

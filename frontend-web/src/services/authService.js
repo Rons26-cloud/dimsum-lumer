@@ -1,7 +1,14 @@
 import { supabase } from "../supabase/client.js";
 
 export async function signUp({ email, password, fullName, phone, options = {} }) {
-  const metadata = options.data || { full_name: fullName, phone };
+  // `account_type` hanya informasi profil. Otorisasi/role harus selalu
+  // ditentukan oleh trigger database dan tidak boleh mempercayai metadata ini.
+  const metadata = {
+    ...(options.data || {}),
+    full_name: fullName,
+    phone,
+    account_type: "user",
+  };
   const { data, error } = await supabase.auth.signUp({ email, password, options: { ...options, data: metadata } });
   if (error) throw error;
   if (data.user?.identities?.length === 0) throw new Error("Email sudah terdaftar. Silakan masuk.");
@@ -23,7 +30,8 @@ export async function signInWithGoogle() {
 }
 
 export async function requestPasswordReset(email) {
-  const { data, error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo:`${window.location.origin}/reset-password` });
+  const redirectTo = new URL("/reset-password", window.location.origin).toString();
+  const { data, error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
   if (error) throw error;
   return data;
 }

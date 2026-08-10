@@ -4,8 +4,48 @@ import 'package:go_router/go_router.dart';
 import '../../services/supabase_service.dart';
 import '../../widgets/app_state_view.dart';
 
-class OrderScreen extends StatelessWidget {
+class OrderScreen extends StatefulWidget {
   const OrderScreen({super.key});
+
+  @override
+  State<OrderScreen> createState() => _OrderScreenState();
+}
+
+class _OrderScreenState extends State<OrderScreen> {
+  String _filter = 'all';
+  bool _reordering = false;
+  String _error = '';
+
+  Future<void> _reorder(String orderId) async {
+    if (_reordering) return;
+    setState(() {
+      _reordering = true;
+      _error = '';
+    });
+    try {
+      final raw = await SupabaseService.client
+          .rpc('reorder_order', params: {'p_order_id': orderId});
+      final result =
+          raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};
+      final added = num.tryParse('${result['added_count'] ?? 0}') ?? 0;
+      if (!mounted) return;
+      if (added > 0) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(
+                '${result['message'] ?? 'Produk ditambahkan kembali ke keranjang.'}')));
+        context.push('/cart');
+      } else {
+        setState(() => _error =
+            '${result['message'] ?? 'Tidak ada produk yang dapat dipesan lagi.'}');
+      }
+    } catch (_) {
+      if (mounted)
+        setState(
+            () => _error = 'Pesanan gagal dimasukkan kembali ke keranjang.');
+    } finally {
+      if (mounted) setState(() => _reordering = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,19 +72,110 @@ class OrderScreen extends StatelessWidget {
                       title: 'Pesanan belum dapat dimuat',
                       message: 'Periksa koneksi lalu coba kembali.');
                 if (!snapshot.hasData) return const AppLoadingView();
-                final orders = snapshot.data!;
+                final orders = snapshot.data!.reversed.toList();
                 if (orders.isEmpty)
                   return const AppStateView(
                       icon: Icons.receipt_long_outlined,
                       title: 'Belum ada pesanan',
                       message:
                           'Pesanan yang sudah dibuat akan tampil dan diperbarui secara realtime.');
-                return ListView.separated(
+                final visible = _filter == 'all'
+                    ? orders
+                    : orders
+                        .where((order) => order['status'] == _filter)
+                        .toList();
+                final latestCompleted = orders
+                    .where((order) => order['status'] == 'completed')
+                    .firstOrNull;
+                const filters = [
+                  ('all', 'Semua'),
+                  ('pending', 'Menunggu'),
+                  ('processing', 'Diproses'),
+                  ('shipping', 'Dikirim'),
+                  ('completed', 'Selesai'),
+                  ('cancelled', 'Batal')
+                ];
+                return ListView(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 110),
-                  itemCount: orders.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) =>
-                      _OrderCard(order: orders[index]),
+                  children: [
+                    SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                            children: filters
+                                .map((item) => Padding(
+                                    padding: const EdgeInsets.only(right: 8),
+                                    child: ChoiceChip(
+                                        label: Text(item.$2),
+                                        selected: _filter == item.$1,
+                                        onSelected: (_) =>
+                                            setState(() => _filter = item.$1))))
+                                .toList())),
+                    if (latestCompleted != null) ...[
+                      const SizedBox(height: 12),
+                      InkWell(
+                          borderRadius: BorderRadius.circular(16),
+                          onTap: _reordering
+                              ? null
+                              : () => _reorder('${latestCompleted['id']}'),
+                          child: Container(
+                              constraints: const BoxConstraints(minHeight: 52),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 10),
+                              decoration: BoxDecoration(
+                                  color: const Color(0xFFFFF7ED),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                      color: const Color(0xFFFFEDD5))),
+                              child: Row(children: [
+                                const Expanded(
+                                    child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                      Text('Pesan lagi dari pesanan terakhir',
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w700,
+                                              color: Color(0xFF7C2D12))),
+                                      SizedBox(height: 2),
+                                      Text(
+                                          'Harga dan stok akan diperiksa kembali',
+                                          style: TextStyle(
+                                              fontSize: 9,
+                                              color: Color(0xFFC2410C)))
+                                    ])),
+                                _reordering
+                                    ? const SizedBox(
+                                        width: 18,
+                                        height: 18,
+                                        child: CircularProgressIndicator(
+                                            strokeWidth: 2))
+                                    : const Icon(Icons.refresh_rounded,
+                                        color: Color(0xFFFF7A00))
+                              ]))),
+                    ],
+                    if (_error.isNotEmpty)
+                      Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                  color: const Color(0xFFFEF2F2),
+                                  borderRadius: BorderRadius.circular(14)),
+                              child: Text(_error,
+                                  style: const TextStyle(
+                                      fontSize: 10, color: Colors.red)))),
+                    const SizedBox(height: 12),
+                    if (visible.isEmpty)
+                      const AppStateView(
+                          icon: Icons.inventory_2_outlined,
+                          title: 'Belum ada pesanan',
+                          message: 'Belum ada pesanan dengan status ini.')
+                    else
+                      ...visible.map((order) => Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: _OrderCard(order: order))),
+                  ],
                 );
               },
             ),

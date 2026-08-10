@@ -1,6 +1,7 @@
 import React from "react";
-import { Search, Bell, ShoppingBag, MapPin } from "lucide-react";
+import { Search, Bell, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import MapsIcon from "../maps/MapsIcon.jsx";
 
 /**
  * Komponen MobileNavbar
@@ -33,7 +34,7 @@ export default function MobileNavbar({
       {/* Baris Atas: Informasi Lokasi & Aksi Cepat (Notifikasi & Keranjang) */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
-          <MapPin size={14} className="text-primary flex-shrink-0" />
+          <MapsIcon size={17}/>
           <span className="truncate max-w-[200px] text-dark font-semibold">{locationText}</span>
         </div>
 

@@ -22,16 +22,7 @@ class AuthService {
     );
     if (response.user?.identities?.isEmpty == true)
       throw const AuthException('Email sudah terdaftar. Silakan masuk.');
-    if (response.session != null) return response;
-    try {
-      return await signIn(email, password);
-    } on AuthException catch (error) {
-      if (error.message.toLowerCase().contains('confirm')) {
-        throw const AuthException(
-            'Pendaftaran berhasil. Konfirmasi email diperlukan sebelum masuk.');
-      }
-      rethrow;
-    }
+    return response;
   }
 
   static Future<void> signOut() => SupabaseService.client.auth.signOut();

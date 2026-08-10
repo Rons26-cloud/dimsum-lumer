@@ -15,6 +15,8 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   int _index = 0;
   bool _showNavigation = true;
+  double _scrollDistance = 0;
+  ScrollDirection _lastDirection = ScrollDirection.idle;
   static const _pages = [
     HomeScreen(),
     ProductScreen(),
@@ -39,7 +41,17 @@ class _MainShellState extends State<MainShell> {
       body: SafeArea(
         child: NotificationListener<UserScrollNotification>(
           onNotification: (event) {
-            final visible = event.direction != ScrollDirection.reverse;
+            if (event.direction != _lastDirection) _scrollDistance = 0;
+            _scrollDistance += event.metrics.pixels.abs();
+            _lastDirection = event.direction;
+            final atTop = event.metrics.pixels < 32;
+            final atBottom = event.metrics.extentAfter < 12;
+            final visible = atTop ||
+                atBottom ||
+                event.direction == ScrollDirection.forward ||
+                !(event.direction == ScrollDirection.reverse &&
+                    event.metrics.pixels > 120 &&
+                    _scrollDistance >= 72);
             if (visible != _showNavigation) {
               setState(() => _showNavigation = visible);
             }
@@ -53,9 +65,9 @@ class _MainShellState extends State<MainShell> {
         curve: Curves.easeOutCubic,
         offset: _showNavigation ? Offset.zero : const Offset(0, 1.5),
         child: SafeArea(
-          minimum: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+          minimum: const EdgeInsets.fromLTRB(12, 0, 12, 8),
           child: Container(
-            height: 56,
+            height: 64,
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: .94),
               borderRadius: BorderRadius.circular(22),
@@ -105,24 +117,24 @@ class _NavItem extends StatelessWidget {
       {required this.icon, required this.label, required this.active});
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 9),
+        padding: const EdgeInsets.symmetric(vertical: 10),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Icon(icon,
-              size: 18,
+              size: 20,
               color: active ? const Color(0xFFFF7A00) : Colors.black87),
           const SizedBox(height: 2),
           Text(label,
               style: TextStyle(
-                  fontSize: 7.5,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
                   color: active ? const Color(0xFFFF7A00) : Colors.black87)),
           const SizedBox(height: 2),
           AnimatedContainer(
               duration: const Duration(milliseconds: 180),
-              width: active ? 14 : 0,
+              width: active ? 16 : 0,
               height: 2,
               decoration: BoxDecoration(
-                  color: const Color(0xFFEF4444),
+                  color: const Color(0xFFFF7A00),
                   borderRadius: BorderRadius.circular(2))),
         ]),
       );
@@ -137,8 +149,8 @@ class _CenterItem extends StatelessWidget {
       Column(mainAxisSize: MainAxisSize.min, children: [
         AnimatedContainer(
             duration: const Duration(milliseconds: 180),
-            width: 42,
-            height: 42,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
                 color:
                     active ? const Color(0xFFFF7A00) : const Color(0xFF171717),
@@ -153,6 +165,6 @@ class _CenterItem extends StatelessWidget {
                 color: Colors.white, size: 20)),
         const SizedBox(height: 1),
         Text(label,
-            style: const TextStyle(fontSize: 7.5, fontWeight: FontWeight.w700)),
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700)),
       ]);
 }

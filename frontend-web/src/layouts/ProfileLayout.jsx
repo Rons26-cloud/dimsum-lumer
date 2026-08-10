@@ -16,10 +16,10 @@ export default function ProfileLayout() {
   const isOverview = pathname === "/profil" || pathname === "/profil/detail";
   return (
     <div className="min-h-dvh flex flex-col bg-gray-50">
-      {!isOverview && <Navbar sticky={false} />}
-      {!isOverview && <div className="overflow-x-auto border-b border-gray-100 bg-white scrollbar-hide md:hidden"><div className="flex min-w-max gap-1 px-3 py-2">{menu.map((m) => <NavLink key={m.to} to={m.to} end className={({isActive}) => clsx('px-3 py-2 rounded-xl text-xs font-semibold', isActive ? 'bg-primary text-white' : 'text-gray-500')}>{m.label}</NavLink>)}</div></div>}
+      {!isOverview && <Navbar />}
+      {!isOverview && <div className="scrollbar-hide sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-20 overflow-x-auto border-b border-gray-100 bg-white/95 backdrop-blur-md md:hidden"><div className="flex min-w-max gap-1 px-3 py-2">{menu.map((m) => <NavLink key={m.to} to={m.to} end className={({isActive}) => clsx('px-3 py-2 rounded-xl text-xs font-semibold', isActive ? 'bg-primary text-white' : 'text-gray-500')}>{m.label}</NavLink>)}</div></div>}
       <div className={`grid w-full flex-1 gap-3 px-3 py-2 pb-[calc(72px+env(safe-area-inset-bottom))] md:mx-auto md:py-5 md:pb-6 ${isOverview ? 'max-w-md' : 'max-w-5xl md:grid-cols-[220px_1fr]'}`}>
-        {!isOverview && <aside className="hidden md:block bg-white rounded-2xl border border-gray-100 p-3 h-fit">
+        {!isOverview && <aside className="sticky top-[calc(5rem+env(safe-area-inset-top))] hidden max-h-[calc(100dvh-6rem)] self-start overflow-y-auto rounded-2xl border border-gray-100 bg-white p-3 md:block">
           {menu.map((m) => (
             <NavLink
               key={m.to}

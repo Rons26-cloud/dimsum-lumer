@@ -1,17 +1,8 @@
-/**
- * Komponen Footer
- * Menampilkan informasi footer web untuk tampilan desktop.
- */
 export default function Footer({ className = "" }) {
-  return (
-    <footer className={`hidden md:block bg-dark text-gray-300 mt-16 ${className}`.trim()}>
-      <div className="max-w-6xl mx-auto px-4 py-10 text-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div>
-          <p className="text-white font-bold text-lg mb-1">Dimsum Lumer</p>
-          <p className="max-w-xs text-gray-400">Dimsum lumer autentik, dibuat segar setiap hari.</p>
-        </div>
-        <p className="text-gray-500 text-xs">© {new Date().getFullYear()} Dimsum Lumer. All rights reserved.</p>
-      </div>
-    </footer>
-  );
+  return <footer className={`mt-16 hidden bg-dark text-gray-300 md:block ${className}`.trim()}>
+    <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-4 py-10 md:flex-row md:items-center">
+      <div><p className="mb-1 text-lg font-bold text-white">Dimsum Lumer</p><p className="max-w-sm text-sm leading-6 text-gray-400">Gurih di Luar, Lumer di Dalam. Dibuat dengan perhatian pada rasa, kualitas, dan setiap detail penyajian.</p></div>
+      <p className="text-xs text-gray-500">© {new Date().getFullYear()} Dimsum Lumer.<br/>Hak cipta dilindungi.</p>
+    </div>
+  </footer>;
 }

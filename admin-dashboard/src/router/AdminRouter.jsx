@@ -7,6 +7,7 @@ import PermissionRoute from "./PermissionRoute.jsx";
 const DashboardLayout=lazy(()=>import("../layouts/DashboardLayout.jsx"));
 const AuthLayout=lazy(()=>import("../layouts/AuthLayout.jsx"));
 const LoginAdmin=lazy(()=>import("../pages/LoginAdmin.jsx"));
+const MfaAdmin=lazy(()=>import("../pages/MfaAdmin.jsx"));
 const DashboardHome=lazy(()=>import("../pages/Dashboard/DashboardHome.jsx"));
 const Product=lazy(()=>import("../pages/Product/index.jsx"));
 const FlashSale=lazy(()=>import("../pages/FlashSale/index.jsx"));
@@ -26,10 +27,14 @@ const AdminAccount=lazy(()=>import("../pages/AdminAccount/index.jsx"));
 const StoreMap=lazy(()=>import("../pages/Store/MapSettings.jsx"));
 const StoreHours=lazy(()=>import("../pages/Store/OperatingHours.jsx"));
 const Statistics=lazy(()=>import("../pages/Report/Statistics.jsx"));
+const Maintenance=lazy(()=>import("../pages/Maintenance/index.jsx"));
+const Notification=lazy(()=>import("../pages/Notification/index.jsx"));
+const SystemCenter=lazy(()=>import("../pages/SystemCenter/index.jsx"));
 
 export default function AdminRouter() {
   return <Suspense fallback={<Loading fullscreen/>}><Routes>
     <Route element={<AuthLayout/>}><Route path="/login" element={<LoginAdmin/>}/></Route>
+    <Route path="/mfa" element={<ProtectedAdminRoute><MfaAdmin/></ProtectedAdminRoute>}/>
     <Route element={<ProtectedAdminRoute><DashboardLayout/></ProtectedAdminRoute>}>
       <Route index element={<DashboardHome/>}/>
       <Route path="produk" element={<Product/>}/><Route path="kategori" element={<Category/>}/>
@@ -39,7 +44,10 @@ export default function AdminRouter() {
       <Route path="laporan-penjualan" element={<Report/>}/><Route path="statistik" element={<Statistics/>}/>
       <Route path="apk" element={<PermissionRoute allow={["superadmin"]}><Apk/></PermissionRoute>}/>
       <Route path="pengaturan-umum" element={<Settings/>}/>
+      <Route path="maintenance" element={<Maintenance/>}/>
       <Route path="akun-admin" element={<AdminAccount/>}/>
+      <Route path="notifikasi" element={<Notification/>}/>
+      <Route path="pusat-sistem" element={<SystemCenter/>}/>
       <Route path="banner-promo" element={<Banner/>}/><Route path="wishlist" element={<Wishlist/>}/>
       <Route path="pengaturan-map" element={<StoreMap/>}/><Route path="jam-operasional" element={<StoreHours/>}/>
       <Route path="*" element={<ComingSoon title="Halaman tidak ditemukan"/>}/>

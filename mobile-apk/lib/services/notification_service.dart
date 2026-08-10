@@ -32,4 +32,13 @@ class NotificationService {
         .eq('user_id', currentUserId)
         .eq('is_read', false);
   }
+
+  static Future<void> deleteAll() async {
+    final currentUserId = userId;
+    if (currentUserId == null) return;
+    await SupabaseService.client
+        .from('notifications')
+        .delete()
+        .eq('user_id', currentUserId);
+  }
 }

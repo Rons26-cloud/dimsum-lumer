@@ -35,6 +35,19 @@ class ProductImage extends StatelessWidget {
   const ProductImage(
       {super.key, required this.product, this.fit = BoxFit.cover});
   @override
-  Widget build(BuildContext context) => Image.asset(productAsset(product),
-      fit: fit, width: double.infinity, height: double.infinity);
+  Widget build(BuildContext context) {
+    final networkUrl =
+        '${product['image_url'] ?? product['image'] ?? ''}'.trim();
+    final fallback = productAsset(product);
+    if (Uri.tryParse(networkUrl)?.scheme == 'https') {
+      return Image.network(networkUrl,
+          fit: fit,
+          width: double.infinity,
+          height: double.infinity,
+          errorBuilder: (_, __, ___) => Image.asset(fallback,
+              fit: fit, width: double.infinity, height: double.infinity));
+    }
+    return Image.asset(fallback,
+        fit: fit, width: double.infinity, height: double.infinity);
+  }
 }

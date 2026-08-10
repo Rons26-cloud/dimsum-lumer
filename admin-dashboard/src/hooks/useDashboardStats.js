@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { getDashboardData, subscribeDashboard } from "../services/dashboardService.js";
 
-const INITIAL = { stats: { totalOrders: 0, totalSales: 0, newCustomers: 0, productsSold: 0 }, salesChart: [], categories: [], bestSellers: [], orderStatuses: {}, recentOrders: [], storeInfo: {}, apkVersion: {}, apkStorage: { bytes: 0, files: 0 }, loading: true, refreshing: false, realtimeStatus: "CONNECTING", lastUpdated: null, error: "" };
+const INITIAL = { stats: { totalOrders: 0, totalSales: 0, newCustomers: 0, productsSold: 0 }, salesChart: [], categories: [], bestSellers: [], productCatalog: [], orderStatuses: {}, recentOrders: [], storeInfo: {}, apkVersion: {}, apkStorage: { bytes: 0, files: 0 }, loading: true, refreshing: false, realtimeStatus: "CONNECTING", lastUpdated: null, error: "" };
 
 export function useDashboardStats() {
   const [state, setState] = useState(INITIAL);

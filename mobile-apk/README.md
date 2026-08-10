@@ -1,17 +1,58 @@
-# dimsum_lumer
+# Dimsum Lumer Mobile
 
-A new Flutter project.
+Aplikasi pelanggan Dimsum Lumer berbasis Flutter dan Supabase. Aplikasi
+menyediakan katalog produk, keranjang, checkout, pesanan tamu, wishlist,
+notifikasi, serta konfigurasi toko secara realtime.
 
-## Getting Started
+## Persyaratan
 
-This project is a starting point for a Flutter application.
+- Flutter dengan Dart `>=3.3.0 <4.0.0`
+- Android SDK untuk build Android
+- Project Supabase yang sudah memiliki tabel dan RPC yang digunakan aplikasi
 
-A few resources to get you started if this is your first Flutter project:
+## Konfigurasi
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+Salin `.env.example` menjadi `.env`, lalu isi konfigurasi lokal:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```env
+SUPABASE_URL=https://example.supabase.co
+SUPABASE_ANON_KEY=your-publishable-key
+ADMIN_WA_NUMBER=628xxxxxxxxxx
+```
+
+Jangan commit `.env`. File tersebut sudah dikecualikan melalui `.gitignore`.
+Gunakan hanya publishable/anonymous key pada aplikasi mobile; jangan pernah
+menaruh service-role key di dalam APK.
+
+## Menjalankan aplikasi
+
+```powershell
+flutter pub get
+flutter run
+```
+
+Validasi proyek:
+
+```powershell
+dart format --output=none --set-exit-if-changed lib test
+dart analyze lib test
+flutter test
+```
+
+## Struktur
+
+```text
+lib/
+├── config/       konfigurasi aplikasi
+├── models/       model domain
+├── router/       definisi navigasi
+├── screens/      halaman berdasarkan fitur
+├── security/     validasi input dan sanitasi error
+├── services/     akses Supabase dan operasi bisnis
+├── theme/        tema global
+├── widgets/      widget bersama
+└── main.dart     bootstrap aplikasi
+```
+
+SQL kebijakan keamanan dan petunjuk hardening Supabase tersedia di folder
+`security/`.

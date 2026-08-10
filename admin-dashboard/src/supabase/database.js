@@ -2,7 +2,9 @@ import { supabase } from "./client.js";
 import { TABLES } from "./constants.js";
 import { safeId } from "../utils/security.js";
 
-const ALLOWED_TABLES = new Set([...Object.values(TABLES), "wishlist", "apk_versions", "store_settings"]);
+// Satu sumber whitelist untuk seluruh query Dashboard. Tabel baru wajib
+// didaftarkan di constants agar hook realtime dan operasi CRUD tetap konsisten.
+const ALLOWED_TABLES = new Set(Object.values(TABLES));
 const IDENTIFIER = /^[a-z_][a-z0-9_]*$/i;
 const SELECT_EXPRESSION = /^[a-z0-9_*,()\s]+$/i;
 

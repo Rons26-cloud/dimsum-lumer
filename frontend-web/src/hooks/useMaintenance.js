@@ -10,6 +10,8 @@ import { TABLES } from '../supabase/constants.js';
 export function useMaintenance() {
   const [isMaintenance, setIsMaintenance] = useState(false);
   const [message, setMessage] = useState('');
+  const [startTime, setStartTime] = useState(null);
+  const [endTime, setEndTime] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,7 +21,9 @@ export function useMaintenance() {
       try {
         const { data, error } = await supabase
           .from(TABLES.MAINTENANCE)
-          .select("is_active, message, start_time, end_time, target")
+          // Gunakan * agar tetap kompatibel dengan schema lama yang belum
+          // memiliki start_time/end_time. Nilai jadwal dibaca bila tersedia.
+          .select("*")
           .eq("target", "frontend-web")
           .maybeSingle();
 
@@ -43,15 +47,21 @@ export function useMaintenance() {
 
           setIsMaintenance(isActive);
           setMessage(data.message ?? '');
+          setStartTime(data.start_time ?? null);
+          setEndTime(data.end_time ?? null);
         } else {
           setIsMaintenance(false);
           setMessage('');
+          setStartTime(null);
+          setEndTime(null);
         }
       } catch (err) {
         console.error('Gagal memeriksa status pemeliharaan:', err);
         if (isMounted) {
           setIsMaintenance(false);
           setMessage('');
+          setStartTime(null);
+          setEndTime(null);
         }
       } finally {
         if (isMounted) {
@@ -83,5 +93,5 @@ export function useMaintenance() {
     };
   }, []);
 
-  return { isMaintenance, message, loading };
+  return { isMaintenance, message, startTime, endTime, loading };
 }

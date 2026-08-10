@@ -27,7 +27,7 @@ export default defineConfig(({ command }) => {
     react(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["logo.png", "favicon.ico"],
+      includeAssets: ["logo.png", "icon-192.png", "apple-touch-icon.png", "favicon.ico", "favicon-32.png", "favicon-16.png"],
       manifest: {
         name: "Dimsum Lumer",
         short_name: "Dimsum Lumer",
@@ -39,13 +39,16 @@ export default defineConfig(({ command }) => {
         start_url: "/",
         scope: "/",
         icons: [
-          { src: "logo.png", sizes: "192x192", type: "image/png" },
+          { src: "icon-192.png", sizes: "192x192", type: "image/png" },
           { src: "logo.png", sizes: "512x512", type: "image/png" },
           { src: "logo.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
         ],
       },
       workbox: {
         cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
+        navigateFallback: "/index.html",
         globPatterns: ["**/*.{js,css,html,svg,ico}"],
         runtimeCaching: [
           {

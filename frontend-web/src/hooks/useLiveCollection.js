@@ -10,19 +10,20 @@ import { subscribeToTable } from "../supabase/realtime.js";
  */
 export function useLiveCollection(table, options = {}) {
   const [data, setData] = useState(null);
+  const optionsKey = JSON.stringify(options);
 
   useEffect(() => {
     let mounted = true;
 
+    const currentOptions = JSON.parse(optionsKey);
     const load = () => {
-      getAll(table, options)
+      getAll(table, currentOptions)
         .then((rows) => {
           if (mounted) setData(rows);
         })
         .catch((error) => {
           console.error(`Gagal memuat ${table}:`, error?.message || error);
-          // Jangan menghapus data yang sudah tampil hanya karena koneksi
-          // realtime terputus sesaat.
+          // Pertahankan snapshot terakhir saat koneksi terputus.
           if (mounted) setData((current) => current ?? []);
         });
     };
@@ -39,8 +40,7 @@ export function useLiveCollection(table, options = {}) {
         unsubscribe();
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [table]);
+  }, [table, optionsKey]);
 
   return data;
 }

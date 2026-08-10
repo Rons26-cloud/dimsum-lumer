@@ -5,9 +5,14 @@ import MaintenanceGuard from "./components/maintenance/MaintenanceGuard.jsx";
 import DevicePreviewFrame from "./components/layout/DevicePreviewFrame.jsx";
 import AppErrorBoundary from "./components/maintenance/AppErrorBoundary.jsx";
 import CartRealtimeSync from "./components/cart/CartRealtimeSync.jsx";
+import PullToRefresh from "./components/layout/PullToRefresh.jsx";
 
 const DESKTOP_BREAKPOINT = 1024;
 const OVERRIDE_KEY = "dimsumFrameMode"; // "frame" | "full" | null (null = otomatis)
+const safeSession = {
+  get(key) { try { return window.sessionStorage.getItem(key); } catch { return null; } },
+  set(key, value) { try { window.sessionStorage.setItem(key, value); } catch { /* mode privat */ } },
+};
 
 function isEmbedded() {
   try {
@@ -19,7 +24,7 @@ function isEmbedded() {
 
 function computeMode() {
   if (isEmbedded()) return "full"; // konten di dalam iframe bingkai — tampilkan apa adanya
-  const override = sessionStorage.getItem(OVERRIDE_KEY);
+  const override = safeSession.get(OVERRIDE_KEY);
   if (override === "frame" || override === "full") return override;
   return window.innerWidth >= DESKTOP_BREAKPOINT ? "frame" : "full";
 }
@@ -40,12 +45,12 @@ export default function App() {
   }, []);
 
   const exitFrame = () => {
-    sessionStorage.setItem(OVERRIDE_KEY, "full");
+    safeSession.set(OVERRIDE_KEY, "full");
     setMode("full");
   };
 
   const enterFrame = () => {
-    sessionStorage.setItem(OVERRIDE_KEY, "frame");
+    safeSession.set(OVERRIDE_KEY, "frame");
     setMode("frame");
   };
 
@@ -58,8 +63,10 @@ export default function App() {
   return (
     <AppErrorBoundary>
     <MaintenanceGuard>
-      <CartRealtimeSync />
-      <AppRouter />
+      <PullToRefresh>
+        <CartRealtimeSync />
+        <AppRouter />
+      </PullToRefresh>
       {/* Tombol kembali ke bingkai HP — hanya berguna & tampil di layar lebar */}
       {isWide && !isEmbedded() && (
         <button

@@ -32,8 +32,8 @@ html, body {
 
 #root {
   min-height: 100dvh;
-  /* aman untuk notch / safe area saat dijalankan sebagai PWA fullscreen */
-  padding-top: env(safe-area-inset-top);
+  /* Safe-area atas ditangani header agar tidak terhitung dua kali. */
+  padding-top: 0;
   /* Safe-area bawah ditangani oleh layout/nav agar tidak dihitung dua kali. */
   padding-bottom: 0;
 }
@@ -45,11 +45,21 @@ button, a { touch-action: manipulation; }
 input, select, textarea { font-size: 16px; }
 @media (min-width: 640px) { input, select, textarea { font-size: inherit; } }
 
+/* Hindari micro-text yang sulit dibaca pada layar HP. Desktop tetap memakai
+   skala asli agar kepadatan dashboard/layout lebar tidak berubah. */
+@media (max-width: 639px) {
+  #root [class~="text-[7px]"],
+  #root [class~="text-[8px]"] { font-size: 0.625rem; }
+  #root [class~="text-[9px]"] { font-size: 0.6875rem; }
+  #root [class~="text-[10px]"] { font-size: 0.75rem; }
+}
+
 /* Header halaman lengkap tetap terlihat ketika isi halaman digulir. */
 #root header:not(.fixed) {
   position: sticky !important;
   top: 0;
   z-index: 30;
+  padding-top: max(env(safe-area-inset-top), 0.375rem);
   background-color: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -153,4 +163,7 @@ main > main.max-w-xl > div:first-child > button[aria-label="Kembali"] {
   background: transparent !important;
   box-shadow: none !important;
   backdrop-filter: none !important;
+}
+html {
+  overscroll-behavior-y: contain;
 }

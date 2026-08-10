@@ -19,7 +19,7 @@ import LogoutSection from "../sections/profile/LogoutSection.jsx";
 
 export default function Profile() {
   const navigate=useNavigate();const {user,loading:authLoading}=useAuth();const {profile,loading:profileLoading}=useProfile();const summary=usePoint(profile?.point ?? 0);const {unreadCount}=useNotifications();const {ids}=useWishlist();const rewards=useLiveCollection(TABLES.REWARDS);const [confirmLogout,setConfirmLogout]=useState(false);
-  const go=(path)=>()=>navigate(path);const support=()=>{const number=(import.meta.env.VITE_ADMIN_WA_NUMBER||'').replace(/\D/g,'');if(number)window.open(`https://wa.me/${number}?text=${encodeURIComponent('Halo Admin Dimsum Lumer, saya membutuhkan bantuan.')}`,'_blank','noopener,noreferrer');};
+  const go=(path)=>()=>navigate(path);
   const primary=[
     {icon:Package,title:'Pesanan Saya',subtitle:`${summary.orders.total} total pesanan`,onClick:go('/orders')},
     {icon:Heart,title:'Favorit',subtitle:`${ids.size} produk tersimpan`,onClick:go('/wishlist')},
@@ -32,10 +32,10 @@ export default function Profile() {
     {icon:Bell,title:'Notifikasi',subtitle:`${unreadCount} belum dibaca`,onClick:go('/notifikasi')},
   ];
   const information=[
-    {icon:CircleHelp,title:'Bantuan',subtitle:'Hubungi layanan pelanggan',onClick:support},
-    {icon:HelpCircle,title:'FAQ',subtitle:'Pertanyaan yang sering diajukan',onClick:go('/profil/detail?section=faq')},
-    {icon:ShieldCheck,title:'Kebijakan Privasi',subtitle:'Perlindungan dan penggunaan data',onClick:go('/profil/detail?section=privacy')},
-    {icon:Info,title:'Tentang Kami',subtitle:'Tentang Dimsum Lumer',onClick:go('/profil/detail?section=about')},
+    {icon:CircleHelp,title:'Bantuan',subtitle:'Hubungi layanan pelanggan',onClick:go('/profil/informasi/bantuan')},
+    {icon:HelpCircle,title:'FAQ',subtitle:'Pertanyaan yang sering diajukan',onClick:go('/profil/informasi/faq')},
+    {icon:ShieldCheck,title:'Kebijakan Privasi',subtitle:'Perlindungan dan penggunaan data',onClick:go('/profil/informasi/privasi')},
+    {icon:Info,title:'Tentang Kami',subtitle:'Cerita, visi, misi, dan nilai kami',onClick:go('/profil/informasi/tentang')},
     {icon:Settings,title:'Pengaturan',subtitle:'Profil dan preferensi akun',onClick:go('/profil/detail')},
   ];
   const logout=async()=>{await signOut();setConfirmLogout(false);navigate('/');};

@@ -1,5 +1,6 @@
 import { supabase } from "../supabase/client.js";
 import { cleanText, safeNumber } from "../utils/security.js";
+import { validateApkFile } from "../supabase/storage.js";
 
 export const DEFAULT_STORE_INFO = {
   name: "Dimsum Lumer - Hongkong Fashion", address: "Hongkong Fashion, Jalan Sisingamangaraja, Sudirejo II, Medan Amplas, Kota Medan, Sumatera Utara 20147", latitude: 3.570776, longitude: 98.694665, phone: "6288807597952", is_open: true, open_time: "10:00", close_time: "22:00",
@@ -10,7 +11,21 @@ export const DEFAULT_APK_VERSION = {
 const CONFIG_KEYS = new Set(["store_info", "apk_version", "home_banners"]);
 const ORDER_STATUSES = new Set(["pending", "processing", "shipping", "completed", "cancelled"]);
 const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
-const MAX_APK_SIZE = 200 * 1024 * 1024;
+
+function safeApkUrl(value) {
+  if (!value) return "";
+  let url;
+  try { url = new URL(String(value)); } catch { throw new Error("URL APK tidak valid."); }
+  const supabaseHost = (() => { try { return new URL(import.meta.env.VITE_SUPABASE_URL).host.toLowerCase(); } catch { return ""; } })();
+  const allowedHosts = new Set([
+    supabaseHost,
+    ...(import.meta.env.VITE_APK_ALLOWED_HOSTS || "").split(",").map((host) => host.trim().toLowerCase()),
+  ].filter(Boolean));
+  if (url.protocol !== "https:" || url.username || url.password || !allowedHosts.has(url.host.toLowerCase()) || !url.pathname.toLowerCase().endsWith(".apk")) {
+    throw new Error("URL APK wajib HTTPS, berakhiran .apk, dan berasal dari domain distribusi resmi.");
+  }
+  return url.toString();
+}
 
 const unwrapConfig = (row, fallback) => ({ ...fallback, ...(row?.value || row?.config_value || {}) });
 const orderTotal = (order) => Number(order.total_price ?? order.total_amount ?? order.total ?? 0);
@@ -63,10 +78,11 @@ export async function getConfig(key, fallback = {}) {
 export async function updateConfig(key, value) {
   if (!CONFIG_KEYS.has(key)) throw new Error("Konfigurasi tidak diizinkan.");
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Nilai konfigurasi tidak valid.");
-  const payload = { key, value, updated_at: new Date().toISOString() };
+  const normalizedValue = key === "apk_version" ? { ...value, download_url: safeApkUrl(value.download_url) } : value;
+  const payload = { key, value: normalizedValue, updated_at: new Date().toISOString() };
   const { data, error } = await supabase.from("app_config").upsert(payload, { onConflict: "key" }).select().single();
   if (error) throw error;
-  return unwrapConfig(data, value);
+  return unwrapConfig(data, normalizedValue);
 }
 
 export async function updateStoreInfo(value) {
@@ -92,8 +108,7 @@ export async function updateStoreInfo(value) {
 export async function uploadApk(file, version, onProgress) {
   if (!file) return null;
   if (!VERSION_PATTERN.test(version || "")) throw new Error("Nomor versi harus menggunakan format x.y.z.");
-  if (!/\.apk$/i.test(file.name || "")) throw new Error("File yang dipilih harus berformat APK.");
-  if (file.size > MAX_APK_SIZE) throw new Error("Ukuran APK maksimal 200 MB.");
+  await validateApkFile(file);
   const safeVersion = version.replace(/[^0-9A-Za-z._-]/g, "-");
   const path = `releases/dimsum-lumer-${safeVersion}-${Date.now()}.apk`;
   onProgress?.(10);
@@ -103,14 +118,20 @@ export async function uploadApk(file, version, onProgress) {
     throw error;
   }
   onProgress?.(100);
-  return { url: supabase.storage.from("apk").getPublicUrl(path).data.publicUrl, size: file.size, path };
+  const digest = await crypto.subtle.digest("SHA-256", await file.arrayBuffer());
+  const sha256 = [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+  return { url: supabase.storage.from("apk").getPublicUrl(path).data.publicUrl, size: file.size, path, sha256 };
 }
 
 export async function updateOrderStatus(id, status) {
   if (!id) throw new Error("ID pesanan tidak valid.");
   if (!ORDER_STATUSES.has(status)) throw new Error("Status pesanan tidak valid.");
-  const { error } = await supabase.from("orders").update({ status, updated_at: new Date().toISOString() }).eq("id", id);
-  if (error) throw error;
+  let response = await supabase.from("orders").update({ status, updated_at: new Date().toISOString() }).eq("id", id).select("id").maybeSingle();
+  if (response.error && (response.error.code === "42703" || /updated_at.*does not exist|schema cache/i.test(response.error.message || ""))) {
+    response = await supabase.from("orders").update({ status }).eq("id", id).select("id").maybeSingle();
+  }
+  if (response.error) throw response.error;
+  if (!response.data?.id) throw new Error("Status pesanan tidak berubah. Periksa izin admin Supabase.");
 }
 
 export async function getDashboardData() {
@@ -139,12 +160,23 @@ export async function getDashboardData() {
     const current = bestSellerMap.get(item.product_id) || { id: item.product_id, name: item.product_name || product?.name || "Produk", image_url: product?.image_url, price: item.price ?? product?.price, sold: 0 };
     current.sold += Number(item.quantity || 0); bestSellerMap.set(item.product_id, current);
   });
+  const productCatalog = [...products]
+    .map((product) => ({
+      ...product,
+      name: product.name || product.nama || "Produk tanpa nama",
+      description: product.description || product.deskripsi || "",
+      price: Number(product.price ?? product.harga ?? 0),
+      image_url: product.image_url || product.image || product.gambar || null,
+      stock: Number(product.stock ?? 0),
+      is_active: product.is_active ?? product.status !== "nonaktif",
+    }))
+    .sort((a, b) => Number(b.is_active) - Number(a.is_active) || a.name.localeCompare(b.name, "id"));
   const categoryData = categories.map((category) => ({ name: category.name, value: products.filter((p) => p.category_id === category.id).length }));
   const statuses = orders.reduce((acc, order) => { const key = normalizedStatus(order.status); acc[key] = (acc[key] || 0) + 1; return acc; }, {});
   return {
     stats: { totalOrders: orders.length, totalSales: validOrders.reduce((sum, o) => sum + orderTotal(o), 0), newCustomers: profiles.filter((p) => p.created_at && new Date(p.created_at) >= weekStart).length, productsSold: completedItems.reduce((sum, item) => sum + Number(item.quantity || 0), 0) },
     salesChart: byDay, categories: categoryData, bestSellers: [...bestSellerMap.values()].sort((a, b) => b.sold - a.sold).slice(0, 5),
-    orderStatuses: statuses, recentOrders: [...orders].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5).map((order) => ({ ...order, customer_name: order.customer_name || profilesById.get(order.user_id)?.full_name })), storeInfo, apkVersion, apkStorage,
+    orderStatuses: statuses, productCatalog, recentOrders: [...orders].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5).map((order) => ({ ...order, customer_name: order.customer_name || profilesById.get(order.user_id)?.full_name })), storeInfo, apkVersion, apkStorage,
   };
 }
 

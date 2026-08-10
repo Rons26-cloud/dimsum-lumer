@@ -7,7 +7,6 @@ import PopularProductSection from "../sections/home/PopularProductSection.jsx";
 import RecommendationSection from "../sections/home/RecommendationSection.jsx";
 import OutletMapSection from "../sections/home/OutletMapSection.jsx";
 import CustomerReviewSection from "../sections/home/CustomerReviewSection.jsx";
-import FAQSection from "../sections/home/FAQSection.jsx";
 import InstallAppCard from "../components/pwa/InstallAppCard.jsx";
 
 export default function Home() {
@@ -17,13 +16,12 @@ export default function Home() {
       <HeroSliderSection />
       <InstallAppCard />
       <CategorySection />
+      <OutletMapSection />
       <PopularProductSection />
       <PromoSection />
       <FlashSaleSection />
       <RecommendationSection />
-      <OutletMapSection />
       <CustomerReviewSection />
-      <FAQSection />
     </div>
   );
 }

@@ -1,6 +1,7 @@
-import { Map, MessageCircle, Phone, RefreshCw, Star } from "lucide-react";
+import { MessageCircle, Phone, RefreshCw, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { safeExternalUrl } from "../../utils/security.js";
+import MapsIcon from "../../components/maps/MapsIcon.jsx";
 
 export default function NotificationFooter({notification,order,onTrack}){
   const meta=notification.metadata||{};
@@ -11,7 +12,7 @@ export default function NotificationFooter({notification,order,onTrack}){
   const actions=[
     {label:'Chat Driver',Icon:MessageCircle,url:wa&&`https://wa.me/${wa}`},
     {label:'Telepon',Icon:Phone,url:phone&&`tel:${phone}`},
-    {label:'Google Maps',Icon:Map,url:maps},
+    {label:'Google Maps',Icon:MapsIcon,url:maps},
     {label:'Lacak',Icon:RefreshCw,onClick:order?.id?onTrack:null},
     {label:'Nilai',Icon:Star,to:order?.id&&`/orders?rate=${order.id}`},
     {label:'Pesan Lagi',Icon:RefreshCw,to:order?.id&&`/orders?reorder=${order.id}`},

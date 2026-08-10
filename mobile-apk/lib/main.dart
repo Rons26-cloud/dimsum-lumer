@@ -7,6 +7,8 @@ import 'router/app_router.dart';
 import 'theme/app_theme.dart';
 import 'services/supabase_realtime_service.dart';
 import 'services/app_config_service.dart';
+import 'services/supabase_service.dart';
+import 'screens/maintenance/maintenance_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -121,23 +123,45 @@ class _RealtimeGateState extends State<_RealtimeGate> {
   @override
   Widget build(BuildContext context) {
     final config = RealtimeAppConfig.instance;
-    return Column(children: [
-      if (!config.isStoreOpen)
-        Material(
-            color: const Color(0xFFFFF3CD),
-            child: SafeArea(
-                bottom: false,
-                child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(8),
-                    child: const Text(
-                        'Toko sedang tutup. Pemesanan sementara dinonaktifkan.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF7A5200)))))),
-      Expanded(child: widget.child)
-    ]);
+    return StreamBuilder<List<Map<String, dynamic>>>(
+      stream: SupabaseService.watchMaintenance(),
+      builder: (context, snapshot) {
+        Map<String, dynamic>? maintenance;
+        for (final row in snapshot.data ?? const <Map<String, dynamic>>[]) {
+          if (row['target'] == 'mobile-apk') maintenance = row;
+        }
+        final now = DateTime.now();
+        final start =
+            DateTime.tryParse('${maintenance?['start_time'] ?? ''}')?.toLocal();
+        final end =
+            DateTime.tryParse('${maintenance?['end_time'] ?? ''}')?.toLocal();
+        final scheduledNow = (start == null || !now.isBefore(start)) &&
+            (end == null || !now.isAfter(end));
+        if (maintenance?['is_active'] == true && scheduledNow) {
+          return MaintenanceScreen(
+              message: maintenance?['message'] as String?,
+              startTime: start,
+              endTime: end);
+        }
+        return Column(children: [
+          if (!config.isStoreOpen)
+            Material(
+                color: const Color(0xFFFFF3CD),
+                child: SafeArea(
+                    bottom: false,
+                    child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(8),
+                        child: const Text(
+                            'Toko sedang tutup. Pemesanan sementara dinonaktifkan.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF7A5200)))))),
+          Expanded(child: widget.child)
+        ]);
+      },
+    );
   }
 }

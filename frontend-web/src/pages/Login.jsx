@@ -97,7 +97,7 @@ export default function Login() {
           </div>
 
           <div className="flex justify-end">
-            <button type="button" onClick={()=>navigate('/reset-password')} className="text-orange-600 hover:text-orange-700 text-xs font-semibold">
+            <button type="button" onClick={()=>navigate('/forgot-password')} className="text-orange-600 hover:text-orange-700 text-xs font-semibold">
               Lupa Kata Sandi?
             </button>
           </div>

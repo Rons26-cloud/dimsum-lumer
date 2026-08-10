@@ -2,10 +2,11 @@ import { NavLink, useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import {
   LayoutDashboard, Package, Tag, Image, Percent, Receipt, Users, Heart, Zap,
-  MapPin, Map, Clock, BarChart3, FileText, Settings, UserCog, LogOut,
+  MapPin, Clock, BarChart3, FileText, Settings, UserCog, LogOut, Wrench, BellRing, ServerCog,
 } from "lucide-react";
 import logo from "../../assets/logo/logo.png";
 import { signOutAdmin } from "../../services/authService.js";
+import GoogleMapsLogo from "../ui/GoogleMapsLogo.jsx";
 
 const menuGroups = [
   {
@@ -26,7 +27,7 @@ const menuGroups = [
     title: "TOKO & LOKASI",
     items: [
       { to: "/lokasi-toko", label: "Lokasi Toko", Icon: MapPin },
-      { to: "/pengaturan-map", label: "Pengaturan Map", Icon: Map },
+      { to: "/pengaturan-map", label: "Pengaturan Map", Icon: GoogleMapsLogo },
       { to: "/jam-operasional", label: "Jam Operasional", Icon: Clock },
     ],
   },
@@ -40,14 +41,29 @@ const menuGroups = [
   {
     title: "PENGATURAN",
     items: [
+      { to: "/maintenance", label: "Maintenance", Icon: Wrench },
       { to: "/pengaturan-umum", label: "Pengaturan Umum", Icon: Settings },
       { to: "/akun-admin", label: "Akun Admin", Icon: UserCog },
+      { to: "/notifikasi", label: "Notifikasi Admin", Icon: BellRing },
+      { to: "/pusat-sistem", label: "Pusat Sistem", Icon: ServerCog },
     ],
   },
 ];
 
 export default function Sidebar({ open, onClose }) {
   const navigate = useNavigate();
+  const handleMenuNavigation = (event, to) => {
+    // Pastikan halaman akun dibuka oleh React Router. Pada beberapa hosting,
+    // request URL baru dapat terkena fallback dan kembali ke Dashboard utama.
+    if (to === "/akun-admin") {
+      event.preventDefault();
+      onClose?.();
+      navigate("/akun-admin", { replace: false });
+      window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "instant" }));
+      return;
+    }
+    onClose?.();
+  };
   const handleSignOut = async () => {
     try { onClose?.(); await signOutAdmin(); navigate("/login", { replace: true }); }
     catch (error) { console.error("Logout gagal", error); }
@@ -78,16 +94,22 @@ export default function Sidebar({ open, onClose }) {
                   key={to}
                   to={to}
                   end={end}
-                  onClick={onClose}
+                  onClick={(event) => handleMenuNavigation(event, to)}
                   className={({ isActive }) =>
                     clsx(
-                      "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium mb-0.5 transition-colors",
-                      isActive ? "bg-primary text-white" : "text-gray-600 hover:bg-gray-50"
+                      "relative mb-0.5 flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm font-medium transition-all",
+                      isActive
+                        ? "border-orange-600 bg-orange-500 font-bold text-white shadow-md shadow-orange-200"
+                        : "border-transparent text-gray-600 hover:border-gray-100 hover:bg-gray-50 hover:text-gray-900"
                     )
                   }
                 >
-                  <Icon size={17} strokeWidth={2} />
-                  {label}
+                  {({ isActive }) => <>
+                    {isActive && <span className="absolute -left-1 h-6 w-1 rounded-full bg-gray-900" aria-hidden="true"/>}
+                    <span className={clsx("grid h-7 w-7 place-items-center rounded-lg", isActive ? "bg-white/20 text-white" : "text-gray-500")}><Icon size={17} strokeWidth={isActive ? 2.6 : 2}/></span>
+                    <span className={isActive ? "text-white" : "text-inherit"}>{label}</span>
+                    {isActive && <span className="ml-auto h-2 w-2 rounded-full bg-white ring-4 ring-white/20" aria-label="Menu aktif"/>}
+                  </>}
                 </NavLink>
               ))}
             </div>

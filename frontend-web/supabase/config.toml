@@ -1,0 +1,10 @@
+[functions.create-payment]
+# Preflight OPTIONS tidak membawa JWT. Auth user tetap diverifikasi di dalam
+# function menggunakan supabase.auth.getUser() sebelum data pesanan dibaca.
+verify_jwt = false
+
+[functions.payment-webhook]
+verify_jwt = false
+
+[functions.get-payment-proof]
+verify_jwt = false

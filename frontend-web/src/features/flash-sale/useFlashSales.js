@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '../../supabase/client.js';
 import { mergeProductCatalog, resolveProductImage } from '../products/productAssets.js';
+import { runtimeId } from '../../utils/runtimeId.js';
 
 function createFallbackSales(products = []) {
   const startsAt = new Date(Date.now() - 60_000).toISOString();
@@ -39,7 +40,7 @@ export function useFlashSales() {
   },[]);
   useEffect(() => {
     load();
-    let channel=supabase.channel(`customer-flash-sales-${crypto.randomUUID()}`).on('postgres_changes',{ event:'*', schema:'public', table:'products' },load);
+    let channel=supabase.channel(`customer-flash-sales-${runtimeId()}`).on('postgres_changes',{ event:'*', schema:'public', table:'products' },load);
     if(import.meta.env.VITE_FLASH_SALES_TABLE==='true') channel=channel.on('postgres_changes',{ event:'*', schema:'public', table:'flash_sales' },load);
     channel=channel.subscribe();
     return () => { supabase.removeChannel(channel); };

@@ -30,18 +30,32 @@ export function useLiveCollection(table, options = {}) {
   useEffect(() => {
     let mounted = true;
     const load = () => getAll(table, options)
-      .then((rows) => mounted && setData(normalizeRows(rows)))
+      .then((rows) => {
+        if (!mounted) return;
+        setData(normalizeRows(rows));
+        window.dispatchEvent(new CustomEvent("admin:data-success", { detail: { table } }));
+      })
       .catch((error) => {
         console.error(`[Realtime] Gagal memuat tabel ${table}:`, error);
-        if (mounted) setData((current) => current ?? []);
+        if (!mounted) return;
+        setData((current) => current ?? []);
+        window.dispatchEvent(new CustomEvent("admin:data-error", {
+          detail: { table, message: error?.message || "Data gagal dimuat." },
+        }));
       });
     load();
 
     const unsubscribe = subscribeToTable(table, "*", () => load());
+    const handleManualRefresh = (event) => {
+      const requestedTable = event?.detail?.table;
+      if (!requestedTable || requestedTable === table) load();
+    };
+    window.addEventListener("admin:refresh-data", handleManualRefresh);
 
     return () => {
       mounted = false;
       unsubscribe();
+      window.removeEventListener("admin:refresh-data", handleManualRefresh);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [table]);

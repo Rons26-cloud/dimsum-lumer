@@ -3,9 +3,20 @@
   "name": "Dimsum Lumer Store",
   "icons": [
     {
-      "src": "/logo.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "start_url": "/",
