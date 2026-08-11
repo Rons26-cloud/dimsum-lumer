@@ -1,5 +1,3 @@
--- Sinkronisasi pembayaran dan status pesanan secara realtime.
--- Jalankan melalui Supabase SQL Editor. Aman dijalankan ulang.
 alter table public.orders
   add column if not exists payment_status text default 'unpaid',
   add column if not exists paid_amount numeric(12,2) default 0,
