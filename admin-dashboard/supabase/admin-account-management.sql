@@ -1,6 +1,3 @@
--- Jalankan sekali di Supabase SQL Editor.
--- Akun Auth dibuat oleh isolated Supabase client; fungsi ini hanya memberi role
--- admin setelah memastikan pemanggil memang administrator Dashboard.
 create or replace function public.admin_promote_new_account(
   target_user_id uuid,
   admin_full_name text,
@@ -44,8 +41,6 @@ $$;
 revoke all on function public.admin_promote_new_account(uuid, text, text) from public;
 grant execute on function public.admin_promote_new_account(uuid, text, text) to authenticated;
 
--- Menghapus akun administrator lain langsung dari Supabase Auth. Relasi profile
--- dan admin_sessions memakai ON DELETE CASCADE sehingga ikut dibersihkan.
 create or replace function public.admin_delete_admin_account(target_user_id uuid)
 returns uuid
 language plpgsql
