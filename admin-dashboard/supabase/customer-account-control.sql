@@ -52,8 +52,6 @@ begin
 end;
 $$;
 
--- Detail aman dari Supabase Auth untuk modal akun pelanggan. Kata sandi dan
--- token tidak pernah dikembalikan kepada dashboard.
 create or replace function public.admin_get_customer_account(target_user_id uuid)
 returns jsonb
 language plpgsql
