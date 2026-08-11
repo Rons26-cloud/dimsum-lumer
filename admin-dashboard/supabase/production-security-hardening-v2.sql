@@ -1,7 +1,3 @@
--- Production security hardening v2.
--- Apply after all existing dashboard migrations in Supabase SQL Editor.
--- This file is idempotent and is the final authority for admin privileges.
-
 create or replace function public.is_superadmin()
 returns boolean
 language sql
@@ -65,8 +61,6 @@ create trigger protect_profile_privileged_fields_trigger
 before insert or update on public.profiles
 for each row execute function public.protect_profile_privileged_fields();
 
--- Remove the broad ALL policy from profiles. Admins can read profiles, while
--- only a MFA-authenticated superadmin can manage arbitrary profile records.
 drop policy if exists admin_manage on public.profiles;
 drop policy if exists admin_read_profiles on public.profiles;
 drop policy if exists superadmin_manage_profiles on public.profiles;
@@ -77,7 +71,6 @@ for all to authenticated
 using (public.is_superadmin() and public.has_admin_mfa())
 with check (public.is_superadmin() and public.has_admin_mfa());
 
--- Sensitive administrator operations require both superadmin and AAL2.
 create or replace function public.assert_superadmin_mfa()
 returns void
 language plpgsql
@@ -151,8 +144,6 @@ revoke all on function public.admin_delete_admin_account(uuid) from public, anon
 grant execute on function public.admin_promote_new_account(uuid,text,text) to authenticated;
 grant execute on function public.admin_delete_admin_account(uuid) to authenticated;
 
--- Permanent customer deletion also requires AAL2. Suspension remains available
--- to operational admins because it is reversible.
 create or replace function public.admin_delete_customer(target_user_id uuid)
 returns uuid
 language plpgsql
@@ -189,8 +180,6 @@ alter table if exists public.apk_versions
   add column if not exists file_size bigint,
   add column if not exists uploaded_by uuid references auth.users(id);
 
--- Only superadmins can read full audit history. Redact common secrets and PII
--- before records are written. Existing records should be reviewed separately.
 drop policy if exists admin_read_activity_logs on public.activity_logs;
 drop policy if exists superadmin_read_activity_logs on public.activity_logs;
 create policy superadmin_read_activity_logs on public.activity_logs
@@ -233,7 +222,6 @@ end;
 $$;
 revoke all on function public.capture_admin_audit() from public, anon, authenticated;
 
--- Redact sensitive keys already present in historical logs.
 update public.activity_logs set
   old_data=case when old_data is null then null else public.redact_audit_json(old_data) end,
   new_data=case when new_data is null then null else public.redact_audit_json(new_data) end;
