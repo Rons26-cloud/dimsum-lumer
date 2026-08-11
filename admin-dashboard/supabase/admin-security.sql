@@ -1,5 +1,3 @@
--- Jalankan melalui Supabase SQL Editor setelah meninjau nama tabel proyek.
--- Fungsi SECURITY DEFINER ini mencegah policy profiles mengalami rekursi.
 create or replace function public.is_admin()
 returns boolean
 language sql
@@ -16,7 +14,6 @@ $$;
 revoke all on function public.is_admin() from public;
 grant execute on function public.is_admin() to authenticated;
 
--- Aktifkan RLS. Policy SELECT untuk aplikasi pelanggan yang sudah ada tetap dipertahankan.
 alter table if exists public.products enable row level security;
 alter table if exists public.categories enable row level security;
 alter table if exists public.flash_sales enable row level security;
@@ -39,7 +36,6 @@ begin
   end loop;
 end $$;
 
--- Storage: dashboard hanya boleh menulis bucket yang dikenal dan harus admin.
 drop policy if exists admin_manage_dashboard_files on storage.objects;
 create policy admin_manage_dashboard_files
 on storage.objects for all to authenticated
