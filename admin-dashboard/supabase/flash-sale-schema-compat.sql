@@ -1,11 +1,9 @@
--- Jalankan sekali di Supabase SQL Editor untuk menyelaraskan schema Flash Sale lama.
 alter table public.flash_sales
   add column if not exists sale_price numeric(12,2),
   add column if not exists original_price numeric(12,2),
   add column if not exists flash_stock integer default 0,
   add column if not exists updated_at timestamptz default now();
 
--- Migrasikan nilai dari nama kolom legacy yang terdeteksi di project ini.
 update public.flash_sales fs
 set
   sale_price = coalesce(fs.sale_price, fs.discount_price, 0),
