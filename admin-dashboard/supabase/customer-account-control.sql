@@ -1,4 +1,3 @@
--- Jalankan sekali melalui Supabase SQL Editor untuk mengaktifkan Suspend/Hapus Akun Pelanggan.
 alter table public.profiles
   add column if not exists is_suspended boolean not null default false,
   add column if not exists suspension_reason text,
