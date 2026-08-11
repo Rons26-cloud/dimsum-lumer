@@ -6,14 +6,9 @@ import { ProductGrid } from "../../features/products/ProductGrid.jsx";
 import { mergeProductCatalog } from "../../features/products/productAssets.js";
 
 export default function PopularProductSection() {
-  // Realtime: berubah otomatis begitu admin menambah / mengubah stok /
-  // menonaktifkan produk dari Admin Dashboard.
   const products = useLiveCollection(TABLES.PRODUCTS, {
     order: { column: "sold_count", ascending: false },
   });
-  // Jangan membuat katalog menghilang ketika Supabase lambat, tabel kosong,
-  // atau cache schema belum diperbarui. Data server tetap menggantikan fallback
-  // segera setelah tersedia.
   const catalog = mergeProductCatalog(products).slice(0, 12);
 
   if (Array.isArray(products) && catalog.length === 0) return null;
@@ -32,4 +27,3 @@ export default function PopularProductSection() {
     </section>
   );
 }
-

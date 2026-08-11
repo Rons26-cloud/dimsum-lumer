@@ -59,9 +59,6 @@ export default function ProductDetail() {
     return () => { active = false; };
   }, [slug, catalogData]);
 
-  // Dengarkan baris produk yang sedang dibuka secara langsung. Subscription ini
-  // membuat harga, stok, gambar, deskripsi, dan status berubah tanpa refresh
-  // ketika admin menyimpan perubahan dari Dashboard.
   useEffect(() => {
     const productId = product?.id;
     if (!productId || !/^[0-9a-f-]{36}$/i.test(productId)) return undefined;

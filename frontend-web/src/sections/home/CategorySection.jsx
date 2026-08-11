@@ -10,7 +10,6 @@ import udang from "../../assets/produk/dimsum-udang-spesial.jpg";
 import mentai from "../../assets/produk/dimsum-mentai-mozzarella.jpg";
 import pangsit from "../../assets/produk/pangsit-goreng-lumer.jpg";
 
-// Ikon lucide per slug kategori (fallback ke Utensils kalau slug tidak dikenali).
 const ICON_MAP = {
   daging: Beef,
   bakso: Soup,
@@ -23,8 +22,6 @@ const ICON_MAP = {
 
 export default function CategorySection() {
   const navigate = useNavigate();
-  // Tersambung realtime: begitu admin tambah/ubah/hapus kategori di Admin
-  // Dashboard, daftar ini otomatis ikut berubah tanpa refresh halaman.
   const categories = useLiveCollection(TABLES.CATEGORIES, { order: { column: "name" } });
   const [active, setActive] = useState("semua");
 

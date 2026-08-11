@@ -10,8 +10,6 @@ import '../screens/store/store_location_screen.dart';
 import '../screens/product/product_screen.dart';
 import '../screens/product/product_detail_screen.dart';
 
-// Routing dasar — tambahkan route product/cart/checkout/profile dst
-// mengikuti folder yang sudah tersedia di lib/screens/.
 class AppRouter {
   static final rootNavigatorKey = GlobalKey<NavigatorState>();
   static final GoRouter router = GoRouter(

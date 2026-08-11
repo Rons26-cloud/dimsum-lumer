@@ -5,7 +5,8 @@
     <application
         android:label="dimsum_lumer"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/dimsum_lumer_logo"
+        android:roundIcon="@mipmap/dimsum_lumer_logo"
         android:allowBackup="false"
         android:fullBackupContent="false"
         android:usesCleartextTraffic="false">

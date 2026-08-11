@@ -8,6 +8,10 @@ build/
 .vscode/
 .idea/
 
+# Local Supabase master database script
+SUPABASE_MASTER_FIXED.sql
+*.apk
+
 # Flutter
 mobile-apk/.dart_tool/
 mobile-apk/.flutter-plugins

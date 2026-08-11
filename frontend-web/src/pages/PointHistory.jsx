@@ -1,19 +1,11 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { ArrowRight, BadgePercent, Coins, Gift, Loader2, ReceiptText, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.js";
 import { getPointHistory } from "../services/pointService.js";
+import { supabase } from "../supabase/client.js";
 import EmptyState from "../components/ui/EmptyState.jsx";
 import ProfilePageHeader from "../components/profile/ProfilePageHeader.jsx";
 
-export default function PointHistory() {
-  const { user } = useAuth();
-  const [history, setHistory] = useState(null);
-
-  useEffect(() => { if (user) getPointHistory(user.id).then(setHistory).catch(() => setHistory([])); }, [user]);
-
-  return (
-    <div>
-      <ProfilePageHeader title="Riwayat Poin" />
-      {history?.length === 0 && <EmptyState title="Belum ada riwayat poin" />}
-    </div>
-  );
-}
+const dateTime=(value)=>new Date(value).toLocaleString("id-ID",{dateStyle:"medium",timeStyle:"short"});
+export default function PointHistory(){const{user}=useAuth();const[history,setHistory]=useState(null);const load=useCallback(()=>{if(user)getPointHistory(user.id).then(setHistory).catch(()=>setHistory([]));},[user]);useEffect(()=>{load();if(!user)return;const channel=supabase.channel(`point-history-${user.id}`).on("postgres_changes",{event:"*",schema:"public",table:"point_history",filter:`user_id=eq.${user.id}`},load).subscribe();return()=>supabase.removeChannel(channel);},[load,user]);return <div className="space-y-3"><ProfilePageHeader title="Riwayat Poin"/><section className="rounded-3xl bg-slate-950 p-5 text-white"><p className="text-[10px] font-bold uppercase tracking-[.18em] text-orange-300">Catatan transaksi</p><h1 className="mt-2 text-xl font-black">Riwayat perolehan dan penggunaan poin</h1><p className="mt-2 text-xs leading-5 text-white/55">Seluruh perubahan saldo dicatat berdasarkan aktivitas pada akun Anda.</p></section><Link to="/profil/reward" className="flex items-center gap-3 rounded-3xl border border-violet-100 bg-gradient-to-r from-violet-50 to-orange-50 p-4"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-violet-600 text-white"><BadgePercent size={20}/></span><div className="min-w-0 flex-1"><p className="text-[10px] font-bold uppercase tracking-wide text-violet-500">Program reward</p><h2 className="mt-1 text-xs font-extrabold text-violet-950">Gunakan poin Anda</h2><p className="mt-1 text-[9px] text-violet-700/60">Lihat reward dan ketersediaan stok.</p></div><Sparkles size={17} className="text-orange-500"/><ArrowRight size={16} className="text-violet-400"/></Link>{history===null?<div className="grid min-h-40 place-items-center"><Loader2 className="animate-spin text-primary"/></div>:history.length===0?<EmptyState icon={ReceiptText} title="Belum ada transaksi poin" description="Poin akan tercatat setelah pesanan pertama selesai."/>:<section className="space-y-2">{history.map((item)=>{const amount=Number(item.amount??item.point??0);const earn=amount>=0;return <article key={item.id} className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"><span className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl ${earn?"bg-emerald-50 text-emerald-600":"bg-violet-50 text-violet-600"}`}>{earn?<Coins size={19}/>:<Gift size={19}/>}</span><div className="min-w-0 flex-1"><h2 className="truncate text-xs font-extrabold text-gray-800">{item.description|| (earn?"Poin pesanan":"Penukaran reward")}</h2><p className="mt-1 text-[9px] text-gray-400">{dateTime(item.created_at)}{item.order_id?` · Referensi ${String(item.order_id).slice(0,8)}`:""}</p></div><strong className={`text-sm ${earn?"text-emerald-600":"text-violet-600"}`}>{earn?"+":""}{amount.toLocaleString("id-ID")}</strong></article>;})}</section>}</div>}

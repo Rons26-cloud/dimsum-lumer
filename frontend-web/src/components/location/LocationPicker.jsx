@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import MapsIcon from '../maps/MapsIcon.jsx';
 
-/**
- * Komponen LocationPicker / LocationSelector
- * Mendeteksi lokasi pengguna via GPS dan menampilkan informasi lokasi aktif.
- */
+
 export default function LocationPicker({ supabase, onLocationChange }) {
   const [currentLocation, setCurrentLocation] = useState({
     address: 'Memuat lokasi Anda...',
@@ -14,7 +11,6 @@ export default function LocationPicker({ supabase, onLocationChange }) {
   const [loading, setLoading] = useState(false);
   const [nearbyStores, setNearbyStores] = useState([]);
 
-  // Fungsi untuk mendeteksi lokasi menggunakan Geolocation API browser
   const detectUserLocation = () => {
     if (!navigator.geolocation) {
       alert('Browser Anda tidak mendukung deteksi lokasi (Geolocation).');
@@ -27,7 +23,6 @@ export default function LocationPicker({ supabase, onLocationChange }) {
         const { latitude, longitude } = position.coords;
         
         try {
-          // Reverse Geocoding menggunakan Nominatim OpenStreetMap untuk mengubah koordinat jadi teks alamat
           const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
           const data = await response.json();
           const addressText = data.display_name || `${latitude}, ${longitude}`;
@@ -41,7 +36,6 @@ export default function LocationPicker({ supabase, onLocationChange }) {
           setCurrentLocation(newLocation);
           onLocationChange?.(newLocation);
 
-          // Cari toko terdekat dari database Supabase jika supabase tersedia
           if (supabase) {
             fetchNearestStore(latitude, longitude);
           }
@@ -68,13 +62,11 @@ export default function LocationPicker({ supabase, onLocationChange }) {
     );
   };
 
-  // Fungsi untuk mengambil daftar toko dari Supabase
   const fetchNearestStore = async (lat, lon) => {
     try {
       const { data, error } = await supabase.from('stores').select('*');
       if (error) throw error;
 
-      // Menyimpan data toko terdekat (dapat dikembangkan menggunakan formula Haversine jika diperlukan perhitungan jarak presisi)
       setNearbyStores(data || []);
     } catch (err) {
       console.error('Gagal memuat daftar toko terdekat:', err.message);
@@ -82,7 +74,6 @@ export default function LocationPicker({ supabase, onLocationChange }) {
   };
 
   useEffect(() => {
-    // Deteksi lokasi otomatis saat komponen pertama kali dimuat
     detectUserLocation();
   }, []);
 

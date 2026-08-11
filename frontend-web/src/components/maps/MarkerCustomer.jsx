@@ -2,7 +2,6 @@ import React from 'react';
 import { Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 
-// Membuat ikon custom menggunakan SVG (menggantikan emoji agar konsisten)
 const customerIcon = L.divIcon({
   className: 'custom-customer-marker',
   html: `
@@ -29,14 +28,10 @@ const customerIcon = L.divIcon({
   popupAnchor: [0, -16],
 });
 
-/**
- * Komponen MarkerCustomer
- * Menampilkan pin penanda lokasi pelanggan di dalam peta Leaflet.
- */
+
 export default function MarkerCustomer({ position, customer, children, popupContent, onClick }) {
   if (!position) return null;
 
-  // Normalisasi posisi (mendukung array [lat, lng] maupun objek { lat, lng } / { latitude, longitude })
   let lat, lng;
   if (Array.isArray(position)) {
     [lat, lng] = position;

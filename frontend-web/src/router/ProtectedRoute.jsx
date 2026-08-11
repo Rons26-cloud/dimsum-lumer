@@ -2,7 +2,6 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.js";
 import Loading from "../components/ui/Loading.jsx";
 
-// Membungkus route yang wajib login (checkout, profil, dst).
 export default function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
   const location = useLocation();

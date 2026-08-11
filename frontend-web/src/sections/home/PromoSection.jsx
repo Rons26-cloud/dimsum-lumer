@@ -4,7 +4,6 @@ import PromoCard from "../../components/cards/PromoCard.jsx";
 import Skeleton from "../../components/ui/Skeleton.jsx";
 
 export default function PromoSection() {
-  // Realtime: promo baru dari admin langsung tampil, promo yang dinonaktifkan langsung hilang.
   const promos = useLiveCollection(TABLES.PROMOS, { filters: { is_active: true } });
 
   if (promos !== null && promos.length === 0) return null;

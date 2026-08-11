@@ -1,5 +1,3 @@
-// Nama tabel & bucket disatukan di sini supaya semua service/hook memakai
-// referensi yang sama persis (hindari typo string di banyak file).
 
 export const TABLES = {
   PROFILES: "profiles",

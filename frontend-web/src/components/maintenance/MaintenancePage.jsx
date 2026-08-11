@@ -25,9 +25,9 @@ export function MaintenancePage({ message, startTime, endTime }) {
       <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-orange-500 via-amber-400 to-orange-500"/>
       <div className="relative mx-auto h-32 w-32">
         <span className="absolute inset-0 animate-ping rounded-full border border-orange-300/40"/>
-        <span className="absolute inset-3 animate-pulse rounded-full bg-orange-200/60 blur-lg"/>
-        <div className="absolute inset-4 animate-[bounce_2.4s_ease-in-out_infinite] overflow-hidden rounded-full border-4 border-white bg-white shadow-xl shadow-orange-200">
-          <img src={logo} alt="Logo Dimsum Lumer" className="h-full w-full object-cover"/>
+        <span className="absolute inset-3 animate-pulse rounded-full bg-orange-200/35 blur-xl"/>
+        <div className="absolute inset-1 animate-[bounce_2.4s_ease-in-out_infinite] drop-shadow-[0_14px_18px_rgba(234,88,12,0.22)]">
+          <img src={logo} alt="Logo Dimsum Lumer" className="h-full w-full object-contain"/>
         </div>
         <span className="absolute bottom-1 right-0 grid h-10 w-10 animate-[pulse_1.8s_ease-in-out_infinite] place-items-center rounded-full border-4 border-white bg-orange-500 text-white shadow-lg"><Wrench size={17}/></span>
       </div>

@@ -14,7 +14,7 @@ function createSecurityHeaders(isDevelopment = false) {
   "Referrer-Policy": "strict-origin-when-cross-origin",
   "Permissions-Policy": "camera=(), microphone=(), geolocation=(self)",
   "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
-  "Content-Security-Policy": `default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; frame-ancestors 'self'; ${scriptSrc}; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://maps.googleapis.com https://*.openstreetmap.org; frame-src 'self' https://www.google.com https://maps.google.com; worker-src 'self' blob:; upgrade-insecure-requests`,
+  "Content-Security-Policy": `default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; frame-ancestors 'self'; ${scriptSrc}; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://maps.googleapis.com https://*.openstreetmap.org; frame-src 'self' https://www.google.com https://maps.google.com https://www.openstreetmap.org; worker-src 'self' blob:; upgrade-insecure-requests`,
   };
 };
 

@@ -1,4 +1,4 @@
-/** Membuat ID unik dengan fallback untuk Android WebView/PWA lama. */
+
 export function runtimeId() {
   if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
   const bytes = new Uint8Array(16);

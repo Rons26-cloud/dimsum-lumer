@@ -25,7 +25,7 @@ export default function ForgotPassword(){
       const {error:requestError}=await supabase.auth.resetPasswordForEmail(normalized,{redirectTo});
       if(requestError)throw requestError;
       const expiresAt=Date.now()+60_000;
-      try{localStorage.setItem(COOLDOWN_KEY,String(expiresAt));}catch{/* storage privat */}
+      try{localStorage.setItem(COOLDOWN_KEY,String(expiresAt));}catch{}
       setCountdown(60);setSent(true);
     }catch(reason){
       const rateLimited=reason?.status===429||/rate.?limit|too many/i.test(reason?.message||'');

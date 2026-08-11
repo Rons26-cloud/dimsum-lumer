@@ -28,7 +28,7 @@ class _ProductScreenState extends State<ProductScreen> {
             children: [
               Text('Semua Produk',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-              Text('Pilih dimsum favoritmu',
+              Text('Temukan pilihan sesuai selera Anda',
                   style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w400,
@@ -168,7 +168,7 @@ class _ProductCardState extends State<_ProductCard> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text(
-                'Produk belum dapat ditambahkan. Pastikan kamu sudah masuk.')));
+                'Produk belum dapat ditambahkan. Silakan masuk ke akun Anda.')));
       }
     } finally {
       if (mounted) setState(() => _adding = false);

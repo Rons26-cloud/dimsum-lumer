@@ -7,7 +7,7 @@ export const TABLES = {
   ORDER_ITEMS: "order_items",
   ORDER_DETAIL: "order_detail",
   MEMBER_POINT: "member_point",
-  REWARDS: "reward",
+  REWARDS: "rewards",
   REVIEWS: "reviews",
   NOTIFICATIONS: "notifications",
   ACTIVITY_LOGS: "activity_logs",

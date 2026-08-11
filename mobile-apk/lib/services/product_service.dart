@@ -6,7 +6,7 @@ class ProductService {
           .from('products')
           .stream(primaryKey: ['id'])
           .eq('is_active', true)
-          .order('sold_count');
+          .order('recommendation_score', ascending: false);
 
   static Stream<List<Map<String, dynamic>>> watchProduct(String identifier) {
     final field =

@@ -1,3 +1,6 @@
+-- Production security hardening v2 (password-only admin compatibility).
+-- Apply after all existing dashboard migrations in Supabase SQL Editor.
+-- This file is idempotent and is the final authority for admin privileges.
 create or replace function public.is_superadmin()
 returns boolean
 language sql
@@ -18,7 +21,9 @@ stable
 security invoker
 set search_path = ''
 as $$
-  select coalesce(auth.jwt() ->> 'aal', 'aal1') = 'aal2';
+  -- MFA is disabled in the dashboard. Keep this compatibility function because
+  -- existing policies and RPCs call it; authentication and roles remain required.
+  select auth.uid() is not null;
 $$;
 
 revoke all on function public.is_superadmin() from public, anon;
@@ -61,6 +66,8 @@ create trigger protect_profile_privileged_fields_trigger
 before insert or update on public.profiles
 for each row execute function public.protect_profile_privileged_fields();
 
+-- Remove the broad ALL policy from profiles. Admins can read profiles, while
+-- only a superadmin can manage arbitrary profile records.
 drop policy if exists admin_manage on public.profiles;
 drop policy if exists admin_read_profiles on public.profiles;
 drop policy if exists superadmin_manage_profiles on public.profiles;
@@ -71,6 +78,7 @@ for all to authenticated
 using (public.is_superadmin() and public.has_admin_mfa())
 with check (public.is_superadmin() and public.has_admin_mfa());
 
+-- Sensitive administrator operations still require the superadmin role.
 create or replace function public.assert_superadmin_mfa()
 returns void
 language plpgsql
@@ -82,7 +90,7 @@ begin
     raise exception 'Akses superadmin diperlukan';
   end if;
   if not public.has_admin_mfa() then
-    raise exception 'Verifikasi MFA diperlukan';
+    raise exception 'Sesi admin tidak valid';
   end if;
 end;
 $$;
@@ -144,6 +152,8 @@ revoke all on function public.admin_delete_admin_account(uuid) from public, anon
 grant execute on function public.admin_promote_new_account(uuid,text,text) to authenticated;
 grant execute on function public.admin_delete_admin_account(uuid) to authenticated;
 
+-- Permanent customer deletion requires an authenticated admin session. Suspension remains available
+-- to operational admins because it is reversible.
 create or replace function public.admin_delete_customer(target_user_id uuid)
 returns uuid
 language plpgsql
@@ -152,7 +162,7 @@ set search_path = ''
 as $$
 declare target_role text;
 begin
-  if not public.is_admin() or not public.has_admin_mfa() then raise exception 'Akses admin dengan MFA diperlukan'; end if;
+  if not public.is_admin() or not public.has_admin_mfa() then raise exception 'Akses admin diperlukan'; end if;
   select role into target_role from public.profiles where id=target_user_id;
   if target_role is null then raise exception 'Pelanggan tidak ditemukan'; end if;
   if target_role in ('admin','superadmin') then raise exception 'Akun administrator dilindungi'; end if;
@@ -163,7 +173,7 @@ $$;
 revoke all on function public.admin_delete_customer(uuid) from public, anon;
 grant execute on function public.admin_delete_customer(uuid) to authenticated;
 
--- APK is executable software: only MFA-authenticated superadmins may mutate it.
+-- APK is executable software: only superadmins may mutate it.
 drop policy if exists admin_manage_dashboard_files on storage.objects;
 drop policy if exists superadmin_manage_apk_files on storage.objects;
 create policy admin_manage_dashboard_files on storage.objects

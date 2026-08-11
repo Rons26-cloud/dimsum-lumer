@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Clock3, MapPin, Phone, Store } from 'lucide-react';
 
-/**
- * 1. Komponen Kartu Toko / Outlet (StoreCard)
- * Menampilkan informasi cabang toko, alamat, jam operasional, dan nomor kontak.
- */
+
 export function StoreCard({ store, onSelect }) {
   return (
     <div
@@ -18,7 +15,7 @@ export function StoreCard({ store, onSelect }) {
         }
       }}
     >
-      {/* Gambar / Banner Toko */}
+      {}
       <div className="h-32 bg-slate-100 rounded-lg mb-3 overflow-hidden relative">
         {store?.image || store?.image_url ? (
           <img 
@@ -35,7 +32,7 @@ export function StoreCard({ store, onSelect }) {
         )}
       </div>
 
-      {/* Informasi Toko */}
+      {}
       <div>
         <h3 className="font-semibold text-sm sm:text-base text-slate-800 mb-1 line-clamp-1 group-hover:text-blue-700 transition-colors">
           {store?.name || 'Cabang Dimsum'}
@@ -45,7 +42,7 @@ export function StoreCard({ store, onSelect }) {
         </p>
       </div>
 
-      {/* Jam Operasional & Telepon */}
+      {}
       <div className="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-gray-50 mt-auto">
         <span className="flex items-center gap-1 line-clamp-1">
           <Clock3 size={13}/> {store?.opening_hours || '09:00 - 21:00'}
@@ -60,10 +57,7 @@ export function StoreCard({ store, onSelect }) {
   );
 }
 
-/**
- * 2. Komponen Container Toko dengan Supabase Realtime
- * Mengambil data outlet dari tabel 'stores' dan memperbarui tampilan secara otomatis jika ada perubahan data.
- */
+
 export default function StoreContainer({ supabase, onSelectStore }) {
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -96,7 +90,6 @@ export default function StoreContainer({ supabase, onSelectStore }) {
 
     fetchStores();
 
-    // Setup Supabase Realtime Subscription untuk tabel stores
     const storeChannel = supabase
       .channel('public:stores')
       .on(

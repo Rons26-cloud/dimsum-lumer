@@ -8,8 +8,6 @@ function FollowPosition({ position }) {
   useEffect(() => {
     if (!position) return;
     const next=[position.lat,position.lng];
-    // Jangan menggeser peta untuk perubahan GPS kecil. Peta hanya dipusatkan
-    // ulang jika marker benar-benar keluar dari area tengah yang terlihat.
     if (!map.getBounds().pad(-0.3).contains(next)) map.setView(next, Math.max(map.getZoom(),16), {animate:false});
   }, [map, position?.lat, position?.lng]);
   return null;

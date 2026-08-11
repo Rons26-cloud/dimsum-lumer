@@ -24,7 +24,7 @@ export default function BannerIndex() {
   const load = async () => {
     try {
       const value = await getConfig("home_banners", null);
-      setItems(Array.isArray(value?.items) ? value.items : FRONTEND_BANNERS);
+      setItems(Array.isArray(value?.items) && value.items.length > 0 ? value.items : FRONTEND_BANNERS);
       setError("");
     } catch (reason) { setError(reason.message || "Banner gagal dimuat."); }
     finally { setLoading(false); }

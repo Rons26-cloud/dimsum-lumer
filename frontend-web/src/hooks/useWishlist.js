@@ -4,11 +4,7 @@ import { TABLES } from "../supabase/constants.js";
 import { useAuth } from "./useAuth.js";
 import { runtimeId } from "../utils/runtimeId.js";
 
-/**
- * Custom Hook useWishlist
- * Mengelola wishlist pengguna secara real-time yang tersimpan di tabel `wishlist` Supabase
- * dan sinkron lintas tab/perangkat.
- */
+
 export function useWishlist() {
   const { user } = useAuth();
   const [ids, setIds] = useState(new Set());
@@ -23,7 +19,6 @@ export function useWishlist() {
 
     let mounted = true;
 
-    // Ambil data wishlist awal
     supabase
       .from(TABLES.WISHLIST)
       .select("product_id")
@@ -45,7 +40,6 @@ export function useWishlist() {
         if (mounted) setLoading(false);
       });
 
-    // Sinkronisasi realtime perubahan wishlist
     const channel = supabase
       .channel(`realtime-wishlist-${user.id}-${runtimeId()}`)
       .on(
@@ -71,10 +65,8 @@ export function useWishlist() {
     };
   }, [user]);
 
-  // Mengecek apakah suatu produk ada di dalam wishlist
   const isWishlisted = useCallback((productId) => ids.has(productId), [ids]);
 
-  // Fungsi untuk menambah atau menghapus produk dari wishlist
   const toggleWishlist = useCallback(
     async (productId) => {
       if (!user) return { requiresLogin: true };

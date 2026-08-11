@@ -22,7 +22,6 @@ export default function Register() {
     try {
       const sanitizedEmail = form.email.trim().toLowerCase();
       
-      // Kirim data registrasi ke Supabase, simpan fullName dan phone ke user metadata
       if (form.password.length < 8 || !/[A-Za-z]/.test(form.password) || !/[0-9]/.test(form.password)) throw new Error("Kata sandi minimal 8 karakter dan harus berisi huruf serta angka.");
       const phone = form.phone.replace(/[^0-9+]/g, "");
       const result = await signUp({
@@ -59,13 +58,13 @@ export default function Register() {
   return (
     <div className="w-full bg-white flex flex-col justify-between px-2 py-4 max-w-md mx-auto">
       <div>
-        {/* Header Judul */}
+        {}
         <div className="text-center mb-6">
           <h1 className="font-display text-2xl font-bold text-gray-900">Daftar Akun</h1>
           <p className="text-gray-500 text-xs mt-1">Buat akun untuk mulai memesan dimsum</p>
         </div>
 
-        {/* Form Pendaftaran */}
+        {}
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
@@ -138,14 +137,14 @@ export default function Register() {
           </Button>
         </form>
 
-        {/* Pemisah */}
+        {}
         <div className="flex items-center my-6">
           <div className="flex-grow border-t border-gray-100"></div>
           <span className="px-3 text-xs text-gray-400 font-medium">Atau daftar dengan</span>
           <div className="flex-grow border-t border-gray-100"></div>
         </div>
 
-        {/* Tombol Google Register */}
+        {}
         <button
           type="button"
           onClick={handleGoogleRegister}
@@ -162,7 +161,7 @@ export default function Register() {
         </button>
       </div>
 
-      {/* Footer Pindah ke Login */}
+      {}
       <div className="mt-8 text-center">
         <p className="text-xs text-gray-500">
           Sudah punya akun?{" "}

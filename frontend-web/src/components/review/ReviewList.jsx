@@ -1,12 +1,8 @@
 import React from 'react'
 import { Star, User, MessageSquare } from 'lucide-react'
 
-/**
- * Komponen ReviewList
- * Menampilkan daftar ulasan atau testimoni dari pelanggan.
- */
+
 export default function ReviewList({ reviews = [] }) {
-  // Jika belum ada ulasan sama sekali
   if (!Array.isArray(reviews) || reviews.length === 0) {
     return (
       <div className="text-center py-10 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200 p-6">
@@ -30,7 +26,7 @@ export default function ReviewList({ reviews = [] }) {
             key={review.id || index} 
             className="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm transition-all hover:shadow-md"
           >
-            {/* Bagian Header Ulasan: Avatar, Nama, & Tanggal */}
+            {}
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-sm overflow-hidden flex-shrink-0">
@@ -59,14 +55,14 @@ export default function ReviewList({ reviews = [] }) {
                 </div>
               </div>
 
-              {/* Bintang Rating */}
+              {}
               <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-100/60">
                 <Star size={13} className="fill-amber-400 text-amber-400" />
                 <span className="text-xs font-bold text-amber-700">{rating.toFixed(1)}</span>
               </div>
             </div>
 
-            {/* Isi Komentar / Ulasan */}
+            {}
             <p className="text-sm text-gray-600 leading-relaxed pl-12">
               {comment}
             </p>

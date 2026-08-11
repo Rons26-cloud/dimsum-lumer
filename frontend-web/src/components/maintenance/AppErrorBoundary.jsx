@@ -5,8 +5,8 @@ import logo from "../../assets/logo/logo.png";
 const RECOVERY_KEY = "dimsum-lumer-refresh-recovery";
 const recoveryStorage = {
   get() { try { return Number(sessionStorage.getItem(RECOVERY_KEY) || 0); } catch { return 0; } },
-  set(value) { try { sessionStorage.setItem(RECOVERY_KEY, String(value)); } catch { /* mode privat */ } },
-  remove() { try { sessionStorage.removeItem(RECOVERY_KEY); } catch { /* mode privat */ } },
+  set(value) { try { sessionStorage.setItem(RECOVERY_KEY, String(value)); } catch {  } },
+  remove() { try { sessionStorage.removeItem(RECOVERY_KEY); } catch {  } },
 };
 
 async function clearStaleAppCache() {
@@ -32,7 +32,6 @@ export default class AppErrorBoundary extends React.Component {
   }
 
   componentDidMount() {
-    // Setelah aplikasi stabil, percobaan pemulihan berikutnya boleh dilakukan.
     this.stableTimer = window.setTimeout(() => recoveryStorage.remove(), 15_000);
   }
   componentWillUnmount() { window.clearTimeout(this.stableTimer); }

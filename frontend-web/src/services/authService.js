@@ -1,8 +1,6 @@
 import { supabase } from "../supabase/client.js";
 
 export async function signUp({ email, password, fullName, phone, options = {} }) {
-  // `account_type` hanya informasi profil. Otorisasi/role harus selalu
-  // ditentukan oleh trigger database dan tidak boleh mempercayai metadata ini.
   const metadata = {
     ...(options.data || {}),
     full_name: fullName,
@@ -12,8 +10,6 @@ export async function signUp({ email, password, fullName, phone, options = {} })
   const { data, error } = await supabase.auth.signUp({ email, password, options: { ...options, data: metadata } });
   if (error) throw error;
   if (data.user?.identities?.length === 0) throw new Error("Email sudah terdaftar. Silakan masuk.");
-  // Profile dibuat atomik oleh trigger auth.users di database. Client tidak
-  // menulis role/point agar signup web dan APK menggunakan alur yang sama.
   return data;
 }
 

@@ -171,10 +171,10 @@ export default function AdminAccount() {
 
         <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm"><h2 className="flex items-center gap-2 font-bold text-gray-900"><MonitorSmartphone className="text-blue-600" size={18}/>Keamanan sesi</h2><p className="mt-2 text-xs leading-5 text-gray-500">Jika akun pernah dibuka pada perangkat yang tidak dikenal, akhiri semua sesi lainnya.</p><button type="button" onClick={endOtherSessions} disabled={endingSessions} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-2.5 text-xs font-bold text-red-600 disabled:opacity-50">{endingSessions && <Loader2 className="animate-spin" size={14}/>}Keluar dari perangkat lain</button></section>
 
-        <section className="rounded-2xl border border-amber-100 bg-amber-50 p-5"><h3 className="text-sm font-bold text-amber-800">Tips keamanan</h3><ul className="mt-2 space-y-2 text-xs leading-5 text-amber-700"><li>• Jangan bagikan password atau kode OTP.</li><li>• Gunakan password berbeda untuk akun admin.</li><li>• Keluar setelah memakai perangkat bersama.</li></ul></section>
+        <section className="rounded-2xl border border-amber-100 bg-amber-50 p-5"><h3 className="text-sm font-bold text-amber-800">Tips keamanan</h3><ul className="mt-2 space-y-2 text-xs leading-5 text-amber-700"><li>• Jangan bagikan password admin.</li><li>• Gunakan password unik yang kuat untuk akun admin.</li><li>• Keluar setelah memakai perangkat bersama.</li></ul></section>
       </aside>
     </div>
-    {role === "superadmin" ? <AdminManagement currentAdminId={admin?.id}/> : <section className="rounded-2xl border border-violet-100 bg-violet-50 p-5 text-xs leading-5 text-violet-800"><strong>Manajemen administrator dilindungi.</strong> Hanya superadmin dengan MFA aktif yang dapat membuat atau menghapus akun administrator.</section>}
+    <AdminManagement currentAdminId={admin?.id} canDelete={role === "superadmin"}/>
     <AdminDeviceSessions adminId={admin?.id}/>
   </div>;
 }

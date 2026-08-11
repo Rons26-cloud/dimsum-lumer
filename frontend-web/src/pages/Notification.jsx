@@ -40,7 +40,7 @@ export default function Notification(){
   const open=async(item)=>{try{if(!item.is_read)await api.read(item.id);}finally{navigate(`/notifikasi/${item.id}`);}};
   const goToDestination=async(item)=>{try{if(!item.is_read)await api.read(item.id);}finally{navigate(destination(item));}};
   return <div className="mx-auto min-h-dvh max-w-3xl bg-white text-dark">
-    <NotificationHeader onBack={()=>navigate(-1)} unreadCount={api.unreadCount} onReadAll={readAll} onDeleteAll={()=>setConfirm({kind:'all'})}/>
+    <NotificationHeader onBack={()=>navigate(-1)} onSettings={()=>navigate('/profil/pengaturan-notifikasi')} unreadCount={api.unreadCount} onReadAll={readAll} onDeleteAll={()=>setConfirm({kind:'all'})}/>
     <NotificationTabs value={tab} onChange={changeTab}/>
     <div className="px-3 pb-3"><NotificationFilter value={search} onChange={setSearch}/></div>
     <NotificationPermission permission={typeof window!=='undefined'&&'Notification'in window?window.Notification.permission:'unsupported'} onEnable={enable} loading={permissionLoading}/>

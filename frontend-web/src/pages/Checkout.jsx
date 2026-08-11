@@ -160,12 +160,16 @@ export default function Checkout() {
       if(!order?.id)throw new Error('Order berhasil diproses tetapi ID pesanan tidak diterima. Silakan periksa riwayat pesanan.');
       sessionStorage.setItem('dimsum-lumer-last-order-id',order.id);
 
+      const { error: cartCleanupError } = await supabase.from('cart_items').delete().eq('user_id',user.id);
+      if(cartCleanupError)console.error('Pesanan berhasil, tetapi verifikasi pembersihan keranjang gagal:',cartCleanupError.message);
+
       if (needsWhatsApp && whatsappWindow) {
         const itemLines = cartItems.map((item) => `• ${item.products?.name} (${item.variant || 'Original'}) x${item.quantity}`).join('\n');
         const message = encodeURIComponent(`Halo Admin Dimsum Lumer\n\nSaya membuat pesanan *${order.order_code}*\n${itemLines}\n\nKurir: ${shippingMethod.toUpperCase()}\nPembayaran: ${paymentMethod.toUpperCase()}\nTotal: Rp${Number(order.total_amount).toLocaleString('id-ID')}\nAlamat: ${shippingAddress}\nLokasi: https://www.google.com/maps?q=${effectiveCoords.lat},${effectiveCoords.lng}`);
         whatsappWindow.location.href = `https://wa.me/${adminNumber}?text=${message}`;
       }
       clearLocalCart();
+      window.dispatchEvent(new CustomEvent('cart:checkout-complete',{detail:{orderId:order.id}}));
       if(paymentMethod==='cod')navigate('/checkout/sukses',{replace:true,state:{orderId:order.id,orderCode:order.order_code,total:order.total_amount}});
       else navigate(`/pembayaran/${order.id}`,{replace:true});
     } catch (checkoutError) {

@@ -1,6 +1,6 @@
 import { supabase } from "./client.js";
 
-const ALLOWED_BUCKETS = new Set(["product-images", "banners", "apk", "category-images"]);
+const ALLOWED_BUCKETS = new Set(["product-images", "banners", "apk", "category-images", "reward-images"]);
 const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const MAX_APK_SIZE = 250 * 1024 * 1024;

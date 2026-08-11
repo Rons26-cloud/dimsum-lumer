@@ -1,9 +1,6 @@
 import { useState } from 'react';
 
-/**
- * Komponen Avatar
- * Komponen UI dasar untuk menampilkan foto profil, inisial nama, atau ikon default.
- */
+
 export default function Avatar({ src, alt = 'Avatar', name, size = 'md', className = '', ...props }) {
   const [hasError, setHasError] = useState(false);
 

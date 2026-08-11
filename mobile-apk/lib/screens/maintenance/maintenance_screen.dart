@@ -2,6 +2,86 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
+class ScheduledMaintenanceNotice extends StatefulWidget {
+  final DateTime startTime;
+  final String? message;
+  const ScheduledMaintenanceNotice(
+      {super.key, required this.startTime, this.message});
+
+  @override
+  State<ScheduledMaintenanceNotice> createState() =>
+      _ScheduledMaintenanceNoticeState();
+}
+
+class _ScheduledMaintenanceNoticeState
+    extends State<ScheduledMaintenanceNotice> {
+  Timer? _timer;
+  DateTime _now = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() => _now = DateTime.now());
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final duration = widget.startTime.difference(_now);
+    final total = duration.isNegative ? 0 : duration.inSeconds;
+    final days = total ~/ 86400;
+    final hours = (total ~/ 3600) % 24;
+    final minutes = (total ~/ 60) % 60;
+    final seconds = total % 60;
+    final countdown =
+        '${days > 0 ? '$days hari ' : ''}${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    return Material(
+        color: const Color(0xFFFFF3E0),
+        child: SafeArea(
+            bottom: false,
+            child: Container(
+                width: double.infinity,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                child: Row(children: [
+                  const Icon(Icons.build_circle_outlined,
+                      color: Color(0xFFE86600), size: 22),
+                  const SizedBox(width: 10),
+                  Expanded(
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                        const Text('Maintenance akan segera dimulai',
+                            style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF7C3A00))),
+                        Text(
+                            widget.message?.trim().isNotEmpty == true
+                                ? widget.message!.trim()
+                                : 'Simpan pekerjaan Anda sebelum pemeliharaan dimulai.',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                fontSize: 9, color: Color(0xFF9A5B24)))
+                      ])),
+                  const SizedBox(width: 8),
+                  Text(countdown,
+                      style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFFE86600)))
+                ]))));
+  }
+}
+
 class MaintenanceScreen extends StatefulWidget {
   final String? message;
   final DateTime? startTime;
@@ -79,21 +159,18 @@ class _MaintenanceScreenState extends State<MaintenanceScreen>
                     ),
                     child: Stack(clipBehavior: Clip.none, children: [
                       Container(
-                        width: 112,
-                        height: 112,
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
+                        width: 124,
+                        height: 124,
+                        padding: const EdgeInsets.all(2),
+                        decoration: const BoxDecoration(
                             shape: BoxShape.circle,
-                            color: const Color(0xFFFFF0E4),
-                            border: Border.all(
-                                color: const Color(0xFFFFD4B3), width: 2),
-                            boxShadow: const [
+                            boxShadow: [
                               BoxShadow(
                                   color: Color(0x33FF7A00), blurRadius: 22)
                             ]),
-                        child: ClipOval(
-                            child: Image.asset('assets/logo.png',
-                                fit: BoxFit.cover)),
+                        child: Image.asset(
+                            'assets/maintenance-logo-transparent.png',
+                            fit: BoxFit.contain),
                       ),
                       Positioned(
                           right: -5,

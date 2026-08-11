@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../supabase/client.js"; // <-- Pastikan import ini ada!
 
-/**
- * Fungsi untuk Masuk (Login) dengan Email & Password
- */
+
 export const signIn = async (email, password) => {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
@@ -13,9 +11,7 @@ export const signIn = async (email, password) => {
   return data;
 };
 
-/**
- * Fungsi untuk Masuk dengan Google (OAuth)
- */
+
 export const signInWithGoogle = async () => {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
@@ -27,9 +23,7 @@ export const signInWithGoogle = async () => {
   return data;
 };
 
-/**
- * Fungsi untuk Daftar (Register)
- */
+
 export const signUp = async ({ email, password, name, phone }) => {
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -45,18 +39,13 @@ export const signUp = async ({ email, password, name, phone }) => {
   return data;
 };
 
-/**
- * Fungsi untuk Keluar (Logout)
- */
+
 export const signOut = async () => {
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
 };
 
-/**
- * Custom Hook useAuth
- * Mengelola status sesi pengguna secara global di aplikasi web.
- */
+
 export function useAuth() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -64,7 +53,6 @@ export function useAuth() {
   useEffect(() => {
     let isMounted = true;
 
-    // Ambil sesi awal pengguna saat aplikasi dimuat
     supabase.auth.getSession()
       .then(({ data }) => { if (isMounted) setUser(data?.session?.user ?? null); })
       .catch((error) => {
@@ -73,7 +61,6 @@ export function useAuth() {
       })
       .finally(() => { if (isMounted) setLoading(false); });
 
-    // Mendengarkan perubahan status autentikasi (login/logout) secara real-time
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {

@@ -40,7 +40,8 @@ export function useRealtimeCart(){
     if(!user)return undefined;
     const channel=supabase.channel(`cart-sync-${user.id}-${runtimeId()}`).on('postgres_changes',{event:'*',schema:'public',table:'cart_items',filter:`user_id=eq.${user.id}`},refresh).subscribe();
     const reconcile=()=>{if(document.visibilityState==='visible')refresh();};
-    window.addEventListener('focus',refresh);document.addEventListener('visibilitychange',reconcile);window.addEventListener('cart:refresh',refresh);
-    return()=>{supabase.removeChannel(channel);window.removeEventListener('focus',refresh);document.removeEventListener('visibilitychange',reconcile);window.removeEventListener('cart:refresh',refresh);};
-  },[loading,refresh,user]);
+    const checkoutComplete=()=>{requestRef.current+=1;replaceItems([]);refresh();};
+    window.addEventListener('focus',refresh);document.addEventListener('visibilitychange',reconcile);window.addEventListener('cart:refresh',refresh);window.addEventListener('cart:checkout-complete',checkoutComplete);
+    return()=>{supabase.removeChannel(channel);window.removeEventListener('focus',refresh);document.removeEventListener('visibilitychange',reconcile);window.removeEventListener('cart:refresh',refresh);window.removeEventListener('cart:checkout-complete',checkoutComplete);};
+  },[loading,refresh,replaceItems,user]);
 }

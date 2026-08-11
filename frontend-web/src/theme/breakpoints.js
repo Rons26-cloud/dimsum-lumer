@@ -1,4 +1,3 @@
-// Breakpoint mobile-first: layout otomatis menyesuaikan resolusi perangkat.
 export const breakpoints = {
   mobile: 0,      // 0 - 639px   (HP)
   sm: 640,        // 640px+      (HP besar / landscape)

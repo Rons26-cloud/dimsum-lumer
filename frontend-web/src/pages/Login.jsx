@@ -50,13 +50,13 @@ export default function Login() {
   return (
     <div className="w-full bg-white flex flex-col justify-between px-2 py-4 max-w-md mx-auto">
       <div>
-        {/* Judul Halaman */}
+        {}
         <div className="text-center mb-6">
           <h1 className="font-display text-2xl font-bold text-gray-900">Selamat Datang</h1>
-          <p className="text-gray-500 text-xs mt-1">Masuk untuk lanjut belanja dimsum favoritmu</p>
+          <p className="mt-1 text-xs text-slate-500">Masuk untuk melanjutkan pemesanan</p>
         </div>
 
-        {/* Form Login */}
+        {}
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
@@ -111,14 +111,14 @@ export default function Login() {
           </Button>
         </form>
 
-        {/* Pemisah */}
+        {}
         <div className="flex items-center my-6">
           <div className="flex-grow border-t border-gray-100"></div>
           <span className="px-3 text-xs text-gray-400 font-medium">Atau masuk dengan</span>
           <div className="flex-grow border-t border-gray-100"></div>
         </div>
 
-        {/* Tombol Google Login */}
+        {}
         <button
           type="button"
           onClick={handleGoogleLogin}

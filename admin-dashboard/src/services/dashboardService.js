@@ -1,6 +1,7 @@
 import { supabase } from "../supabase/client.js";
 import { cleanText, safeNumber } from "../utils/security.js";
 import { validateApkFile } from "../supabase/storage.js";
+import { validateOrderStatusChange } from "../utils/orderStatusFlow.js";
 
 export const DEFAULT_STORE_INFO = {
   name: "Dimsum Lumer - Hongkong Fashion", address: "Hongkong Fashion, Jalan Sisingamangaraja, Sudirejo II, Medan Amplas, Kota Medan, Sumatera Utara 20147", latitude: 3.570776, longitude: 98.694665, phone: "6288807597952", is_open: true, open_time: "10:00", close_time: "22:00",
@@ -126,6 +127,11 @@ export async function uploadApk(file, version, onProgress) {
 export async function updateOrderStatus(id, status) {
   if (!id) throw new Error("ID pesanan tidak valid.");
   if (!ORDER_STATUSES.has(status)) throw new Error("Status pesanan tidak valid.");
+  const { data: currentOrder, error: readError } = await supabase.from("orders").select("id,status,payment_status,payment_method").eq("id", id).maybeSingle();
+  if (readError) throw readError;
+  if (!currentOrder) throw new Error("Pesanan tidak ditemukan.");
+  const flowError = validateOrderStatusChange(currentOrder, status);
+  if (flowError) throw new Error(flowError);
   let response = await supabase.from("orders").update({ status, updated_at: new Date().toISOString() }).eq("id", id).select("id").maybeSingle();
   if (response.error && (response.error.code === "42703" || /updated_at.*does not exist|schema cache/i.test(response.error.message || ""))) {
     response = await supabase.from("orders").update({ status }).eq("id", id).select("id").maybeSingle();
@@ -134,10 +140,42 @@ export async function updateOrderStatus(id, status) {
   if (!response.data?.id) throw new Error("Status pesanan tidak berubah. Periksa izin admin Supabase.");
 }
 
+export async function getOrderPaymentProof(order) {
+  if (!order?.id) return { proof: null, signedUrl: "" };
+  const response = await supabase.from("payment_proofs").select("id,order_id,user_id,proof_path,amount,notes,status,created_at,updated_at").eq("order_id", order.id).order("created_at", { ascending: false }).limit(1).maybeSingle();
+  if (response.error && !["42P01", "42703"].includes(response.error.code)) throw response.error;
+  const proof = response.data || null;
+  const path = proof?.proof_path || order.payment_proof_path || order.payment_proof_url || "";
+  if (!path) return { proof, signedUrl: "" };
+  if (/^https?:\/\//i.test(path)) return { proof: proof || { proof_path: path }, signedUrl: path };
+  const { data, error } = await supabase.storage.from("payment-proofs").createSignedUrl(path, 600);
+  if (error) throw new Error(`Bukti pembayaran tidak dapat dibuka: ${error.message}`);
+  return { proof: proof || { proof_path: path, status: "pending" }, signedUrl: data?.signedUrl || "" };
+}
+
+export async function reviewOrderPayment(orderId, approved, notes = "") {
+  if (!orderId) throw new Error("ID pesanan tidak valid.");
+  const { data, error } = await supabase.rpc("admin_review_payment", {
+    p_order_id: orderId,
+    p_approved: Boolean(approved),
+    p_notes: notes.trim() || null,
+  });
+  if (error) {
+    if (error.code === "PGRST202" || /schema cache|could not find the function/i.test(error.message || "")) {
+      throw new Error("Fungsi verifikasi pembayaran belum terpasang di Supabase. Jalankan SUPABASE_MASTER_FIXED.sql versi terbaru lalu coba kembali.");
+    }
+    throw error;
+  }
+  return data;
+}
+
 export async function getDashboardData() {
   const weekStart = new Date();
   weekStart.setHours(0, 0, 0, 0);
   weekStart.setDate(weekStart.getDate() - 6);
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  monthStart.setHours(0, 0, 0, 0);
   const [orders, profiles, products, categories, orderItems, configuredStore, apkVersion, apkStorage, stores] = await Promise.all([
     rows("orders"), getProfiles(), rows("products"), rows("categories"),
     getOrderItems(), getConfig("store_info", DEFAULT_STORE_INFO), getConfig("apk_version", DEFAULT_APK_VERSION), getApkStorageUsage(), optionalRows("stores"),
@@ -146,8 +184,9 @@ export async function getDashboardData() {
   const storeInfo={...DEFAULT_STORE_INFO,...configuredStore,...(primaryStore?{name:primaryStore.name,address:primaryStore.address,latitude:primaryStore.latitude,longitude:primaryStore.longitude,phone:primaryStore.phone,open_time:primaryStore.open_time?.slice?.(0,5)||primaryStore.open_time,close_time:primaryStore.close_time?.slice?.(0,5)||primaryStore.close_time,is_open:primaryStore.is_open}: {})};
   const productsById = new Map(products.map((product) => [product.id, product]));
   const profilesById = new Map(profiles.map((profile) => [profile.id, profile]));
-  const validOrders = orders.filter((o) => normalizedStatus(o.status) !== "cancelled");
-  const completedIds = new Set(orders.filter((o) => normalizedStatus(o.status) === "completed").map((o) => o.id));
+  const monthOrders = orders.filter((o) => o.created_at && new Date(o.created_at) >= monthStart);
+  const validOrders = monthOrders.filter((o) => normalizedStatus(o.status) !== "cancelled");
+  const completedIds = new Set(monthOrders.filter((o) => normalizedStatus(o.status) === "completed").map((o) => o.id));
   const completedItems = orderItems.filter((item) => completedIds.has(item.order_id));
   const byDay = Array.from({ length: 7 }, (_, index) => {
     const date = new Date(weekStart); date.setDate(date.getDate() + index);
@@ -172,9 +211,9 @@ export async function getDashboardData() {
     }))
     .sort((a, b) => Number(b.is_active) - Number(a.is_active) || a.name.localeCompare(b.name, "id"));
   const categoryData = categories.map((category) => ({ name: category.name, value: products.filter((p) => p.category_id === category.id).length }));
-  const statuses = orders.reduce((acc, order) => { const key = normalizedStatus(order.status); acc[key] = (acc[key] || 0) + 1; return acc; }, {});
+  const statuses = monthOrders.reduce((acc, order) => { const key = normalizedStatus(order.status); acc[key] = (acc[key] || 0) + 1; return acc; }, {});
   return {
-    stats: { totalOrders: orders.length, totalSales: validOrders.reduce((sum, o) => sum + orderTotal(o), 0), newCustomers: profiles.filter((p) => p.created_at && new Date(p.created_at) >= weekStart).length, productsSold: completedItems.reduce((sum, item) => sum + Number(item.quantity || 0), 0) },
+    stats: { totalOrders: monthOrders.length, totalSales: validOrders.reduce((sum, o) => sum + orderTotal(o), 0), newCustomers: profiles.filter((p) => p.created_at && new Date(p.created_at) >= monthStart).length, productsSold: completedItems.reduce((sum, item) => sum + Number(item.quantity || 0), 0) },
     salesChart: byDay, categories: categoryData, bestSellers: [...bestSellerMap.values()].sort((a, b) => b.sold - a.sold).slice(0, 5),
     orderStatuses: statuses, productCatalog, recentOrders: [...orders].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5).map((order) => ({ ...order, customer_name: order.customer_name || profilesById.get(order.user_id)?.full_name })), storeInfo, apkVersion, apkStorage,
   };

@@ -30,7 +30,6 @@ if (containsServiceRole(supabaseAnonKey)) {
   throw new Error("VITE_SUPABASE_ANON_KEY tidak boleh berisi service-role key.");
 }
 
-// Client tunggal yang dipakai di seluruh aplikasi (services, hooks, dsb).
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,

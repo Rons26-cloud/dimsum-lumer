@@ -36,7 +36,7 @@ export default function DashboardHome() {
   const saveApk=async(event)=>{
     event.preventDefault();
     try { await execute(async()=>{const uploaded=await uploadApk(file,apk.version);const next={...apk,download_url:uploaded?.url||apk.download_url,file_size:uploaded?.size||apk.file_size||0,storage_path:uploaded?.path||apk.storage_path,uploaded_at:new Date().toISOString()};await updateConfig("apk_version",next);setApk(next);},"Versi APK berhasil diterbitkan.");setFile(null);setApkOpen(false); }
-    catch { /* pesan sudah disimpan oleh execute */ }
+    catch {  }
   };
   const changeOrderStatus=(id,status)=>execute(()=>updateOrderStatus(id,status),"Status pesanan berhasil diperbarui.").catch(()=>{});
 

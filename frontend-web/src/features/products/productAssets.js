@@ -27,11 +27,7 @@ const LOCAL_IMAGE_BY_SLUG = {
   "dimsum-ayam-premium": ayamPremium,
 };
 
-/**
- * Produk tetap sepenuhnya berasal dari Supabase. Aset lokal hanya menjadi
- * fallback gambar untuk row database yang image_url-nya belum terisi; fallback
- * tidak pernah membuat row produk baru sehingga produk yang dihapus tetap hilang.
- */
+
 export function mergeProductCatalog(serverProducts) {
   if (!Array.isArray(serverProducts)) return [];
   return serverProducts

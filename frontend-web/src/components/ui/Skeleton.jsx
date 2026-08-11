@@ -1,7 +1,4 @@
-/**
- * Komponen Skeleton
- * Menampilkan animasi kotak placeholder saat konten sedang dimuat.
- */
+
 export default function Skeleton({ className = "h-4 w-full", ...props }) {
   return (
     <div

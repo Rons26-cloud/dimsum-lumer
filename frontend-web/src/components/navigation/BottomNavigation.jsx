@@ -3,11 +3,11 @@ import { Heart, Home, ReceiptText, User, Utensils } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const tabs = [
-  { id: "home", label: "Beranda", path: "/", Icon: Home },
-  { id: "menu", label: "Menu", path: "/produk", Icon: Utensils },
-  { id: "orders", label: "Pesanan", path: "/orders", Icon: ReceiptText, elevated: true },
-  { id: "wishlist", label: "Favorit", path: "/wishlist", Icon: Heart },
-  { id: "profile", label: "Profil", path: "/profil", Icon: User },
+  { id: "home", label: "Beranda", path: "/", Icon: Home, color: "text-orange-600", soft: "bg-orange-50" },
+  { id: "menu", label: "Menu", path: "/produk", Icon: Utensils, color: "text-amber-600", soft: "bg-amber-50" },
+  { id: "orders", label: "Pesanan", path: "/orders", Icon: ReceiptText, color: "text-blue-600", soft: "bg-blue-50", elevated: true },
+  { id: "wishlist", label: "Favorit", path: "/wishlist", Icon: Heart, color: "text-rose-600", soft: "bg-rose-50" },
+  { id: "profile", label: "Profil", path: "/profil", Icon: User, color: "text-violet-600", soft: "bg-violet-50" },
 ];
 
 function tabFromPath(pathname) {
@@ -47,9 +47,6 @@ export default function BottomNavigation() {
         directionDistance.current += Math.abs(delta);
         lastDirection.current = direction;
 
-        // Selalu tampil pada halaman pendek, posisi atas/bawah, dan segera saat
-        // pengguna mulai menggulir ke atas. Sembunyikan hanya setelah scroll
-        // turun cukup jauh agar navigasi tidak berkedip karena gerakan kecil.
         const shortPage = pageHeight <= window.innerHeight + 96;
         if (shortPage || currentY < 32 || atBottom) setVisible(true);
         else if (direction === "up" && directionDistance.current >= 8) setVisible(true);
@@ -105,7 +102,7 @@ export default function BottomNavigation() {
                 className="relative flex h-full min-w-0 flex-col items-center justify-end pb-1.5 text-[10px] font-bold text-dark"
                 aria-current={active ? "page" : undefined}
               >
-                <span className={`absolute top-0 grid h-12 w-12 -translate-y-3 place-items-center rounded-full border-4 border-white shadow-[0_6px_16px_rgba(17,24,39,.18)] transition-all ${active ? "bg-primary text-white" : "bg-neutral-900 text-white"}`}>
+                <span className={`absolute top-0 grid h-12 w-12 -translate-y-3 place-items-center rounded-full border-4 border-white shadow-[0_6px_16px_rgba(17,24,39,.16)] transition-all ${active ? "bg-blue-600 text-white" : `${tab.soft} ${tab.color}`}`}>
                   <Icon size={20} strokeWidth={2.2} />
                 </span>
                 <span>{tab.label}</span>
@@ -118,12 +115,12 @@ export default function BottomNavigation() {
               type="button"
               key={tab.id}
               onClick={() => selectTab(tab)}
-              className={`relative flex h-full min-w-0 flex-col items-center justify-center gap-0.5 text-[10px] font-semibold transition-colors ${active ? "text-primary" : "text-gray-600"}`}
+              className={`relative flex h-full min-w-0 flex-col items-center justify-center gap-0.5 text-[10px] font-semibold transition-colors ${active ? tab.color : "text-slate-600"}`}
               aria-current={active ? "page" : undefined}
             >
-              <Icon size={20} strokeWidth={active ? 2.3 : 1.9} fill={tab.id === "wishlist" && active ? "currentColor" : "none"} />
+              <span className={`grid h-8 w-8 place-items-center rounded-xl ${active ? tab.soft : "bg-transparent"}`}><Icon size={20} strokeWidth={active ? 2.3 : 1.9} fill={tab.id === "wishlist" && active ? "currentColor" : "none"} /></span>
               <span>{tab.label}</span>
-              {active && <span className="absolute bottom-0.5 h-0.5 w-4 rounded-full bg-primary" />}
+              {active && <span className={`absolute bottom-0.5 h-0.5 w-4 rounded-full ${tab.soft.replace("bg-", "bg-")}`} />}
             </button>
           );
         })}

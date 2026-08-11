@@ -1,10 +1,7 @@
 import { PackageOpen } from "lucide-react";
 import React from "react";
 
-/**
- * Komponen EmptyState
- * Menampilkan pesan kosong, ikon/ilustrasi, dan tombol aksi opsional saat data belum tersedia.
- */
+
 export default function EmptyState({ 
   title = "Belum ada data", 
   description, 

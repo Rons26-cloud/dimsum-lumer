@@ -1,17 +1,13 @@
 import { useState, useEffect } from "react";
 import { Star } from "lucide-react";
 
-/**
- * 1. Komponen Kartu Ulasan (ReviewCard)
- * Menampilkan ulasan pelanggan beserta rating bintang, komentar, avatar, dan lampiran foto.
- */
+
 export function ReviewCard({ review }) {
-  // Validasi rating agar aman dalam rentang 1-5
   const rating = Math.max(1, Math.min(5, review?.rating || 5));
 
   return (
     <div className="bg-white rounded-xl shadow-sm hover:shadow-md border border-gray-100 p-4 transition-all duration-200">
-      {/* Header Ulasan: Avatar & Informasi Pengguna */}
+      {}
       <div className="flex items-center mb-3">
         <div className="w-10 h-10 bg-orange-100 rounded-full mr-3 flex items-center justify-center overflow-hidden flex-shrink-0">
           {review?.user_avatar ? (
@@ -31,7 +27,7 @@ export function ReviewCard({ review }) {
           <p className="font-semibold text-sm text-gray-800 truncate">
             {review?.user_name || review?.customer_name || 'Pelanggan Setia'}
           </p>
-          {/* Bintang Rating Menggunakan Lucide Star */}
+          {}
           <div className="flex items-center gap-0.5 mt-0.5">
             {Array.from({ length: 5 }).map((_, i) => (
               <Star 
@@ -46,12 +42,12 @@ export function ReviewCard({ review }) {
         </div>
       </div>
 
-      {/* Komentar Ulasan */}
+      {}
       <p className="text-gray-600 text-xs sm:text-sm leading-relaxed mb-3">
         {review?.comment || 'Dimsumnya enak banget, lumer di mulut, pengiriman juga cepat!'}
       </p>
 
-      {/* Lampiran Foto Ulasan (Jika Ada) */}
+      {}
       {review?.images && Array.isArray(review.images) && review.images.length > 0 && (
         <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
           {review.images.map((image, index) => (
@@ -69,10 +65,7 @@ export function ReviewCard({ review }) {
   );
 }
 
-/**
- * 2. Komponen Container Ulasan dengan Supabase Realtime
- * Mengambil data ulasan dari tabel 'reviews' dan mendengarkan perubahan secara realtime.
- */
+
 export default function ReviewContainer({ supabase, productId }) {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -107,7 +100,6 @@ export default function ReviewContainer({ supabase, productId }) {
 
     fetchReviews();
 
-    // Setup Supabase Realtime Subscription untuk tabel reviews
     const reviewChannel = supabase
       .channel('public:reviews')
       .on(

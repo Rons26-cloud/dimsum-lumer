@@ -11,7 +11,7 @@ const DESKTOP_BREAKPOINT = 1024;
 const OVERRIDE_KEY = "dimsumFrameMode"; // "frame" | "full" | null (null = otomatis)
 const safeSession = {
   get(key) { try { return window.sessionStorage.getItem(key); } catch { return null; } },
-  set(key, value) { try { window.sessionStorage.setItem(key, value); } catch { /* mode privat */ } },
+  set(key, value) { try { window.sessionStorage.setItem(key, value); } catch {  } },
 };
 
 function isEmbedded() {
@@ -67,7 +67,7 @@ export default function App() {
         <CartRealtimeSync />
         <AppRouter />
       </PullToRefresh>
-      {/* Tombol kembali ke bingkai HP — hanya berguna & tampil di layar lebar */}
+      {}
       {isWide && !isEmbedded() && (
         <button
           onClick={enterFrame}

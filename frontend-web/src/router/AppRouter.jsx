@@ -34,6 +34,7 @@ const NotFound=lazy(()=>import("../pages/NotFound.jsx"));
 const Orders=lazy(()=>import("../pages/Orders.jsx"));
 const Notification=lazy(()=>import("../pages/Notification.jsx"));
 const NotificationDetail=lazy(()=>import("../pages/NotificationDetail.jsx"));
+const NotificationSettings=lazy(()=>import("../pages/NotificationSettings.jsx"));
 const Payment=lazy(()=>import("../pages/Payment.jsx"));
 
 import ProtectedRoute from "./ProtectedRoute.jsx";
@@ -42,7 +43,7 @@ import GuestRoute from "./GuestRoute.jsx";
 export default function AppRouter() {
   return (
     <Suspense fallback={<Loading fullscreen text="Menyiapkan halaman…"/>}><Routes>
-      {/* Halaman publik / customer utama */}
+      {}
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/produk" element={<Product />} />
@@ -60,7 +61,7 @@ export default function AppRouter() {
       <Route path="/notifikasi" element={<ProtectedRoute><Notification /></ProtectedRoute>} />
       <Route path="/notifikasi/:notificationId" element={<ProtectedRoute><NotificationDetail /></ProtectedRoute>} />
 
-      {/* Auth (login / register) — hanya untuk tamu, redirect kalau sudah login */}
+      {}
       <Route element={<GuestRoute><AuthLayout /></GuestRoute>}>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -70,14 +71,14 @@ export default function AppRouter() {
         <Route path="/reset-password" element={<ResetPassword />} />
       </Route>
 
-      {/* Checkout */}
+      {}
       <Route element={<ProtectedRoute><CheckoutLayout /></ProtectedRoute>}>
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/pembayaran/:orderId" element={<Payment />} />
         <Route path="/checkout/sukses" element={<OrderSuccess />} />
       </Route>
 
-      {/* Area profil — butuh login */}
+      {}
       <Route element={<ProfileLayout />}>
         <Route path="/profil" element={<Profile />} />
         <Route path="/profil/detail" element={<ProtectedRoute><ProfileDetail /></ProtectedRoute>} />
@@ -86,6 +87,7 @@ export default function AppRouter() {
         <Route path="/profil/poin" element={<ProtectedRoute><Point /></ProtectedRoute>} />
         <Route path="/profil/riwayat-poin" element={<ProtectedRoute><PointHistory /></ProtectedRoute>} />
         <Route path="/profil/reward" element={<ProtectedRoute><Reward /></ProtectedRoute>} />
+        <Route path="/profil/pengaturan-notifikasi" element={<ProtectedRoute><NotificationSettings /></ProtectedRoute>} />
       </Route>
 
       <Route path="*" element={<NotFound />} />

@@ -20,7 +20,7 @@ export async function getOrderStats(userId) {
     .order("created_at", { ascending:false });
   if (error) throw error;
   const rows=data||[];
-  const stats=rows.reduce((result,order)=>{result.total+=1;result[order.status]=(result[order.status]||0)+1;return result;},{total:0,pending:0,processing:0,shipping:0,completed:0,cancelled:0});
+  const stats=rows.reduce((result,order)=>{result.total+=1;result[order.status]=(result[order.status]||0)+1;(result.orderIdsByStatus[order.status]||=[]).push(order.id);return result;},{total:0,pending:0,processing:0,shipping:0,completed:0,cancelled:0,orderIdsByStatus:{}});
   stats.latestOrder=rows.find((order)=>!['completed','cancelled'].includes(order.status))||rows[0]||null;
   return stats;
 }

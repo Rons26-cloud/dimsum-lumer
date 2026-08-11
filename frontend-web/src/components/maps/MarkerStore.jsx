@@ -2,7 +2,6 @@ import React from 'react';
 import { Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 
-// Membuat ikon custom menggunakan SVG (menggantikan emoji agar konsisten)
 const storeIcon = L.divIcon({
   className: 'custom-store-marker',
   html: `
@@ -30,12 +29,8 @@ const storeIcon = L.divIcon({
   popupAnchor: [0, -17],
 });
 
-/**
- * Komponen MarkerStore
- * Menampilkan pin penanda lokasi cabang toko dimsum di dalam peta Leaflet.
- */
+
 export default function MarkerStore({ position, store, children, onClick }) {
-  // Tentukan koordinat dari prop position atau objek store
   let coords = position;
   if (!coords && store) {
     const lat = store.latitude || store.lat;
@@ -47,7 +42,6 @@ export default function MarkerStore({ position, store, children, onClick }) {
 
   if (!coords) return null;
 
-  // Normalisasi koordinat
   let lat, lng;
   if (Array.isArray(coords)) {
     [lat, lng] = coords;

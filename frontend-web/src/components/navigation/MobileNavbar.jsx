@@ -3,11 +3,7 @@ import { Search, Bell, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import MapsIcon from "../maps/MapsIcon.jsx";
 
-/**
- * Komponen MobileNavbar
- * Varian navbar khusus mobile dengan baris pencarian besar dan tombol aksi cepat,
- * otomatis tersembunyi saat scroll ke bawah dan muncul kembali saat scroll ke atas.
- */
+
 export default function MobileNavbar({ 
   searchQuery = "", 
   onSearchChange, 
@@ -31,7 +27,7 @@ export default function MobileNavbar({
     <header 
       className={`fixed top-0 left-0 right-0 z-40 translate-y-0 bg-white/95 backdrop-blur-md border-b border-gray-100 px-4 pt-3 pb-3.5 shadow-2xs md:hidden ${className}`.trim()}
     >
-      {/* Baris Atas: Informasi Lokasi & Aksi Cepat (Notifikasi & Keranjang) */}
+      {}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
           <MapsIcon size={17}/>
@@ -60,7 +56,7 @@ export default function MobileNavbar({
         </div>
       </div>
 
-      {/* Baris Bawah: Search Bar Besar */}
+      {}
       <form onSubmit={handleSearchSubmit} className="relative w-full">
         <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
           <Search size={18} />

@@ -1,7 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { useAdminAuth } from "../hooks/useAdminAuth.js";
 
-// Pembatasan akses per-role, mis. hanya 'superadmin' boleh buka Settings/Akun Admin.
 export default function PermissionRoute({ children, allow = ["admin", "superadmin"] }) {
   const { admin, loading } = useAdminAuth();
   if (loading) return null;

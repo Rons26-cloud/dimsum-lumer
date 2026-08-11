@@ -1,7 +1,5 @@
 import { supabase } from "./client";
 
-// Wrapper generik CRUD supaya semua service (product, order, dst) tinggal
-// pakai fungsi ini tanpa menulis ulang query Supabase berkali-kali.
 
 export async function getAll(table, { select = "*", filters = {}, order, limit } = {}) {
   let query = supabase.from(table).select(select);

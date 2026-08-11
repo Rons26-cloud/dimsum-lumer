@@ -193,7 +193,7 @@ class _GuestCard extends StatelessWidget {
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800)),
               const SizedBox(height: 4),
               const Text(
-                  'Kamu tetap dapat melihat seluruh produk dan harga sebelum masuk.',
+                  'Anda tetap dapat melihat seluruh produk dan harga sebelum masuk.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       fontSize: 10, height: 1.6, color: Color(0xFF6B7280))),
@@ -210,7 +210,7 @@ class _GuestCard extends StatelessWidget {
           const Padding(
               padding: EdgeInsets.fromLTRB(12, 12, 12, 4),
               child: Text(
-                  'Dengan masuk atau membuat akun, kamu menyetujui ketentuan layanan dan kebijakan privasi Dimsum Lumer.',
+                  'Dengan masuk atau membuat akun, Anda menyetujui ketentuan layanan dan kebijakan privasi Dimsum Lumer.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       fontSize: 9, height: 1.5, color: Color(0xFF9CA3AF)))),

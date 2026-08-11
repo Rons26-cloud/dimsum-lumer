@@ -12,7 +12,6 @@ function timestamp() {
 
 export function downloadCsv(rows, baseName = "data-dashboard") {
   if (!Array.isArray(rows) || !rows.length) throw new Error("Tidak ada data yang dapat diekspor.");
-  // Titik koma dibaca lebih konsisten sebagai kolom oleh Excel pada locale Indonesia.
   const content = rows.map((row) => row.map(csvCell).join(";")).join("\r\n");
   const blob = new Blob([`\uFEFF${content}`], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);

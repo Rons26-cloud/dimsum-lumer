@@ -23,8 +23,6 @@ class CartService {
       'p_quantity': InputValidator.quantity(quantity),
       'p_variant': InputValidator.variant(variant),
       'p_flash_sale_id': null,
-      // Kept only for compatibility with the existing RPC signature. The
-      // hardened database function ignores client prices and uses products.price.
       'p_unit_price': null,
     });
   }

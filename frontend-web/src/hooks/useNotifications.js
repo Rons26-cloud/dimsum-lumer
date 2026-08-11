@@ -4,11 +4,7 @@ import { TABLES } from "../supabase/constants.js";
 import { useAuth } from "./useAuth.js";
 import { runtimeId } from "../utils/runtimeId.js";
 
-/**
- * Custom Hook useNotifications
- * Menghitung notifikasi belum dibaca & memperbaruinya secara realtime —
- * dipakai untuk badge lonceng di Navbar.
- */
+
 export function useNotifications() {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState([]);

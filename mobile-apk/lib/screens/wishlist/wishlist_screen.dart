@@ -17,7 +17,7 @@ class WishlistScreen extends StatelessWidget {
       body: user == null
           ? AppStateView(
               icon: Icons.favorite_border_rounded,
-              title: 'Simpan produk favoritmu',
+              title: 'Simpan produk pilihan Anda',
               message:
                   'Masuk agar daftar favorit tersimpan di semua perangkat.',
               actionLabel: 'Masuk / Daftar',

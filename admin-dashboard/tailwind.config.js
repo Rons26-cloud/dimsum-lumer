@@ -4,12 +4,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: { DEFAULT: "#FF7A00", 50: "#FFF8F2", 100: "#FFE8D1", 500: "#FF7A00", 600: "#E96F00", 700: "#C95F00" },
-        cream: "#FFF8F2",
+        primary: { DEFAULT: "#E96818", 50: "#FFF7ED", 100: "#FFEDD5", 500: "#E96818", 600: "#D85B0D", 700: "#B94708" },
+        cream: "#FFF7ED",
         whatsapp: "#25D366",
-        sidebar: "#1C1F26",
+        sidebar: "#111827",
       },
-      fontFamily: { sans: ["Poppins", "system-ui", "sans-serif"] },
+      fontFamily: { sans: ["Inter", "system-ui", "sans-serif"] },
     },
   },
   plugins: [],

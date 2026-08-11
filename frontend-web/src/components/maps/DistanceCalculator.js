@@ -1,14 +1,7 @@
-/**
- * Konversi derajat ke radian
- */
+
 const toRad = (value) => (value * Math.PI) / 180;
 
-/**
- * Menghitung jarak (km) antara dua koordinat menggunakan formula Haversine.
- * Mendukung dua format pemanggilan:
- * 1. calculateDistance(lat1, lon1, lat2, lon2)
- * 2. calculateDistance([lat1, lon1], [lat2, lon2])
- */
+
 export function calculateDistance(lat1OrCoord1, lon1OrCoord2, lat2, lon2) {
   let lat1, lon1, latLat2, lonLon2;
 
@@ -38,9 +31,7 @@ export function calculateDistance(lat1OrCoord1, lon1OrCoord2, lat2, lon2) {
   return R * c;
 }
 
-/**
- * Mencari toko terdekat dari lokasi pelanggan berdasarkan koordinat.
- */
+
 export function findNearestStore(customerLocation, stores) {
   if (!customerLocation || !Array.isArray(stores) || stores.length === 0) {
     return null;
@@ -70,9 +61,7 @@ export function findNearestStore(customerLocation, stores) {
   return nearestStore;
 }
 
-/**
- * Memformat jarak dalam bentuk teks yang mudah dibaca (meter atau kilometer).
- */
+
 export function formatDistance(distanceInKm) {
   if (typeof distanceInKm !== 'number' || isNaN(distanceInKm)) {
     return '0m';

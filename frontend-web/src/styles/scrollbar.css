@@ -1,4 +1,4 @@
-/* Sembunyikan scrollbar secara global */
+
 ::-webkit-scrollbar {
   display: none;
   width: 0px;
@@ -6,8 +6,8 @@
 }
 
 html, body {
-  scrollbar-width: none; /* Untuk Firefox */
-  -ms-overflow-style: none; /* Untuk Internet Explorer & Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .scrollbar-hide {

@@ -11,7 +11,7 @@ function formatDate(value) {
   return new Date(value).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
 }
 
-export default function AdminManagement({ currentAdminId }) {
+export default function AdminManagement({ currentAdminId, canDelete = false }) {
   const profiles = useLiveCollection("profiles") || [];
   const admins = useMemo(() => profiles.filter((item) => ["admin", "superadmin"].includes(item.role)).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)), [profiles]);
   const [open, setOpen] = useState(false);
@@ -34,7 +34,6 @@ export default function AdminManagement({ currentAdminId }) {
 
     setSaving(true);
     try {
-      // Klien terpisah mencegah sesi admin yang sedang membuka Dashboard terganti.
       const isolatedAuth = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY, {
         auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
       });
@@ -51,7 +50,7 @@ export default function AdminManagement({ currentAdminId }) {
         admin_full_name: fullName,
         admin_phone: form.phone.trim() || null,
       });
-      if (roleError) throw new Error(`${roleError.message}. Pastikan SQL admin-account-management.sql sudah dijalankan.`);
+      if (roleError) throw new Error(`${roleError.message}. Pastikan SUPABASE_MASTER_FIXED.sql versi terbaru sudah dijalankan.`);
       if (data.session) await isolatedAuth.auth.signOut();
       window.dispatchEvent(new CustomEvent("admin:refresh-data", { detail: { table: "profiles" } }));
       setForm({ fullName: "", email: "", password: "", phone: "" });
@@ -66,7 +65,7 @@ export default function AdminManagement({ currentAdminId }) {
     setDeleting(true); setPageNotice(null);
     const { data, error } = await supabase.rpc("admin_delete_admin_account", { target_user_id: deleteTarget.id });
     setDeleting(false);
-    if (error) return setPageNotice({ type: "error", text: `${error.message}. Pastikan SQL admin-account-management.sql versi terbaru sudah dijalankan.` });
+    if (error) return setPageNotice({ type: "error", text: `${error.message}. Pastikan SUPABASE_MASTER_FIXED.sql versi terbaru sudah dijalankan.` });
     setDeleteTarget(null);
     window.dispatchEvent(new CustomEvent("admin:refresh-data", { detail: { table: "profiles" } }));
     setPageNotice({ type: "success", text: `Akun ${deleteTarget.full_name || "administrator"} berhasil dihapus permanen dari Supabase.` });
@@ -79,11 +78,12 @@ export default function AdminManagement({ currentAdminId }) {
       <button type="button" onClick={() => { setOpen(true); setNotice(null); }} className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-primary px-4 text-xs font-bold text-white shadow-sm"><Plus size={15}/>Tambah Admin</button>
     </div>
     {pageNotice && <div role="alert" className={`mt-4 flex items-start justify-between gap-3 rounded-xl border p-3 text-xs ${pageNotice.type === "success" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-red-200 bg-red-50 text-red-700"}`}><span className="flex items-start gap-2">{pageNotice.type === "success" ? <CheckCircle2 className="shrink-0" size={15}/> : <AlertTriangle className="shrink-0" size={15}/>} {pageNotice.text}</span><button type="button" onClick={() => setPageNotice(null)} aria-label="Tutup notifikasi"><X size={14}/></button></div>}
+    <div className="mt-5 grid gap-3 sm:grid-cols-3"><div className="rounded-2xl border border-violet-100 bg-violet-50 p-4"><p className="text-[10px] font-bold uppercase tracking-wide text-violet-500">Total administrator</p><strong className="mt-1 block text-2xl text-violet-900">{admins.length}</strong></div><div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4"><p className="text-[10px] font-bold uppercase tracking-wide text-emerald-600">Admin aktif</p><strong className="mt-1 block text-2xl text-emerald-900">{admins.filter((item) => item.role === "admin").length}</strong></div><div className="rounded-2xl border border-blue-100 bg-blue-50 p-4"><p className="text-[10px] font-bold uppercase tracking-wide text-blue-600">Superadmin</p><strong className="mt-1 block text-2xl text-blue-900">{admins.filter((item) => item.role === "superadmin").length}</strong></div></div>
     <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       {admins.map((item) => <article key={item.id} className="rounded-2xl border border-gray-100 bg-gray-50/70 p-4">
         <div className="flex items-start gap-3"><span className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-xl bg-gray-900 text-xs font-bold text-white">{item.avatar_url ? <img src={item.avatar_url} alt={item.full_name || "Admin"} className="h-full w-full object-cover"/> : String(item.full_name || "A").slice(0, 2).toUpperCase()}</span><div className="min-w-0 flex-1"><div className="flex items-center gap-1.5"><h3 className="truncate text-sm font-bold text-gray-900">{item.full_name || "Administrator"}</h3>{item.id === currentAdminId && <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[8px] font-bold text-blue-700">ANDA</span>}</div><p className="mt-1 capitalize text-[10px] font-bold text-violet-600">{item.role}</p></div><ShieldCheck size={17} className="shrink-0 text-emerald-500"/></div>
-        <div className="mt-3 border-t border-gray-100 pt-3 text-[10px] text-gray-500"><p>Dibuat: <strong className="text-gray-700">{formatDate(item.created_at)}</strong></p>{item.phone && <p className="mt-1">Telepon: <strong className="text-gray-700">{item.phone}</strong></p>}</div>
-        {item.id !== currentAdminId ? <button type="button" onClick={() => { setDeleteTarget(item); setPageNotice(null); }} className="mt-3 inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-white text-[10px] font-bold text-red-600 transition hover:bg-red-50"><Trash2 size={13}/>Hapus Akun Admin</button> : <div className="mt-3 rounded-xl bg-blue-50 px-3 py-2 text-center text-[9px] font-semibold text-blue-600">Akun yang sedang digunakan dilindungi</div>}
+        <div className="mt-3 space-y-1 border-t border-gray-100 pt-3 text-[10px] text-gray-500">{item.email && <p className="truncate">Email: <strong className="text-gray-700">{item.email}</strong></p>}<p>Dibuat: <strong className="text-gray-700">{formatDate(item.created_at)}</strong></p>{item.phone && <p>Telepon: <strong className="text-gray-700">{item.phone}</strong></p>}<p>Status: <strong className="text-emerald-600">Aktif</strong></p></div>
+        {item.id === currentAdminId ? <div className="mt-3 rounded-xl bg-blue-50 px-3 py-2 text-center text-[9px] font-semibold text-blue-600">Akun yang sedang digunakan dilindungi</div> : canDelete ? <button type="button" onClick={() => { setDeleteTarget(item); setPageNotice(null); }} className="mt-3 inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-white text-[10px] font-bold text-red-600 transition hover:bg-red-50"><Trash2 size={13}/>Hapus Akun Admin</button> : <div className="mt-3 rounded-xl bg-gray-100 px-3 py-2 text-center text-[9px] font-semibold text-gray-500">Penghapusan hanya untuk superadmin</div>}
       </article>)}
       {!admins.length && <div className="col-span-full rounded-2xl border border-dashed p-8 text-center text-xs text-gray-400">Data administrator belum dapat dimuat.</div>}
     </div>

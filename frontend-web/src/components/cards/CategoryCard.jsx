@@ -1,7 +1,6 @@
 ﻿import { useState, useEffect } from "react";
 import { Utensils, Soup, Flame, Package, Coffee, Sparkles } from "lucide-react";
 
-// Fungsi helper pintar untuk mencocokkan ikon berdasarkan nama kategori dimsum
 const getDimsumIcon = (name) => {
   const lower = name?.toLowerCase() || "";
   if (lower.includes("goreng") || lower.includes("crispy") || lower.includes("bakar")) return Flame;
@@ -12,11 +11,8 @@ const getDimsumIcon = (name) => {
   return Utensils; // Default ikon makanan/dimsum utama
 };
 
-/**
- * 1. Komponen Kartu Kategori (Mendukung Lucide Icon, URL Gambar, atau Otomatis berdasarkan nama)
- */
+
 export function CategoryCard({ category, active, onClick }) {
-  // Tentukan ikon: pakai dari props, atau pilih otomatis dari nama kategori dimsum
   const IconComponent = category?.Icon || getDimsumIcon(category?.name);
   
   const imageUrl = category?.image_url || category?.icon_url || category?.icon;
@@ -60,14 +56,11 @@ export function CategoryCard({ category, active, onClick }) {
   );
 }
 
-/**
- * 2. Komponen Utama dengan Realtime Listener Supabase
- */
+
 export function CategoryContainer({ supabase, onSelectCategory, activeCategoryId }) {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fungsi untuk mengambil data kategori beserta jumlah produknya
   const fetchCategories = async () => {
     if (!supabase) {
       setLoading(false);
@@ -86,7 +79,6 @@ export function CategoryContainer({ supabase, onSelectCategory, activeCategoryId
 
       if (error) throw error;
 
-      // Format data menghitung jumlah produk
       const formattedData = (data || []).map(cat => ({
         ...cat,
         product_count: cat.products?.[0]?.count || 0
@@ -108,7 +100,6 @@ export function CategoryContainer({ supabase, onSelectCategory, activeCategoryId
 
     fetchCategories();
 
-    // Setup Supabase Realtime Subscription untuk tabel categories
     const categoryChannel = supabase
       .channel('public:categories')
       .on(
@@ -121,7 +112,6 @@ export function CategoryContainer({ supabase, onSelectCategory, activeCategoryId
       )
       .subscribe();
 
-    // Cleanup subscription saat komponen di-unmount
     return () => {
       supabase.removeChannel(categoryChannel);
     };
@@ -160,4 +150,3 @@ export function CategoryContainer({ supabase, onSelectCategory, activeCategoryId
 }
 
 export default CategoryCard;
-

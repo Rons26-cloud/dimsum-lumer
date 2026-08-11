@@ -73,8 +73,6 @@ export default function PullToRefresh({ children }) {
     <div
       className="min-h-dvh transition-transform duration-200 ease-out"
       style={{
-        // Jangan pasang transform saat idle. Ancestor yang memiliki transform
-        // mengubah acuan position:fixed dan membuat bottom navigation ikut scroll.
         transform: distance > 0 || refreshing ? `translateY(${refreshing ? 12 : Math.min(distance * 0.3, 28)}px)` : undefined,
         transitionDuration: pulling.current ? "0ms" : "200ms",
       }}

@@ -1,7 +1,4 @@
-/**
- * Komponen Input
- * Bidang masukan teks formulir dengan dukungan label dan pesan kesalahan (error).
- */
+
 export default function Input({ label, error, className = '', ...props }) {
   return (
     <div className="w-full mb-4">

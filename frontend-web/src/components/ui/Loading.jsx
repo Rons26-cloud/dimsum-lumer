@@ -7,10 +7,7 @@ const sizeMap = {
   xl: 48,
 };
 
-/**
- * Komponen Loading
- * Menampilkan indikator pemuatan berputar (spinner) dengan dukungan berbagai ukuran, teks, dan mode layar penuh (fullscreen).
- */
+
 export default function Loading({ 
   fullscreen = false, 
   size = "md", 

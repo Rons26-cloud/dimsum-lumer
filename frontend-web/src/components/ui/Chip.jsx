@@ -1,9 +1,6 @@
 import { X } from "lucide-react";
 
-/**
- * Komponen Chip
- * Komponen UI dasar untuk kategori atau tag/badge dengan opsi tombol tutup (close).
- */
+
 export default function Chip({ 
   category, 
   active, 
@@ -13,7 +10,6 @@ export default function Chip({
   className = '', 
   ...props 
 }) {
-  // Jika digunakan sebagai Chip Kategori
   if (category) {
     return (
       <button
@@ -32,7 +28,6 @@ export default function Chip({
     )
   }
 
-  // Jika digunakan sebagai Chip umum (dengan children & tombol close)
   return (
     <div 
       className={`inline-flex items-center gap-1.5 bg-primary-50 text-primary-700 border border-primary-200/60 px-3 py-1 rounded-full text-xs font-medium ${className}`.trim()} 

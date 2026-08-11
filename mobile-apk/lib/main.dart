@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -94,10 +95,14 @@ class _RealtimeGate extends StatefulWidget {
 
 class _RealtimeGateState extends State<_RealtimeGate> {
   bool _checking = false;
+  Timer? _maintenanceClock;
   @override
   void initState() {
     super.initState();
     RealtimeAppConfig.instance.addListener(_onConfig);
+    _maintenanceClock = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) => _onConfig());
   }
 
@@ -116,6 +121,7 @@ class _RealtimeGateState extends State<_RealtimeGate> {
 
   @override
   void dispose() {
+    _maintenanceClock?.cancel();
     RealtimeAppConfig.instance.removeListener(_onConfig);
     super.dispose();
   }
@@ -127,10 +133,27 @@ class _RealtimeGateState extends State<_RealtimeGate> {
       stream: SupabaseService.watchMaintenance(),
       builder: (context, snapshot) {
         Map<String, dynamic>? maintenance;
+        Map<String, dynamic>? sharedMaintenance;
+        final now = DateTime.now();
         for (final row in snapshot.data ?? const <Map<String, dynamic>>[]) {
           if (row['target'] == 'mobile-apk') maintenance = row;
+          if (row['target'] == 'both') sharedMaintenance = row;
         }
-        final now = DateTime.now();
+        bool isEffective(Map<String, dynamic>? row) {
+          if (row?['is_active'] != true) return false;
+          final rowStart =
+              DateTime.tryParse('${row?['start_time'] ?? ''}')?.toLocal();
+          final rowEnd =
+              DateTime.tryParse('${row?['end_time'] ?? ''}')?.toLocal();
+          return (rowStart == null || !now.isBefore(rowStart)) &&
+              (rowEnd == null || !now.isAfter(rowEnd));
+        }
+
+        if (!isEffective(maintenance) && isEffective(sharedMaintenance)) {
+          maintenance = sharedMaintenance;
+        } else {
+          maintenance ??= sharedMaintenance;
+        }
         final start =
             DateTime.tryParse('${maintenance?['start_time'] ?? ''}')?.toLocal();
         final end =
@@ -144,6 +167,11 @@ class _RealtimeGateState extends State<_RealtimeGate> {
               endTime: end);
         }
         return Column(children: [
+          if (maintenance?['is_active'] == true &&
+              start != null &&
+              now.isBefore(start))
+            ScheduledMaintenanceNotice(
+                startTime: start, message: maintenance?['message'] as String?),
           if (!config.isStoreOpen)
             Material(
                 color: const Color(0xFFFFF3CD),

@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
 
-/**
- * 1. Komponen Kartu Produk Horizontal (Desain Menyamping)
- */
+
 export function ProductCardHorizontal({ product, onAddToCart, onViewDetail }) {
   return (
     <div className="bg-white rounded-xl shadow-sm hover:shadow-md border border-gray-100 p-3 sm:p-4 flex gap-3 sm:gap-4 transition-all duration-200 items-center group w-full">
-      {/* Gambar Thumbnail Produk */}
+      {}
       <div 
         className="w-24 h-24 sm:w-28 sm:h-28 bg-orange-50 rounded-xl cursor-pointer flex-shrink-0 overflow-hidden relative" 
         onClick={() => onViewDetail?.(product?.id)}
@@ -26,7 +24,7 @@ export function ProductCardHorizontal({ product, onAddToCart, onViewDetail }) {
         )}
       </div>
 
-      {/* Informasi Detail Produk */}
+      {}
       <div className="flex-1 flex flex-col justify-between h-full py-0.5 min-w-0">
         <div onClick={() => onViewDetail?.(product?.id)} className="cursor-pointer">
           <h3 className="font-semibold text-sm sm:text-base text-gray-800 mb-1 truncate group-hover:text-orange-600 transition-colors">
@@ -37,7 +35,7 @@ export function ProductCardHorizontal({ product, onAddToCart, onViewDetail }) {
           </p>
         </div>
 
-        {/* Harga & Tombol Aksi (+ Tambah) */}
+        {}
         <div className="flex items-center justify-between pt-1 border-t border-gray-50">
           <span className="text-orange-600 font-bold text-xs sm:text-sm">
             Rp {Number(product?.price ?? 0).toLocaleString('id-ID')}
@@ -58,9 +56,7 @@ export function ProductCardHorizontal({ product, onAddToCart, onViewDetail }) {
   );
 }
 
-/**
- * 2. Komponen Utama Container Horizontal dengan Realtime & Filter Kategori
- */
+
 export default function ProductHorizontalContainer({ supabase, categoryId, onAddToCart, onViewDetail }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -75,7 +71,6 @@ export default function ProductHorizontalContainer({ supabase, categoryId, onAdd
       setLoading(true);
       let query = supabase.from('products').select('*').order('created_at', { ascending: false });
 
-      // Jika ada categoryId yang dipilih, filter produk berdasarkan kategori tersebut
       if (categoryId) {
         query = query.eq('category_id', categoryId);
       }
@@ -96,7 +91,6 @@ export default function ProductHorizontalContainer({ supabase, categoryId, onAdd
 
     fetchProducts();
 
-    // Setup Supabase Realtime Listener untuk tabel products
     const productChannel = supabase
       .channel('public:products_horizontal')
       .on(

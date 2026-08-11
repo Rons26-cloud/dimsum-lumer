@@ -7,7 +7,6 @@ import PermissionRoute from "./PermissionRoute.jsx";
 const DashboardLayout=lazy(()=>import("../layouts/DashboardLayout.jsx"));
 const AuthLayout=lazy(()=>import("../layouts/AuthLayout.jsx"));
 const LoginAdmin=lazy(()=>import("../pages/LoginAdmin.jsx"));
-const MfaAdmin=lazy(()=>import("../pages/MfaAdmin.jsx"));
 const DashboardHome=lazy(()=>import("../pages/Dashboard/DashboardHome.jsx"));
 const Product=lazy(()=>import("../pages/Product/index.jsx"));
 const FlashSale=lazy(()=>import("../pages/FlashSale/index.jsx"));
@@ -30,11 +29,12 @@ const Statistics=lazy(()=>import("../pages/Report/Statistics.jsx"));
 const Maintenance=lazy(()=>import("../pages/Maintenance/index.jsx"));
 const Notification=lazy(()=>import("../pages/Notification/index.jsx"));
 const SystemCenter=lazy(()=>import("../pages/SystemCenter/index.jsx"));
+const MonthlyArchive=lazy(()=>import("../pages/MonthlyArchive/index.jsx"));
+const Reward=lazy(()=>import("../pages/Reward/index.jsx"));
 
 export default function AdminRouter() {
   return <Suspense fallback={<Loading fullscreen/>}><Routes>
     <Route element={<AuthLayout/>}><Route path="/login" element={<LoginAdmin/>}/></Route>
-    <Route path="/mfa" element={<ProtectedAdminRoute><MfaAdmin/></ProtectedAdminRoute>}/>
     <Route element={<ProtectedAdminRoute><DashboardLayout/></ProtectedAdminRoute>}>
       <Route index element={<DashboardHome/>}/>
       <Route path="produk" element={<Product/>}/><Route path="kategori" element={<Category/>}/>
@@ -42,6 +42,7 @@ export default function AdminRouter() {
       <Route path="pesanan" element={<Order/>}/><Route path="pelanggan" element={<Customer/>}/>
       <Route path="member" element={<Member/>}/><Route path="lokasi-toko" element={<Store/>}/>
       <Route path="laporan-penjualan" element={<Report/>}/><Route path="statistik" element={<Statistics/>}/>
+      <Route path="arsip-bulanan" element={<MonthlyArchive/>}/>
       <Route path="apk" element={<PermissionRoute allow={["superadmin"]}><Apk/></PermissionRoute>}/>
       <Route path="pengaturan-umum" element={<Settings/>}/>
       <Route path="maintenance" element={<Maintenance/>}/>
@@ -49,6 +50,7 @@ export default function AdminRouter() {
       <Route path="notifikasi" element={<Notification/>}/>
       <Route path="pusat-sistem" element={<SystemCenter/>}/>
       <Route path="banner-promo" element={<Banner/>}/><Route path="wishlist" element={<Wishlist/>}/>
+      <Route path="reward" element={<Reward/>}/>
       <Route path="pengaturan-map" element={<StoreMap/>}/><Route path="jam-operasional" element={<StoreHours/>}/>
       <Route path="*" element={<ComingSoon title="Halaman tidak ditemukan"/>}/>
     </Route>

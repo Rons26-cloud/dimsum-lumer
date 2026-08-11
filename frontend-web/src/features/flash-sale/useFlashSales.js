@@ -20,7 +20,6 @@ function createFallbackSales(products = []) {
 }
 
 export function useFlashSales() {
-  // Flash Sale harus langsung terlihat walaupun koneksi Supabase belum selesai.
   const [sales,setSales] = useState([]);
   const load = useCallback(async () => {
     try {

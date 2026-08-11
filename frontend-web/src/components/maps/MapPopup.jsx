@@ -2,12 +2,8 @@ import React from 'react';
 import { Popup } from 'react-leaflet';
 import { Store, Phone, Clock, MapPin } from 'lucide-react';
 
-/**
- * Komponen MapPopup
- * Menampilkan informasi detail outlet/cabang dimsum di dalam popup peta Leaflet.
- */
+
 export default function MapPopup({ data, title, description, onClose }) {
-  // Dukungan untuk pemanggilan ringkas (title & description saja)
   if (title && !data) {
     return (
       <Popup onClose={onClose}>
@@ -21,7 +17,6 @@ export default function MapPopup({ data, title, description, onClose }) {
 
   if (!data) return null;
 
-  // Format jarak jika tersedia (mendukung angka langsung atau sudah diformat)
   const formattedDistance = typeof data.distance === 'number' 
     ? (data.distance < 1 ? `${Math.round(data.distance * 1000)} m` : `${data.distance.toFixed(1)} km`) 
     : data.distance;
@@ -29,20 +24,20 @@ export default function MapPopup({ data, title, description, onClose }) {
   return (
     <Popup onClose={onClose}>
       <div className="p-1 min-w-[180px]">
-        {/* Nama Outlet */}
+        {}
         <h3 className="font-bold text-base text-gray-800 mb-1 flex items-center gap-1.5">
           <Store size={16} className="text-orange-600 flex-shrink-0" />
           <span>{data.name || data.title || 'Hongkong Fashion Medan'}</span>
         </h3>
 
-        {/* Alamat / Deskripsi */}
+        {}
         {(data.address || data.description) && (
           <p className="text-xs text-gray-600 mb-2 leading-relaxed">
             {data.address || data.description}
           </p>
         )}
 
-        {/* Nomor Telepon */}
+        {}
         {data.phone && (
           <p className="text-xs text-gray-600 mb-1.5 flex items-center gap-1.5">
             <Phone size={13} className="text-orange-500 flex-shrink-0" />
@@ -50,7 +45,7 @@ export default function MapPopup({ data, title, description, onClose }) {
           </p>
         )}
 
-        {/* Jam Operasional */}
+        {}
         {data.opening_hours && (
           <p className="text-xs text-gray-600 mb-1.5 flex items-center gap-1.5">
             <Clock size={13} className="text-orange-500 flex-shrink-0" />
@@ -58,7 +53,7 @@ export default function MapPopup({ data, title, description, onClose }) {
           </p>
         )}
 
-        {/* Jarak dari Lokasi Pengguna */}
+        {}
         {data.distance !== undefined && data.distance !== null && (
           <div className="mt-2 pt-2 border-t border-gray-100 flex items-center gap-1.5 text-xs text-orange-600 font-semibold">
             <MapPin size={13} className="text-orange-600 flex-shrink-0" />

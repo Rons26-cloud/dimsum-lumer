@@ -3,8 +3,8 @@ import '../config/app_config.dart';
 
 class AppTheme {
   static const primary = Color(AppConfig.primaryColorHex);
-  static const background = Color(0xFFF9FAFB);
-  static const text = Color(0xFF171717);
+  static const background = Color(0xFFF8FAFC);
+  static const text = Color(0xFF0F172A);
 
   static ThemeData get light {
     final scheme = ColorScheme.fromSeed(
@@ -16,15 +16,27 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: scheme,
       scaffoldBackgroundColor: background,
-      fontFamilyFallback: const ['Poppins', 'Roboto'],
+      fontFamilyFallback: const ['Inter', 'Roboto', 'Arial'],
       textTheme: const TextTheme(
-        headlineSmall:
-            TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: text),
-        titleLarge:
-            TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: text),
-        titleMedium:
-            TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: text),
-        bodyMedium: TextStyle(fontSize: 13, height: 1.45, color: text),
+        headlineSmall: TextStyle(
+            fontSize: 24,
+            height: 1.2,
+            fontWeight: FontWeight.w700,
+            color: text),
+        titleLarge: TextStyle(
+            fontSize: 20,
+            height: 1.25,
+            fontWeight: FontWeight.w700,
+            color: text),
+        titleMedium: TextStyle(
+            fontSize: 16,
+            height: 1.3,
+            fontWeight: FontWeight.w600,
+            color: text),
+        bodyLarge: TextStyle(fontSize: 16, height: 1.5, color: text),
+        bodyMedium: TextStyle(fontSize: 14, height: 1.5, color: text),
+        bodySmall:
+            TextStyle(fontSize: 12, height: 1.45, color: Color(0xFF64748B)),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.white,
@@ -39,19 +51,19 @@ class AppTheme {
           surfaceTintColor: Colors.transparent,
           margin: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: const BorderSide(color: Color(0xFFF0EAE5)))),
+              borderRadius: BorderRadius.circular(14),
+              side: const BorderSide(color: Color(0xFFE2E8F0)))),
       inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: Colors.white,
           border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none),
           enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: Color(0xFFE9E2DC))),
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFCBD5E1))),
           focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(color: primary, width: 1.5)),
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 15)),
@@ -60,20 +72,20 @@ class AppTheme {
               minimumSize: const Size(0, 48),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14)),
+                  borderRadius: BorderRadius.circular(12)),
               textStyle: const TextStyle(fontWeight: FontWeight.w700))),
       outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
               minimumSize: const Size(0, 48),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14)))),
+                  borderRadius: BorderRadius.circular(12)))),
       snackBarTheme: SnackBarThemeData(
           behavior: SnackBarBehavior.floating,
           shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: Colors.white,
-        indicatorColor: const Color(0xFFFFE8D1),
+        indicatorColor: const Color(0xFFFFEDD5),
         elevation: 0,
         height: 68,
         iconTheme: WidgetStateProperty.resolveWith((states) => IconThemeData(

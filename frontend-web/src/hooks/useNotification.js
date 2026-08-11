@@ -4,6 +4,7 @@ import { supabase } from "../supabase/client.js";
 import { TABLES } from "../supabase/constants.js";
 import * as service from "../services/notificationService.js";
 import { runtimeId } from "../utils/runtimeId.js";
+import { getNotificationPreferences, notificationCategory } from "../utils/notificationPreferences.js";
 
 export function useNotification() {
   const { user } = useAuth();
@@ -31,7 +32,8 @@ export function useNotification() {
     if (typeof Notification === "undefined" || Notification.permission !== "granted") return undefined;
     const channel = supabase.channel(`notification-push-${user?.id || "guest"}-${runtimeId()}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: TABLES.NOTIFICATIONS, ...(user ? { filter: `user_id=eq.${user.id}` } : {}) }, ({ new: item }) => {
-        if (document.visibilityState === "visible") new Notification(item.title || "Dimsum Lumer", { body: item.message || "", icon: "/logo.png", tag: item.id });
+        const preferences=getNotificationPreferences(user?.id);
+        if (preferences.device&&preferences[notificationCategory(item.type)]&&document.visibilityState === "visible") new Notification(item.title || "Dimsum Lumer", { body: item.message || "", icon: "/logo.png", tag: item.id });
       }).subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [user]);

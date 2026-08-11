@@ -114,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SliverToBoxAdapter(child: _FaqSection()),
                 const SliverToBoxAdapter(
                   child: _SectionHeader(
-                      title: 'Produk Terlaris', action: 'Lihat Semua'),
+                      title: 'Rekomendasi Pilihan', action: 'Lihat Semua'),
                 ),
                 if (snapshot.connectionState == ConnectionState.waiting &&
                     products.isEmpty)
@@ -154,29 +154,57 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _header(BuildContext context) {
     return Container(
-      height: 56,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      height: 68,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(bottom: BorderSide(color: Color(0xFFF3F4F6))),
+        border: Border(bottom: BorderSide(color: Color(0xFFEEF0F3))),
       ),
       child: Row(
         children: [
-          ClipOval(
-              child: Image.asset('assets/logo.png',
-                  width: 32, height: 32, fit: BoxFit.cover)),
-          const SizedBox(width: 8),
+          Container(
+            width: 40,
+            height: 40,
+            padding: const EdgeInsets.all(3),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF4E8),
+              borderRadius: BorderRadius.circular(13),
+            ),
+            child: Image.asset('assets/logo.png', fit: BoxFit.contain),
+          ),
+          const SizedBox(width: 11),
           const Expanded(
-            child: Text('Dimsum Lumer',
-                style: TextStyle(
-                    fontSize: 14, fontWeight: FontWeight.w800, color: _orange)),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Dimsum Lumer',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        fontSize: 16,
+                        height: 1.15,
+                        letterSpacing: -.2,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF202124))),
+                SizedBox(height: 3),
+                Text('Freshly made for you',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        fontSize: 10.5,
+                        height: 1.1,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF7B8494))),
+              ],
+            ),
           ),
           _HeaderAction(
             onTap: () => context.push('/cart'),
             icon: Icons.shopping_cart_outlined,
             tooltip: 'Keranjang',
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 8),
           _HeaderAction(
             onTap: () => context.push('/notifications'),
             icon: Icons.notifications_none_rounded,
@@ -247,7 +275,7 @@ class _SearchBox extends StatelessWidget {
           child: TextField(
             readOnly: true,
             decoration: InputDecoration(
-              hintText: 'Cari dimsum favoritmu...',
+              hintText: 'Cari produk atau kategori...',
               hintStyle:
                   const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)),
               prefixIcon: const Icon(Icons.search_rounded,
@@ -278,13 +306,21 @@ class _HeaderAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-        width: 36,
-        height: 36,
+        width: 40,
+        height: 40,
         child: IconButton(
           onPressed: onTap,
           tooltip: tooltip,
-          style: IconButton.styleFrom(backgroundColor: const Color(0xFFF9FAFB)),
-          icon: Icon(icon, size: 18, color: const Color(0xFF374151)),
+          padding: EdgeInsets.zero,
+          style: IconButton.styleFrom(
+            backgroundColor: const Color(0xFFF7F8FA),
+            foregroundColor: const Color(0xFF344054),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(13),
+              side: const BorderSide(color: Color(0xFFE9ECF0)),
+            ),
+          ),
+          icon: Icon(icon, size: 21),
         ),
       );
 }

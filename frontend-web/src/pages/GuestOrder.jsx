@@ -47,7 +47,7 @@ export default function GuestOrder() {
       setCoords(location); setGpsStatus("success");
       if(!form.address.trim()){
         setResolvingAddress(true);
-        try{const response=await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&accept-language=id&lat=${location.lat}&lon=${location.lng}`);if(response.ok){const result=await response.json();if(result.display_name)update("address",result.display_name);}}catch{/* Koordinat tetap sah walau reverse geocoding gagal. */}finally{setResolvingAddress(false);}
+        try{const response=await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&accept-language=id&lat=${location.lat}&lon=${location.lng}`);if(response.ok){const result=await response.json();if(result.display_name)update("address",result.display_name);}}catch{}finally{setResolvingAddress(false);}
       }
     } catch (reason) { setGpsStatus("error"); setError(reason.message); }
   };

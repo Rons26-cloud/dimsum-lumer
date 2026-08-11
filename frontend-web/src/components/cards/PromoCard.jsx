@@ -17,7 +17,7 @@ export default function PromoCard({ promo, onUsePromo }) {
 
   return (
     <div className="w-full max-w-[480px] mx-auto bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl p-4 text-white relative overflow-hidden shadow-sm">
-      {/* Header Badge & Label */}
+      {}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-1.5 bg-white/20 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">
           <Sparkles size={11} />
@@ -28,7 +28,7 @@ export default function PromoCard({ promo, onUsePromo }) {
         </span>
       </div>
 
-      {/* Judul & Deskripsi Ringkas */}
+      {}
       <div className="space-y-1 mb-3">
         <h3 className="text-sm font-extrabold tracking-tight line-clamp-1">
           {promo?.title || 'Diskon Spesial Akhir Pekan'}
@@ -38,9 +38,9 @@ export default function PromoCard({ promo, onUsePromo }) {
         </p>
       </div>
 
-      {/* Garis Pembatas Tipis */}
+      {}
       <div className="border-t border-white/20 pt-3 flex items-center justify-between gap-2">
-        {/* Kode Promo Box */}
+        {}
         <div className="bg-black/20 border border-white/10 rounded-xl px-2.5 py-1.5 flex items-center gap-2">
           <span className="text-[9px] text-orange-200 font-semibold uppercase">KODE:</span>
           <span className="font-mono font-bold text-xs tracking-wider text-white">
@@ -48,7 +48,7 @@ export default function PromoCard({ promo, onUsePromo }) {
           </span>
         </div>
 
-        {/* Tombol Aksi */}
+        {}
         <button
           type="button"
           onClick={handleAction}
@@ -59,7 +59,7 @@ export default function PromoCard({ promo, onUsePromo }) {
         </button>
       </div>
 
-      {/* Ornamen Latar Belakang */}
+      {}
       <div className="absolute right-[-10px] bottom-[-10px] opacity-10 pointer-events-none">
         <span className="text-6xl">🥟</span>
       </div>

@@ -2,9 +2,6 @@ import { useEffect, useState } from "react";
 import { getAll } from "../supabase/database.js";
 import { subscribeToTable } from "../supabase/realtime.js";
 
-// Sama seperti di frontend-web: data selalu segar tanpa refresh. Dipakai supaya
-// perubahan dari sisi customer (pesanan baru, review baru, dst) langsung
-// terlihat di Admin Dashboard secara realtime.
 export function useLiveCollection(table, options = {}) {
   const [data, setData] = useState(null);
 

@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import {
   LayoutDashboard, Package, Tag, Image, Percent, Receipt, Users, Heart, Zap,
-  MapPin, Clock, BarChart3, FileText, Settings, UserCog, LogOut, Wrench, BellRing, ServerCog,
+  MapPin, Clock, BarChart3, FileText, Settings, UserCog, LogOut, Wrench, BellRing, ServerCog, Archive, Gift,
 } from "lucide-react";
 import logo from "../../assets/logo/logo.png";
 import { signOutAdmin } from "../../services/authService.js";
@@ -12,40 +12,42 @@ const menuGroups = [
   {
     title: "MENU UTAMA",
     items: [
-      { to: "/", label: "Dashboard", Icon: LayoutDashboard, end: true },
-      { to: "/produk", label: "Produk", Icon: Package },
-      { to: "/flash-sale", label: "Flash Sale", Icon: Zap },
-      { to: "/kategori", label: "Kategori", Icon: Tag },
-      { to: "/banner-promo", label: "Banner Promo", Icon: Image },
-      { to: "/promo", label: "Promo", Icon: Percent },
-      { to: "/pesanan", label: "Pesanan", Icon: Receipt },
-      { to: "/pelanggan", label: "Pelanggan", Icon: Users },
-      { to: "/wishlist", label: "Wishlist", Icon: Heart },
+      { to: "/", label: "Dashboard", Icon: LayoutDashboard, color: "text-blue-600", bg: "bg-blue-50", end: true },
+      { to: "/produk", label: "Produk", Icon: Package, color: "text-orange-600", bg: "bg-orange-50" },
+      { to: "/flash-sale", label: "Flash Sale", Icon: Zap, color: "text-amber-600", bg: "bg-amber-50" },
+      { to: "/kategori", label: "Kategori", Icon: Tag, color: "text-cyan-600", bg: "bg-cyan-50" },
+      { to: "/banner-promo", label: "Banner Promo", Icon: Image, color: "text-violet-600", bg: "bg-violet-50" },
+      { to: "/promo", label: "Promo", Icon: Percent, color: "text-pink-600", bg: "bg-pink-50" },
+      { to: "/pesanan", label: "Pesanan", Icon: Receipt, color: "text-emerald-600", bg: "bg-emerald-50" },
+      { to: "/pelanggan", label: "Pelanggan", Icon: Users, color: "text-indigo-600", bg: "bg-indigo-50" },
+      { to: "/wishlist", label: "Wishlist", Icon: Heart, color: "text-rose-600", bg: "bg-rose-50" },
+      { to: "/reward", label: "Reward", Icon: Gift, color: "text-fuchsia-600", bg: "bg-fuchsia-50" },
     ],
   },
   {
     title: "TOKO & LOKASI",
     items: [
-      { to: "/lokasi-toko", label: "Lokasi Toko", Icon: MapPin },
+      { to: "/lokasi-toko", label: "Lokasi Toko", Icon: MapPin, color: "text-red-600", bg: "bg-red-50" },
       { to: "/pengaturan-map", label: "Pengaturan Map", Icon: GoogleMapsLogo },
-      { to: "/jam-operasional", label: "Jam Operasional", Icon: Clock },
+      { to: "/jam-operasional", label: "Jam Operasional", Icon: Clock, color: "text-teal-600", bg: "bg-teal-50" },
     ],
   },
   {
     title: "LAPORAN",
     items: [
-      { to: "/statistik", label: "Statistik", Icon: BarChart3 },
-      { to: "/laporan-penjualan", label: "Laporan Penjualan", Icon: FileText },
+      { to: "/statistik", label: "Statistik", Icon: BarChart3, color: "text-blue-600", bg: "bg-blue-50" },
+      { to: "/laporan-penjualan", label: "Laporan Penjualan", Icon: FileText, color: "text-emerald-600", bg: "bg-emerald-50" },
+      { to: "/arsip-bulanan", label: "Arsip Bulanan", Icon: Archive, color: "text-amber-700", bg: "bg-amber-50" },
     ],
   },
   {
     title: "PENGATURAN",
     items: [
-      { to: "/maintenance", label: "Maintenance", Icon: Wrench },
-      { to: "/pengaturan-umum", label: "Pengaturan Umum", Icon: Settings },
-      { to: "/akun-admin", label: "Akun Admin", Icon: UserCog },
-      { to: "/notifikasi", label: "Notifikasi Admin", Icon: BellRing },
-      { to: "/pusat-sistem", label: "Pusat Sistem", Icon: ServerCog },
+      { to: "/maintenance", label: "Maintenance", Icon: Wrench, color: "text-amber-600", bg: "bg-amber-50" },
+      { to: "/pengaturan-umum", label: "Pengaturan Umum", Icon: Settings, color: "text-slate-600", bg: "bg-slate-100" },
+      { to: "/akun-admin", label: "Akun Admin", Icon: UserCog, color: "text-indigo-600", bg: "bg-indigo-50" },
+      { to: "/notifikasi", label: "Notifikasi Admin", Icon: BellRing, color: "text-orange-600", bg: "bg-orange-50" },
+      { to: "/pusat-sistem", label: "Pusat Sistem", Icon: ServerCog, color: "text-cyan-700", bg: "bg-cyan-50" },
     ],
   },
 ];
@@ -53,8 +55,6 @@ const menuGroups = [
 export default function Sidebar({ open, onClose }) {
   const navigate = useNavigate();
   const handleMenuNavigation = (event, to) => {
-    // Pastikan halaman akun dibuka oleh React Router. Pada beberapa hosting,
-    // request URL baru dapat terkena fallback dan kembali ke Dashboard utama.
     if (to === "/akun-admin") {
       event.preventDefault();
       onClose?.();
@@ -89,7 +89,7 @@ export default function Sidebar({ open, onClose }) {
           {menuGroups.map((group) => (
             <div key={group.title} className="mb-5">
               <p className="text-[10px] font-bold text-gray-400 tracking-wider px-3 mb-1.5">{group.title}</p>
-              {group.items.map(({ to, label, Icon, end }) => (
+              {group.items.map(({ to, label, Icon, color = "text-slate-600", bg = "bg-slate-100", end }) => (
                 <NavLink
                   key={to}
                   to={to}
@@ -106,7 +106,7 @@ export default function Sidebar({ open, onClose }) {
                 >
                   {({ isActive }) => <>
                     {isActive && <span className="absolute -left-1 h-6 w-1 rounded-full bg-gray-900" aria-hidden="true"/>}
-                    <span className={clsx("grid h-7 w-7 place-items-center rounded-lg", isActive ? "bg-white/20 text-white" : "text-gray-500")}><Icon size={17} strokeWidth={isActive ? 2.6 : 2}/></span>
+                    <span className={clsx("grid h-7 w-7 place-items-center rounded-lg", isActive ? "bg-white/20 text-white" : `${bg} ${color}`)}><Icon size={17} strokeWidth={isActive ? 2.6 : 2}/></span>
                     <span className={isActive ? "text-white" : "text-inherit"}>{label}</span>
                     {isActive && <span className="ml-auto h-2 w-2 rounded-full bg-white ring-4 ring-white/20" aria-label="Menu aktif"/>}
                   </>}

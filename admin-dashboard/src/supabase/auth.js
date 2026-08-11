@@ -1,7 +1,5 @@
 import { supabase } from "./client.js";
 
-let pendingTotpEnrollment = null;
-
 export async function signInAdmin({ email, password }) {
   const normalizedEmail = String(email || "").trim().toLowerCase();
   const normalizedPassword = String(password || "");
@@ -30,47 +28,6 @@ export async function getCurrentAdminSession() {
   if (!data.session?.user) return null;
   const admin = await resolveAdminUser(data.session.user);
   return admin ? { ...data.session, user: admin } : null;
-}
-
-export async function getAdminMfaStatus() {
-  const { data, error } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-  if (error) throw error;
-  return {
-    currentLevel: data?.currentLevel || "aal1",
-    nextLevel: data?.nextLevel || "aal1",
-    verified: data?.currentLevel === "aal2",
-    enrolled: data?.nextLevel === "aal2",
-  };
-}
-
-export async function listAdminMfaFactors() {
-  const { data, error } = await supabase.auth.mfa.listFactors();
-  if (error) throw error;
-  return (data?.totp || []).filter((factor) => factor.status === "verified");
-}
-
-export async function enrollAdminTotp() {
-  if (!pendingTotpEnrollment) {
-    pendingTotpEnrollment = supabase.auth.mfa.enroll({
-      factorType: "totp",
-      friendlyName: `Dashboard Admin ${new Date().toISOString().slice(0, 10)}`,
-    }).then(({ data, error }) => {
-      if (error) throw error;
-      return data;
-    }).catch((error) => {
-      pendingTotpEnrollment = null;
-      throw error;
-    });
-  }
-  return pendingTotpEnrollment;
-}
-
-export async function verifyAdminTotp(factorId, code) {
-  const normalizedCode = String(code || "").replace(/\D/g, "");
-  if (!factorId || normalizedCode.length !== 6) throw new Error("Masukkan kode autentikator 6 digit.");
-  const { data, error } = await supabase.auth.mfa.challengeAndVerify({ factorId, code: normalizedCode });
-  if (error) throw error;
-  return data;
 }
 
 export async function resolveAdminUser(user) {

@@ -28,5 +28,6 @@ flutter:
   uses-material-design: true
   assets:
     - assets/logo.png
+    - assets/maintenance-logo-transparent.png
     - assets/produk/
     - .env

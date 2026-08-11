@@ -13,6 +13,23 @@ const fallbackSlides = [
   { eyebrow: "Stok di rumah", title: "Dimsum Frozen", subtitle: "Praktis disimpan, mudah disajikan kapan saja.", cta: "Belanja Frozen", to: "/produk?category=frozen", image: bannerFrozen, position: "center" },
 ];
 
+const fallbackById = new Map([
+  ["frontend-mentai", fallbackSlides[0]],
+  ["frontend-family", fallbackSlides[1]],
+  ["frontend-frozen", fallbackSlides[2]],
+]);
+
+function normalizeBanner(item) {
+  if (!item || item.is_active === false) return null;
+  const localFallback = fallbackById.get(item.id);
+  if (item.source === "frontend" || localFallback) {
+    return { ...localFallback, title: item.title || localFallback.title, subtitle: item.subtitle ?? localFallback.subtitle, to: item.target_url || localFallback.to };
+  }
+  const imageUrl = String(item.image_url || "").trim();
+  if (!/^https:\/\//i.test(imageUrl)) return null;
+  return { eyebrow: "Promo pilihan", title: item.title || "Promo Dimsum Lumer", subtitle: item.subtitle || "", cta: "Lihat Sekarang", to: item.target_url || "/promo", image: imageUrl, position: "center" };
+}
+
 export default function HeroSliderSection() {
   const [slides, setSlides] = useState(fallbackSlides);
   const [active, setActive] = useState(0);
@@ -20,13 +37,13 @@ export default function HeroSliderSection() {
   const touchStart = useRef(null);
 
   const refreshBanners = async () => {
-    const { data, error } = await supabase.from("app_config").select("value,config_value").eq("key", "home_banners").maybeSingle();
+    const { data, error } = await supabase.from("app_config").select("value").eq("key", "home_banners").maybeSingle();
     if (error) return;
     if (!data) { setSlides(fallbackSlides); return; }
-    const value = data.value || data.config_value || {};
-    const configured = Array.isArray(value.items) ? value.items.filter((item) => item?.is_active !== false && /^https?:\/\//i.test(item?.image_url || "")) : [];
-    if (Array.isArray(value.items)) {
-      setSlides(configured.map((item) => ({ eyebrow: "Promo pilihan", title: item.title || "Promo Dimsum Lumer", subtitle: item.subtitle || "", cta: "Lihat Sekarang", to: item.target_url || "/promo", image: item.image_url, position: "center" })));
+    const value = data.value || {};
+    const configured = Array.isArray(value.items) ? value.items.map(normalizeBanner).filter(Boolean) : [];
+    if (Array.isArray(value.items) && value.items.length > 0) {
+      setSlides(configured.length > 0 ? configured : fallbackSlides);
       setActive(0);
     } else setSlides(fallbackSlides);
   };
@@ -74,4 +91,3 @@ export default function HeroSliderSection() {
     </section>
   );
 }
-
