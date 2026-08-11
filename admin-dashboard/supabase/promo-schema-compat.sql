@@ -1,5 +1,3 @@
--- Jalankan sekali di Supabase SQL Editor untuk menyamakan schema Promo
--- Dashboard, Frontend Web, dan APK. Aman dijalankan ulang.
 create extension if not exists "uuid-ossp";
 
 create table if not exists public.promos (
