@@ -1,4 +1,3 @@
--- Jalankan sekali di Supabase SQL Editor untuk mengaktifkan daftar perangkat admin.
 create table if not exists public.admin_sessions (
   id uuid primary key default gen_random_uuid(),
   admin_id uuid not null references auth.users(id) on delete cascade,
