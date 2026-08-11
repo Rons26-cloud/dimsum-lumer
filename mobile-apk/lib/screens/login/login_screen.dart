@@ -113,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             Text(
                                 _register
                                     ? 'Satu akun untuk aplikasi dan website Dimsum Lumer.'
-                                    : 'Masuk untuk melanjutkan pesananmu.',
+                                    : 'Masuk untuk melanjutkan pemesanan.',
                                 textAlign: TextAlign.center,
                                 style: Theme.of(context)
                                     .textTheme

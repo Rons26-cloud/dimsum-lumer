@@ -807,7 +807,7 @@ class _PromoStrip extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${promo?['title'] ?? 'Promo spesial untukmu'}',
+                    Text('${promo?['title'] ?? 'Promo pilihan'}',
                         style: const TextStyle(
                             color: Colors.white,
                             fontSize: 13,

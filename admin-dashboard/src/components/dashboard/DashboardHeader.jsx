@@ -1,6 +1,52 @@
 import { Calendar, RefreshCw, Wifi, WifiOff } from "lucide-react";
 
-export default function DashboardHeader({ realtimeStatus, lastUpdated, refreshing, onRefresh }) {
-  const connected=realtimeStatus==="SUBSCRIBED";
-  return <div className="flex flex-wrap items-center justify-between gap-3"><div><h1 className="text-xl font-bold text-gray-900">Dashboard Realtime</h1><div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500"><span className={`inline-flex items-center gap-1 font-semibold ${connected?"text-green-600":"text-amber-600"}`}>{connected?<Wifi size={13}/>:<WifiOff size={13}/>} {connected?"Realtime aktif":"Menghubungkan"}</span>{lastUpdated&&<span>· Sinkron {lastUpdated.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit",second:"2-digit"})}</span>}</div></div><div className="flex items-center gap-2"><button type="button" onClick={onRefresh} disabled={refreshing} className="grid h-10 w-10 place-items-center rounded-xl border bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50" aria-label="Sinkronkan dashboard"><RefreshCw size={16} className={refreshing?"animate-spin":""}/></button><div className="flex items-center gap-2 rounded-xl border bg-white px-4 py-2 text-sm text-gray-600"><Calendar size={15}/>{new Date().toLocaleDateString("id-ID",{dateStyle:"medium"})}</div></div></div>;
+export default function DashboardHeader({
+  realtimeStatus,
+  lastUpdated,
+  refreshing,
+  onRefresh,
+}) {
+  const connected = realtimeStatus === "SUBSCRIBED";
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h1 className="text-xl font-bold text-gray-900">
+          Dashboard Operasional
+        </h1>
+        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500">
+          <span
+            className={`inline-flex items-center gap-1 font-semibold ${connected ? "text-green-600" : "text-amber-600"}`}
+          >
+            {connected ? <Wifi size={13} /> : <WifiOff size={13} />}{" "}
+            {connected ? "Sinkronisasi aktif" : "Menghubungkan"}
+          </span>
+          {lastUpdated && (
+            <span>
+              · Sinkron{" "}
+              {lastUpdated.toLocaleTimeString("id-ID", {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+              })}
+            </span>
+          )}
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={onRefresh}
+          disabled={refreshing}
+          className="grid h-10 w-10 place-items-center rounded-xl border bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+          aria-label="Sinkronkan dashboard"
+        >
+          <RefreshCw size={16} className={refreshing ? "animate-spin" : ""} />
+        </button>
+        <div className="flex items-center gap-2 rounded-xl border bg-white px-4 py-2 text-sm text-gray-600">
+          <Calendar size={15} />
+          {new Date().toLocaleDateString("id-ID", { dateStyle: "medium" })}
+        </div>
+      </div>
+    </div>
+  );
 }

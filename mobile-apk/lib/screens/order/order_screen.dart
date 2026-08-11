@@ -78,7 +78,7 @@ class _OrderScreenState extends State<OrderScreen> {
                       icon: Icons.receipt_long_outlined,
                       title: 'Belum ada pesanan',
                       message:
-                          'Pesanan yang sudah dibuat akan tampil dan diperbarui secara realtime.');
+                          'Pesanan yang telah dibuat akan ditampilkan dan diperbarui secara otomatis.');
                 final visible = _filter == 'all'
                     ? orders
                     : orders

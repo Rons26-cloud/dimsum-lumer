@@ -1,62 +1,546 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, CheckCircle2, ChevronRight, Clock3, CookingPot, CreditCard, Loader2, MapPin, PackageOpen, RefreshCw, Search, ShoppingBag, Truck } from "lucide-react";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  ChevronRight,
+  Clock3,
+  CookingPot,
+  CreditCard,
+  Loader2,
+  MapPin,
+  PackageOpen,
+  RefreshCw,
+  Search,
+  ShoppingBag,
+  Truck,
+} from "lucide-react";
 import { useAuth } from "../hooks/useAuth.js";
 import { useRealtime } from "../hooks/useRealtime.js";
 import { supabase } from "../supabase/client.js";
 import { reorderOrder } from "../services/orderService.js";
 
-const STATUS={pending:{label:"Menunggu",Icon:Clock3,color:"text-amber-700",bg:"bg-amber-50",dot:"bg-amber-500"},processing:{label:"Diproses",Icon:CookingPot,color:"text-primary",bg:"bg-primary-50",dot:"bg-primary"},shipping:{label:"Dikirim",Icon:Truck,color:"text-blue-600",bg:"bg-blue-50",dot:"bg-blue-500"},completed:{label:"Selesai",Icon:CheckCircle2,color:"text-emerald-600",bg:"bg-emerald-50",dot:"bg-emerald-500"},cancelled:{label:"Dibatalkan",Icon:PackageOpen,color:"text-red-600",bg:"bg-red-50",dot:"bg-red-500"}};
-const TABS=[['all','Semua'],['pending','Menunggu'],['processing','Diproses'],['shipping','Dikirim'],['completed','Selesai'],['cancelled','Batal']];
-const PAYMENT_LABEL={unpaid:'Belum dibayar',waiting_verification:'Menunggu verifikasi',paid:'Lunas',verified:'Lunas',failed:'Pembayaran gagal',refunded:'Dikembalikan'};
-const PAYMENT_STYLE={unpaid:'text-amber-700',waiting_verification:'text-blue-600',paid:'text-emerald-600',verified:'text-emerald-600',failed:'text-red-600',refunded:'text-gray-500'};
-const money=(value)=>`Rp${Number(value||0).toLocaleString('id-ID')}`;
-const date=(value)=>value?new Date(value).toLocaleString('id-ID',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'-';
+const STATUS = {
+  pending: {
+    label: "Menunggu",
+    Icon: Clock3,
+    color: "text-amber-700",
+    bg: "bg-amber-50",
+    dot: "bg-amber-500",
+  },
+  processing: {
+    label: "Diproses",
+    Icon: CookingPot,
+    color: "text-primary",
+    bg: "bg-primary-50",
+    dot: "bg-primary",
+  },
+  shipping: {
+    label: "Dikirim",
+    Icon: Truck,
+    color: "text-blue-600",
+    bg: "bg-blue-50",
+    dot: "bg-blue-500",
+  },
+  completed: {
+    label: "Selesai",
+    Icon: CheckCircle2,
+    color: "text-emerald-600",
+    bg: "bg-emerald-50",
+    dot: "bg-emerald-500",
+  },
+  cancelled: {
+    label: "Dibatalkan",
+    Icon: PackageOpen,
+    color: "text-red-600",
+    bg: "bg-red-50",
+    dot: "bg-red-500",
+  },
+};
+const TABS = [
+  ["all", "Semua"],
+  ["pending", "Menunggu"],
+  ["processing", "Diproses"],
+  ["shipping", "Dikirim"],
+  ["completed", "Selesai"],
+  ["cancelled", "Batal"],
+];
+const PAYMENT_LABEL = {
+  unpaid: "Belum dibayar",
+  waiting_verification: "Menunggu verifikasi",
+  paid: "Lunas",
+  verified: "Lunas",
+  failed: "Pembayaran gagal",
+  refunded: "Dikembalikan",
+};
+const PAYMENT_STYLE = {
+  unpaid: "text-amber-700",
+  waiting_verification: "text-blue-600",
+  paid: "text-emerald-600",
+  verified: "text-emerald-600",
+  failed: "text-red-600",
+  refunded: "text-gray-500",
+};
+const money = (value) => `Rp${Number(value || 0).toLocaleString("id-ID")}`;
+const date = (value) =>
+  value
+    ? new Date(value).toLocaleString("id-ID", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "-";
 
-function Progress({status}){
-  const steps=['pending','processing','shipping','completed'];const active=steps.indexOf(status);
-  if(status==='cancelled')return <div className="mt-3 rounded-xl bg-red-50 p-2.5 text-center text-[9px] font-bold text-red-600">Pesanan dibatalkan</div>;
-  return <div className="mt-3 grid grid-cols-4 gap-1">{steps.map((step,index)=><div key={step}><div className={`h-1.5 rounded-full ${index<=active?'bg-primary':'bg-gray-100'}`}/><span className={`mt-1 block text-center text-[7px] ${index<=active?'font-bold text-primary':'text-gray-300'}`}>{STATUS[step].label}</span></div>)}</div>;
-}
-
-function CompletedOrderCard({order}){
-  return <article className="overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-sm"><div className="flex min-h-[76px] items-center gap-3 p-3.5"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-emerald-600"><CheckCircle2 size={21}/></span><div className="min-w-0 flex-1"><p className="text-[9px] font-bold uppercase tracking-[.14em] text-emerald-600">Pesanan Selesai</p><h2 className="mt-1 truncate font-mono text-xs font-black text-slate-950">{order.order_code?`#${order.order_code}`:order.id}</h2></div><Link to={`/lacak-pesanan/${order.id}`} className="flex h-10 shrink-0 items-center gap-1 rounded-xl bg-slate-950 px-3 text-[10px] font-bold text-white">Lihat Detail<ChevronRight size={13}/></Link></div></article>;
-}
-
-function OrderSummaryCard({order,reordering,onReorder}){
-  const[expanded,setExpanded]=useState(false);const state=STATUS[order.status]||STATUS.pending;const StateIcon=state.Icon;const paymentStatus=order.payment_status||'unpaid';const needsPayment=order.status==='pending'&&order.payment_method!=='cod'&&['unpaid','failed'].includes(paymentStatus);
-  return <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"><div className={`h-1 ${state.dot}`}/><div className="p-4"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="text-[9px] font-extrabold uppercase tracking-[.14em] text-slate-600">Nomor Pesanan</p><h2 className="mt-1 truncate font-mono text-sm font-black text-black">{order.order_code?`#${order.order_code}`:order.id}</h2><p className="mt-1 text-[10px] font-medium text-slate-700">{date(order.created_at)}</p></div><span className={`flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200 px-2.5 py-1.5 text-[9px] font-extrabold text-black ${state.bg}`}><StateIcon size={12}/>{state.label}</span></div>{expanded&&<div className="mt-4 border-t border-slate-100 pt-4"><Progress status={order.status}/><div className="mt-4 grid grid-cols-2 gap-3 rounded-2xl bg-slate-50 p-3.5"><div><span className="text-[9px] font-semibold text-slate-600">Total pembayaran</span><strong className="mt-1 block text-base font-black text-black">{money(order.total_amount||order.total_price||order.total)}</strong></div><div className="border-l border-slate-300 pl-3"><span className="text-[9px] font-semibold text-slate-600">Status pembayaran</span><strong className="mt-1 block text-[11px] font-extrabold text-black">{PAYMENT_LABEL[paymentStatus]||paymentStatus}</strong><span className="mt-0.5 block text-[9px] font-bold uppercase text-black">{order.payment_method||'-'}</span></div></div>{order.shipping_method&&<div className="mt-3 flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-3 text-[10px] font-bold text-black"><Truck size={14}/><span>Pengiriman {String(order.shipping_method).toUpperCase()}</span></div>}</div>}</div><div className={`grid gap-2 border-t border-slate-100 bg-slate-50 p-3 ${expanded?'grid-cols-2':'grid-cols-1'}`}>{expanded&&(needsPayment?<Link to={`/pembayaran/${order.id}`} className="flex h-11 items-center justify-center gap-2 rounded-xl bg-primary text-[10px] font-bold text-white"><CreditCard size={14}/>Lanjut Pembayaran</Link>:<button type="button" onClick={()=>onReorder(order.id)} disabled={reordering||order.status==='cancelled'} className="flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white text-[10px] font-extrabold text-black disabled:opacity-40"><RefreshCw size={13}/>Pesan Lagi</button>)}<button type="button" onClick={()=>setExpanded((value)=>!value)} aria-expanded={expanded} className="flex h-11 items-center justify-center gap-1 rounded-xl bg-black text-[10px] font-extrabold text-white">{expanded?'Tutup Detail':'Lihat Detail'}<ChevronRight size={14} className={`transition-transform ${expanded?'rotate-90':''}`}/></button></div></article>;
-}
-
-export default function Orders(){
-  const navigate=useNavigate();const [params,setParams]=useSearchParams();const filter=params.get('status')||'all';const {user}=useAuth();
-  const [orders,setOrders]=useState(null);const [error,setError]=useState('');const [refreshing,setRefreshing]=useState(false);const [query,setQuery]=useState('');
-  const [reordering,setReordering]=useState(false);
-  const load=useCallback(async(silent=false)=>{if(!user)return;if(!silent)setRefreshing(true);const {data,error:requestError}=await supabase.from('orders').select('*').eq('user_id',user.id).order('created_at',{ascending:false});if(requestError)setError(requestError.message);else{setOrders(data||[]);setError('');}setRefreshing(false);},[user]);
-  useEffect(()=>{load();},[load]);
-  useRealtime('orders','*',()=>load(true),user?`user_id=eq.${user.id}`:null,Boolean(user));
-  const counts=useMemo(()=>Object.keys(STATUS).reduce((result,key)=>({...result,[key]:(orders||[]).filter((order)=>order.status===key).length}),{}),[orders]);
-  const visible=useMemo(()=>{const source=filter==='all'?(orders||[]):(orders||[]).filter((order)=>order.status===filter);const keyword=query.trim().toLowerCase();return keyword?source.filter((order)=>String(order.order_code||order.id).toLowerCase().includes(keyword)||String(order.payment_method||'').toLowerCase().includes(keyword)):source;},[filter,orders,query]);
-  const latestCompleted=useMemo(()=>(orders||[]).find((order)=>order.status==='completed'),[orders]);
-  const changeFilter=(value)=>{const next=new URLSearchParams(params);if(value==='all')next.delete('status');else next.set('status',value);setParams(next,{replace:true});};
-  const reorder=useCallback(async(orderId)=>{if(!orderId)return;setReordering(true);setError('');try{const result=await reorderOrder(orderId);if(Number(result?.added_count||0)>0)navigate('/keranjang',{state:{message:result.message}});else setError(result?.message||'Tidak ada produk yang dapat dipesan lagi.');}catch(reason){setError(reason.message||'Pesanan gagal dimasukkan kembali ke keranjang.');}finally{setReordering(false);}},[navigate]);
-  useEffect(()=>{const orderId=params.get('reorder');if(!orderId)return;const next=new URLSearchParams(params);next.delete('reorder');setParams(next,{replace:true});reorder(orderId);},[params,reorder,setParams]);
-
-  return <div className="min-h-dvh overscroll-y-contain bg-slate-50 pb-28">
-    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white pt-[env(safe-area-inset-top)] shadow-sm"><div className="mx-auto flex h-14 max-w-3xl items-center px-3"><button type="button" onClick={()=>navigate(-1)} className="grid h-10 w-10 place-items-center rounded-full transition-colors active:bg-slate-100" aria-label="Kembali"><ArrowLeft size={20}/></button><div className="min-w-0 flex-1 pl-1"><h1 className="text-sm font-extrabold text-slate-950">Pesanan Saya</h1><p className="text-[9px] text-slate-400">Pantau seluruh transaksi dalam satu tempat</p></div><button type="button" onClick={()=>load()} disabled={refreshing} className="grid h-10 w-10 place-items-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm" aria-label="Perbarui pesanan"><RefreshCw size={15} className={refreshing?'animate-spin':''}/></button></div></header>
-    <div className="mx-auto max-w-3xl">
-    <main className="space-y-5 px-3 py-4 xs:px-4">
-      <section className="overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-orange-500 to-orange-400 p-4 text-white shadow-lg shadow-primary/15"><div className="flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-white/20 backdrop-blur"><ShoppingBag size={21}/></span><div><span className="text-[9px] text-white/75">Total pesanan kamu</span><strong className="block text-xl font-extrabold">{orders?.length||0} Pesanan</strong></div></div><div className="mt-4 grid grid-cols-3 divide-x divide-white/20 rounded-2xl bg-white/10 py-3 text-center"><div><strong className="block text-sm">{counts.pending||0}</strong><span className="text-[8px] text-white/70">Menunggu</span></div><div><strong className="block text-sm">{(counts.processing||0)+(counts.shipping||0)}</strong><span className="text-[8px] text-white/70">Berjalan</span></div><div><strong className="block text-sm">{counts.completed||0}</strong><span className="text-[8px] text-white/70">Selesai</span></div></div></section>
-
-      <nav className="scrollbar-hide -mx-3 flex gap-2 overflow-x-auto px-3 xs:-mx-4 xs:px-4" aria-label="Filter status pesanan">{TABS.map(([value,label])=><button type="button" key={value} onClick={()=>changeFilter(value)} aria-pressed={filter===value} className={`shrink-0 rounded-full px-3.5 py-2 text-[9px] font-bold transition ${filter===value?'bg-gray-950 text-white shadow-sm':'border border-gray-200 bg-white text-gray-500'}`}>{label}{value!=='all'&&<span className={`ml-1.5 ${filter===value?'text-white/70':'text-gray-300'}`}>{counts[value]||0}</span>}</button>)}</nav>
-
-      <label className="flex min-h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 shadow-sm"><Search size={16} className="shrink-0 text-slate-400"/><input value={query} onChange={(event)=>setQuery(event.target.value)} placeholder="Cari nomor pesanan atau metode pembayaran" className="w-full bg-transparent text-[11px] text-slate-700 outline-none placeholder:text-slate-400"/></label>
-
-      {latestCompleted&&<button type="button" onClick={()=>reorder(latestCompleted.id)} disabled={reordering} className="flex min-h-12 w-full items-center justify-between rounded-2xl border border-orange-100 bg-orange-50 px-4 text-left disabled:opacity-60"><span><strong className="block text-xs text-orange-900">Pesan lagi dari pesanan terakhir</strong><span className="mt-0.5 block text-[9px] text-orange-700">Harga dan stok akan diperiksa kembali</span></span>{reordering?<Loader2 size={17} className="animate-spin text-primary"/>:<RefreshCw size={17} className="text-primary"/>}</button>}
-
-      {error&&<div className="flex items-center justify-between gap-3 rounded-2xl border border-red-100 bg-red-50 p-3 text-[10px] text-red-600"><span>{error}</span><button type="button" onClick={()=>load()} className="shrink-0 font-bold">Coba lagi</button></div>}
-      {orders===null?<div className="grid min-h-64 place-items-center"><Loader2 className="animate-spin text-primary"/></div>:!visible.length?<section className="rounded-3xl border border-slate-200 bg-white px-6 py-12 text-center shadow-sm"><span className="mx-auto grid h-16 w-16 place-items-center rounded-3xl bg-slate-50 text-slate-300"><PackageOpen size={28}/></span><h2 className="mt-4 text-sm font-extrabold">Pesanan tidak ditemukan</h2><p className="mx-auto mt-1 max-w-xs text-[10px] leading-5 text-slate-400">{query?'Coba gunakan nomor pesanan atau kata kunci lain.':filter==='all'?'Pesanan yang kamu buat akan tampil dan diperbarui otomatis di sini.':`Belum ada pesanan dengan status ${STATUS[filter]?.label||filter}.`}</p>{!query&&<Link to="/produk" className="mt-5 inline-flex h-10 items-center rounded-xl bg-primary px-5 text-[10px] font-bold text-white">Mulai Belanja</Link>}</section>:<section className="space-y-3">{visible.map((order)=><OrderSummaryCard key={order.id} order={order} reordering={reordering} onReorder={reorder}/>)}</section>}
-    </main>
+function Progress({ status }) {
+  const steps = ["pending", "processing", "shipping", "completed"];
+  const active = steps.indexOf(status);
+  if (status === "cancelled")
+    return (
+      <div className="mt-3 rounded-xl bg-red-50 p-2.5 text-center text-[9px] font-bold text-red-600">
+        Pesanan dibatalkan
+      </div>
+    );
+  return (
+    <div className="mt-3 grid grid-cols-4 gap-1">
+      {steps.map((step, index) => (
+        <div key={step}>
+          <div
+            className={`h-1.5 rounded-full ${index <= active ? "bg-primary" : "bg-gray-100"}`}
+          />
+          <span
+            className={`mt-1 block text-center text-[7px] ${index <= active ? "font-bold text-primary" : "text-gray-300"}`}
+          >
+            {STATUS[step].label}
+          </span>
+        </div>
+      ))}
     </div>
-  </div>;
+  );
+}
+
+function CompletedOrderCard({ order }) {
+  return (
+    <article className="overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-sm">
+      <div className="flex min-h-[76px] items-center gap-3 p-3.5">
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-emerald-600">
+          <CheckCircle2 size={21} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-[9px] font-bold uppercase tracking-[.14em] text-emerald-600">
+            Pesanan Selesai
+          </p>
+          <h2 className="mt-1 truncate font-mono text-xs font-black text-slate-950">
+            {order.order_code ? `#${order.order_code}` : order.id}
+          </h2>
+        </div>
+        <Link
+          to={`/lacak-pesanan/${order.id}`}
+          className="flex h-10 shrink-0 items-center gap-1 rounded-xl bg-slate-950 px-3 text-[10px] font-bold text-white"
+        >
+          Lihat Detail
+          <ChevronRight size={13} />
+        </Link>
+      </div>
+    </article>
+  );
+}
+
+function OrderSummaryCard({ order, reordering, onReorder }) {
+  const [expanded, setExpanded] = useState(false);
+  const state = STATUS[order.status] || STATUS.pending;
+  const StateIcon = state.Icon;
+  const paymentStatus = order.payment_status || "unpaid";
+  const needsPayment =
+    order.status === "pending" &&
+    order.payment_method !== "cod" &&
+    ["unpaid", "failed"].includes(paymentStatus);
+  return (
+    <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className={`h-1 ${state.dot}`} />
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[9px] font-extrabold uppercase tracking-[.14em] text-slate-600">
+              Nomor Pesanan
+            </p>
+            <h2 className="mt-1 truncate font-mono text-sm font-black text-black">
+              {order.order_code ? `#${order.order_code}` : order.id}
+            </h2>
+            <p className="mt-1 text-[10px] font-medium text-slate-700">
+              {date(order.created_at)}
+            </p>
+          </div>
+          <span
+            className={`flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200 px-2.5 py-1.5 text-[9px] font-extrabold text-black ${state.bg}`}
+          >
+            <StateIcon size={12} />
+            {state.label}
+          </span>
+        </div>
+        {expanded && (
+          <div className="mt-4 border-t border-slate-100 pt-4">
+            <Progress status={order.status} />
+            <div className="mt-4 grid grid-cols-2 gap-3 rounded-2xl bg-slate-50 p-3.5">
+              <div>
+                <span className="text-[9px] font-semibold text-slate-600">
+                  Total pembayaran
+                </span>
+                <strong className="mt-1 block text-base font-black text-black">
+                  {money(
+                    order.total_amount || order.total_price || order.total,
+                  )}
+                </strong>
+              </div>
+              <div className="border-l border-slate-300 pl-3">
+                <span className="text-[9px] font-semibold text-slate-600">
+                  Status pembayaran
+                </span>
+                <strong className="mt-1 block text-[11px] font-extrabold text-black">
+                  {PAYMENT_LABEL[paymentStatus] || paymentStatus}
+                </strong>
+                <span className="mt-0.5 block text-[9px] font-bold uppercase text-black">
+                  {order.payment_method || "-"}
+                </span>
+              </div>
+            </div>
+            {order.shipping_method && (
+              <div className="mt-3 flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-3 text-[10px] font-bold text-black">
+                <Truck size={14} />
+                <span>
+                  Pengiriman {String(order.shipping_method).toUpperCase()}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+      <div
+        className={`grid gap-2 border-t border-slate-100 bg-slate-50 p-3 ${expanded ? "grid-cols-2" : "grid-cols-1"}`}
+      >
+        {expanded &&
+          (needsPayment ? (
+            <Link
+              to={`/pembayaran/${order.id}`}
+              className="flex h-11 items-center justify-center gap-2 rounded-xl bg-primary text-[10px] font-bold text-white"
+            >
+              <CreditCard size={14} />
+              Lanjut Pembayaran
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={() => onReorder(order.id)}
+              disabled={reordering || order.status === "cancelled"}
+              className="flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white text-[10px] font-extrabold text-black disabled:opacity-40"
+            >
+              <RefreshCw size={13} />
+              Pesan Lagi
+            </button>
+          ))}
+        <button
+          type="button"
+          onClick={() => setExpanded((value) => !value)}
+          aria-expanded={expanded}
+          className="flex h-11 items-center justify-center gap-1 rounded-xl bg-black text-[10px] font-extrabold text-white"
+        >
+          {expanded ? "Tutup Detail" : "Lihat Detail"}
+          <ChevronRight
+            size={14}
+            className={`transition-transform ${expanded ? "rotate-90" : ""}`}
+          />
+        </button>
+      </div>
+    </article>
+  );
+}
+
+export default function Orders() {
+  const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
+  const filter = params.get("status") || "all";
+  const { user } = useAuth();
+  const [orders, setOrders] = useState(null);
+  const [error, setError] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
+  const [query, setQuery] = useState("");
+  const [reordering, setReordering] = useState(false);
+  const load = useCallback(
+    async (silent = false) => {
+      if (!user) return;
+      if (!silent) setRefreshing(true);
+      const { data, error: requestError } = await supabase
+        .from("orders")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+      if (requestError) setError(requestError.message);
+      else {
+        setOrders(data || []);
+        setError("");
+      }
+      setRefreshing(false);
+    },
+    [user],
+  );
+  useEffect(() => {
+    load();
+  }, [load]);
+  useRealtime(
+    "orders",
+    "*",
+    () => load(true),
+    user ? `user_id=eq.${user.id}` : null,
+    Boolean(user),
+  );
+  const counts = useMemo(
+    () =>
+      Object.keys(STATUS).reduce(
+        (result, key) => ({
+          ...result,
+          [key]: (orders || []).filter((order) => order.status === key).length,
+        }),
+        {},
+      ),
+    [orders],
+  );
+  const visible = useMemo(() => {
+    const source =
+      filter === "all"
+        ? orders || []
+        : (orders || []).filter((order) => order.status === filter);
+    const keyword = query.trim().toLowerCase();
+    return keyword
+      ? source.filter(
+          (order) =>
+            String(order.order_code || order.id)
+              .toLowerCase()
+              .includes(keyword) ||
+            String(order.payment_method || "")
+              .toLowerCase()
+              .includes(keyword),
+        )
+      : source;
+  }, [filter, orders, query]);
+  const latestCompleted = useMemo(
+    () => (orders || []).find((order) => order.status === "completed"),
+    [orders],
+  );
+  const changeFilter = (value) => {
+    const next = new URLSearchParams(params);
+    if (value === "all") next.delete("status");
+    else next.set("status", value);
+    setParams(next, { replace: true });
+  };
+  const reorder = useCallback(
+    async (orderId) => {
+      if (!orderId) return;
+      setReordering(true);
+      setError("");
+      try {
+        const result = await reorderOrder(orderId);
+        if (Number(result?.added_count || 0) > 0)
+          navigate("/keranjang", { state: { message: result.message } });
+        else
+          setError(
+            result?.message || "Tidak ada produk yang dapat dipesan lagi.",
+          );
+      } catch (reason) {
+        setError(
+          reason.message || "Pesanan gagal dimasukkan kembali ke keranjang.",
+        );
+      } finally {
+        setReordering(false);
+      }
+    },
+    [navigate],
+  );
+  useEffect(() => {
+    const orderId = params.get("reorder");
+    if (!orderId) return;
+    const next = new URLSearchParams(params);
+    next.delete("reorder");
+    setParams(next, { replace: true });
+    reorder(orderId);
+  }, [params, reorder, setParams]);
+
+  return (
+    <div className="min-h-dvh overscroll-y-contain bg-slate-50 pb-28">
+      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white pt-[env(safe-area-inset-top)] shadow-sm">
+        <div className="mx-auto flex h-14 max-w-3xl items-center px-3">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="grid h-10 w-10 place-items-center rounded-full transition-colors active:bg-slate-100"
+            aria-label="Kembali"
+          >
+            <ArrowLeft size={20} />
+          </button>
+          <div className="min-w-0 flex-1 pl-1">
+            <h1 className="text-sm font-extrabold text-slate-950">
+              Pesanan Saya
+            </h1>
+            <p className="text-[9px] text-slate-400">
+              Pantau seluruh transaksi dalam satu tempat
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => load()}
+            disabled={refreshing}
+            className="grid h-10 w-10 place-items-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm"
+            aria-label="Perbarui pesanan"
+          >
+            <RefreshCw size={15} className={refreshing ? "animate-spin" : ""} />
+          </button>
+        </div>
+      </header>
+      <div className="mx-auto max-w-3xl">
+        <main className="space-y-5 px-3 py-4 xs:px-4">
+          <section className="overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-orange-500 to-orange-400 p-4 text-white shadow-lg shadow-primary/15">
+            <div className="flex items-center gap-3">
+              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-white/20 backdrop-blur">
+                <ShoppingBag size={21} />
+              </span>
+              <div>
+                <span className="text-[9px] text-white/75">Total pesanan</span>
+                <strong className="block text-xl font-extrabold">
+                  {orders?.length || 0} Pesanan
+                </strong>
+              </div>
+            </div>
+            <div className="mt-4 grid grid-cols-3 divide-x divide-white/20 rounded-2xl bg-white/10 py-3 text-center">
+              <div>
+                <strong className="block text-sm">{counts.pending || 0}</strong>
+                <span className="text-[8px] text-white/70">Menunggu</span>
+              </div>
+              <div>
+                <strong className="block text-sm">
+                  {(counts.processing || 0) + (counts.shipping || 0)}
+                </strong>
+                <span className="text-[8px] text-white/70">Berjalan</span>
+              </div>
+              <div>
+                <strong className="block text-sm">
+                  {counts.completed || 0}
+                </strong>
+                <span className="text-[8px] text-white/70">Selesai</span>
+              </div>
+            </div>
+          </section>
+
+          <nav
+            className="scrollbar-hide -mx-3 flex gap-2 overflow-x-auto px-3 xs:-mx-4 xs:px-4"
+            aria-label="Filter status pesanan"
+          >
+            {TABS.map(([value, label]) => (
+              <button
+                type="button"
+                key={value}
+                onClick={() => changeFilter(value)}
+                aria-pressed={filter === value}
+                className={`shrink-0 rounded-full px-3.5 py-2 text-[9px] font-bold transition ${filter === value ? "bg-gray-950 text-white shadow-sm" : "border border-gray-200 bg-white text-gray-500"}`}
+              >
+                {label}
+                {value !== "all" && (
+                  <span
+                    className={`ml-1.5 ${filter === value ? "text-white/70" : "text-gray-300"}`}
+                  >
+                    {counts[value] || 0}
+                  </span>
+                )}
+              </button>
+            ))}
+          </nav>
+
+          <label className="flex min-h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 shadow-sm">
+            <Search size={16} className="shrink-0 text-slate-400" />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Cari nomor pesanan atau metode pembayaran"
+              className="w-full bg-transparent text-[11px] text-slate-700 outline-none placeholder:text-slate-400"
+            />
+          </label>
+
+          {latestCompleted && (
+            <button
+              type="button"
+              onClick={() => reorder(latestCompleted.id)}
+              disabled={reordering}
+              className="flex min-h-12 w-full items-center justify-between rounded-2xl border border-orange-100 bg-orange-50 px-4 text-left disabled:opacity-60"
+            >
+              <span>
+                <strong className="block text-xs text-orange-900">
+                  Pesan lagi dari pesanan terakhir
+                </strong>
+                <span className="mt-0.5 block text-[9px] text-orange-700">
+                  Harga dan stok akan diperiksa kembali
+                </span>
+              </span>
+              {reordering ? (
+                <Loader2 size={17} className="animate-spin text-primary" />
+              ) : (
+                <RefreshCw size={17} className="text-primary" />
+              )}
+            </button>
+          )}
+
+          {error && (
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-red-100 bg-red-50 p-3 text-[10px] text-red-600">
+              <span>{error}</span>
+              <button
+                type="button"
+                onClick={() => load()}
+                className="shrink-0 font-bold"
+              >
+                Coba lagi
+              </button>
+            </div>
+          )}
+          {orders === null ? (
+            <div className="grid min-h-64 place-items-center">
+              <Loader2 className="animate-spin text-primary" />
+            </div>
+          ) : !visible.length ? (
+            <section className="rounded-3xl border border-slate-200 bg-white px-6 py-12 text-center shadow-sm">
+              <span className="mx-auto grid h-16 w-16 place-items-center rounded-3xl bg-slate-50 text-slate-300">
+                <PackageOpen size={28} />
+              </span>
+              <h2 className="mt-4 text-sm font-extrabold">
+                Pesanan tidak ditemukan
+              </h2>
+              <p className="mx-auto mt-1 max-w-xs text-[10px] leading-5 text-slate-400">
+                {query
+                  ? "Coba gunakan nomor pesanan atau kata kunci lain."
+                  : filter === "all"
+                    ? "Pesanan Anda akan ditampilkan dan diperbarui secara otomatis di sini."
+                    : `Belum ada pesanan dengan status ${STATUS[filter]?.label || filter}.`}
+              </p>
+              {!query && (
+                <Link
+                  to="/produk"
+                  className="mt-5 inline-flex h-10 items-center rounded-xl bg-primary px-5 text-[10px] font-bold text-white"
+                >
+                  Mulai Belanja
+                </Link>
+              )}
+            </section>
+          ) : (
+            <section className="space-y-3">
+              {visible.map((order) => (
+                <OrderSummaryCard
+                  key={order.id}
+                  order={order}
+                  reordering={reordering}
+                  onReorder={reorder}
+                />
+              ))}
+            </section>
+          )}
+        </main>
+      </div>
+    </div>
+  );
 }

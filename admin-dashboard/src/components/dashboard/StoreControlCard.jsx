@@ -2,35 +2,340 @@ import { useMemo, useState } from "react";
 import { Clock3, LocateFixed, MapPin, Phone, Save, Store } from "lucide-react";
 import GoogleMapsLogo from "../ui/GoogleMapsLogo.jsx";
 
-const ExternalLink=GoogleMapsLogo;
+const ExternalLink = GoogleMapsLogo;
 
-const fieldClass = "mt-1.5 w-full rounded-xl border border-gray-200 bg-white px-3.5 py-3 text-sm text-gray-800 outline-none transition focus:border-primary focus:ring-4 focus:ring-orange-50";
+const fieldClass =
+  "mt-1.5 w-full rounded-xl border border-gray-200 bg-white px-3.5 py-3 text-sm text-gray-800 outline-none transition focus:border-primary focus:ring-4 focus:ring-orange-50";
 
 function Switch({ checked, onChange, disabled }) {
-  return <button type="button" role="switch" aria-checked={checked} disabled={disabled} onClick={()=>onChange(!checked)} className={`relative h-8 w-14 rounded-full transition ${checked?"bg-emerald-500":"bg-gray-300"} disabled:opacity-50`}><span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition-all ${checked?"left-7":"left-1"}`}/></button>;
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+      className={`relative h-8 w-14 rounded-full transition ${checked ? "bg-emerald-500" : "bg-gray-300"} disabled:opacity-50`}
+    >
+      <span
+        className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition-all ${checked ? "left-7" : "left-1"}`}
+      />
+    </button>
+  );
 }
 
-export default function StoreControlCard({ store, saving, onChange, onSave, onToggle, compact=false }) {
-  const [locating,setLocating]=useState(false); const [locationError,setLocationError]=useState("");
-  const latitude=Number(store.latitude), longitude=Number(store.longitude);
-  const validCoordinates=Number.isFinite(latitude)&&latitude>=-90&&latitude<=90&&Number.isFinite(longitude)&&longitude>=-180&&longitude<=180;
-  const mapUrl=validCoordinates?`https://www.google.com/maps?q=${latitude},${longitude}`:null;
-  const embedUrl=useMemo(()=>{if(!validCoordinates)return null;const offset=.006;return `https://www.openstreetmap.org/export/embed.html?bbox=${longitude-offset}%2C${latitude-offset}%2C${longitude+offset}%2C${latitude+offset}&layer=mapnik&marker=${latitude}%2C${longitude}`;},[latitude,longitude,validCoordinates]);
-  const locate=()=>{setLocationError("");if(!navigator.geolocation){setLocationError("Browser tidak mendukung lokasi perangkat.");return;}setLocating(true);navigator.geolocation.getCurrentPosition(({coords})=>{onChange({...store,latitude:Number(coords.latitude.toFixed(7)),longitude:Number(coords.longitude.toFixed(7))});setLocating(false);},(error)=>{setLocationError(error.code===1?"Izin lokasi ditolak. Aktifkan izin lokasi browser.":"Lokasi perangkat belum dapat ditemukan.");setLocating(false);},{enableHighAccuracy:true,timeout:12000,maximumAge:30000});};
-  return <section className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
-    <div className="flex flex-col gap-4 border-b border-gray-100 bg-gradient-to-r from-gray-950 to-gray-800 p-5 text-white sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-white/10"><Store size={21}/></span><div><h2 className="font-bold">Informasi Toko</h2><p className="text-xs text-white/60">Satu sumber data untuk Dashboard, Web, dan APK</p></div></div>
-      <div className="flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-2.5"><span className={`h-2.5 w-2.5 rounded-full ${store.is_open!==false?"bg-emerald-400":"bg-red-400"}`}/><div><p className="text-[10px] text-white/60">Status saat ini</p><strong className="text-xs">{store.is_open!==false?"Toko Buka":"Toko Tutup"}</strong></div><Switch checked={store.is_open!==false} disabled={saving} onChange={onToggle}/></div>
-    </div>
-    <div className={`grid ${compact?"grid-cols-1":"grid-cols-1 xl:grid-cols-[1.05fr_.95fr]"}`}>
-      <div className="space-y-5 p-5 sm:p-6">
-        <div><label className="text-xs font-semibold text-gray-600">Nama toko<input required maxLength={120} value={store.name||""} onChange={e=>onChange({...store,name:e.target.value})} placeholder="Nama outlet" className={fieldClass}/></label></div>
-        <div><label className="text-xs font-semibold text-gray-600">Alamat lengkap<textarea required maxLength={500} value={store.address||""} onChange={e=>onChange({...store,address:e.target.value})} placeholder="Alamat yang dilihat pelanggan" rows={3} className={`${fieldClass} resize-none`}/></label></div>
-        <div className="grid gap-3 sm:grid-cols-2"><label className="text-xs font-semibold text-gray-600"><span className="flex items-center gap-1.5"><Phone size={13}/>WhatsApp toko</span><input maxLength={20} inputMode="tel" value={store.phone||""} onChange={e=>onChange({...store,phone:e.target.value.replace(/[^0-9+]/g,"")})} placeholder="628xxxxxxxxxx" className={fieldClass}/></label><div><p className="flex items-center gap-1.5 text-xs font-semibold text-gray-600"><Clock3 size={13}/>Jam operasional</p><div className="grid grid-cols-2 gap-2"><input aria-label="Jam buka" required type="time" value={store.open_time?.slice?.(0,5)||"08:00"} onChange={e=>onChange({...store,open_time:e.target.value})} className={fieldClass}/><input aria-label="Jam tutup" required type="time" value={store.close_time?.slice?.(0,5)||"21:00"} onChange={e=>onChange({...store,close_time:e.target.value})} className={fieldClass}/></div></div></div>
-        <div className="rounded-2xl border border-orange-100 bg-orange-50/60 p-4"><div className="mb-3 flex flex-wrap items-center justify-between gap-2"><div><p className="flex items-center gap-1.5 text-xs font-bold text-gray-700"><MapPin size={14} className="text-primary"/>Koordinat lokasi</p><p className="mt-1 text-[10px] text-gray-500">Isi otomatis dari GPS perangkat atau masukkan manual.</p></div><button type="button" onClick={locate} disabled={locating||saving} className="inline-flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-bold text-primary shadow-sm disabled:opacity-50"><LocateFixed size={14}/>{locating?"Mencari...":"Gunakan lokasi saya"}</button></div><div className="grid grid-cols-2 gap-2"><label className="text-[10px] text-gray-500">Latitude<input required type="number" min="-90" max="90" step="any" value={store.latitude??""} onChange={e=>onChange({...store,latitude:e.target.value===""?null:Number(e.target.value)})} className={fieldClass}/></label><label className="text-[10px] text-gray-500">Longitude<input required type="number" min="-180" max="180" step="any" value={store.longitude??""} onChange={e=>onChange({...store,longitude:e.target.value===""?null:Number(e.target.value)})} className={fieldClass}/></label></div>{locationError&&<p className="mt-2 text-xs text-red-600">{locationError}</p>}</div>
-        <button type="button" disabled={saving||!store.name?.trim()||!store.address?.trim()||!validCoordinates} onClick={onSave} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-sm font-bold text-white shadow-lg shadow-orange-200 transition hover:bg-primary-600 disabled:cursor-not-allowed disabled:opacity-50"><Save size={16}/>{saving?"Menyimpan & menyinkronkan...":"Simpan dan Sinkronkan Realtime"}</button>
+export default function StoreControlCard({
+  store,
+  saving,
+  onChange,
+  onSave,
+  onToggle,
+  compact = false,
+}) {
+  const [locating, setLocating] = useState(false);
+  const [locationError, setLocationError] = useState("");
+  const latitude = Number(store.latitude),
+    longitude = Number(store.longitude);
+  const validCoordinates =
+    Number.isFinite(latitude) &&
+    latitude >= -90 &&
+    latitude <= 90 &&
+    Number.isFinite(longitude) &&
+    longitude >= -180 &&
+    longitude <= 180;
+  const mapUrl = validCoordinates
+    ? `https://www.google.com/maps?q=${latitude},${longitude}`
+    : null;
+  const embedUrl = useMemo(() => {
+    if (!validCoordinates) return null;
+    const offset = 0.006;
+    return `https://www.openstreetmap.org/export/embed.html?bbox=${longitude - offset}%2C${latitude - offset}%2C${longitude + offset}%2C${latitude + offset}&layer=mapnik&marker=${latitude}%2C${longitude}`;
+  }, [latitude, longitude, validCoordinates]);
+  const locate = () => {
+    setLocationError("");
+    if (!navigator.geolocation) {
+      setLocationError("Browser tidak mendukung lokasi perangkat.");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        onChange({
+          ...store,
+          latitude: Number(coords.latitude.toFixed(7)),
+          longitude: Number(coords.longitude.toFixed(7)),
+        });
+        setLocating(false);
+      },
+      (error) => {
+        setLocationError(
+          error.code === 1
+            ? "Izin lokasi ditolak. Aktifkan izin lokasi browser."
+            : "Lokasi perangkat belum dapat ditemukan.",
+        );
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 },
+    );
+  };
+  return (
+    <section className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
+      <div className="flex flex-col gap-4 border-b border-gray-100 bg-gradient-to-r from-gray-950 to-gray-800 p-5 text-white sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <span className="grid h-11 w-11 place-items-center rounded-2xl bg-white/10">
+            <Store size={21} />
+          </span>
+          <div>
+            <h2 className="font-bold">Informasi Toko</h2>
+            <p className="text-xs text-white/60">
+              Satu sumber data untuk Dashboard, Web, dan APK
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-2.5">
+          <span
+            className={`h-2.5 w-2.5 rounded-full ${store.is_open !== false ? "bg-emerald-400" : "bg-red-400"}`}
+          />
+          <div>
+            <p className="text-[10px] text-white/60">Status saat ini</p>
+            <strong className="text-xs">
+              {store.is_open !== false ? "Toko Buka" : "Toko Tutup"}
+            </strong>
+          </div>
+          <Switch
+            checked={store.is_open !== false}
+            disabled={saving}
+            onChange={onToggle}
+          />
+        </div>
       </div>
-      {!compact&&<div className="border-t border-gray-100 bg-gray-50 p-5 xl:border-l xl:border-t-0 sm:p-6"><div className="overflow-hidden rounded-2xl border bg-white shadow-sm">{embedUrl?<iframe title="Peta lokasi toko" src={embedUrl} loading="lazy" referrerPolicy="no-referrer" className="h-[360px] w-full border-0"/>:<div className="grid h-[360px] place-items-center px-8 text-center"><div><MapPin className="mx-auto text-gray-300" size={36}/><p className="mt-3 text-sm font-semibold text-gray-600">Koordinat belum lengkap</p><p className="mt-1 text-xs text-gray-400">Gunakan lokasi perangkat atau isi latitude dan longitude.</p></div></div>}<div className="flex items-center justify-between gap-3 border-t p-4"><div className="min-w-0"><p className="truncate text-sm font-bold">{store.name||"Lokasi toko"}</p><p className="line-clamp-1 text-xs text-gray-500">{validCoordinates?`${latitude}, ${longitude}`:"Belum ditentukan"}</p></div>{mapUrl&&<a href={mapUrl} target="_blank" rel="noopener noreferrer" className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-bold text-primary"><ExternalLink size={13}/>Buka Maps</a>}</div></div><div className="mt-4 rounded-2xl border bg-white p-4"><p className="text-xs font-bold text-gray-700">Sinkronisasi otomatis</p><ul className="mt-2 space-y-2 text-xs text-gray-500"><li>• Alamat dan koordinat tampil di pencarian lokasi.</li><li>• Status buka/tutup mengontrol penerimaan pesanan.</li><li>• Perubahan dikirim realtime melalui Supabase.</li></ul></div></div>}
-    </div>
-  </section>;
+      <div
+        className={`grid ${compact ? "grid-cols-1" : "grid-cols-1 xl:grid-cols-[1.05fr_.95fr]"}`}
+      >
+        <div className="space-y-5 p-5 sm:p-6">
+          <div>
+            <label className="text-xs font-semibold text-gray-600">
+              Nama toko
+              <input
+                required
+                maxLength={120}
+                value={store.name || ""}
+                onChange={(e) => onChange({ ...store, name: e.target.value })}
+                placeholder="Nama outlet"
+                className={fieldClass}
+              />
+            </label>
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-gray-600">
+              Alamat lengkap
+              <textarea
+                required
+                maxLength={500}
+                value={store.address || ""}
+                onChange={(e) =>
+                  onChange({ ...store, address: e.target.value })
+                }
+                placeholder="Alamat yang dilihat pelanggan"
+                rows={3}
+                className={`${fieldClass} resize-none`}
+              />
+            </label>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="text-xs font-semibold text-gray-600">
+              <span className="flex items-center gap-1.5">
+                <Phone size={13} />
+                WhatsApp toko
+              </span>
+              <input
+                maxLength={20}
+                inputMode="tel"
+                value={store.phone || ""}
+                onChange={(e) =>
+                  onChange({
+                    ...store,
+                    phone: e.target.value.replace(/[^0-9+]/g, ""),
+                  })
+                }
+                placeholder="628xxxxxxxxxx"
+                className={fieldClass}
+              />
+            </label>
+            <div>
+              <p className="flex items-center gap-1.5 text-xs font-semibold text-gray-600">
+                <Clock3 size={13} />
+                Jam operasional
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  aria-label="Jam buka"
+                  required
+                  type="time"
+                  value={store.open_time?.slice?.(0, 5) || "08:00"}
+                  onChange={(e) =>
+                    onChange({ ...store, open_time: e.target.value })
+                  }
+                  className={fieldClass}
+                />
+                <input
+                  aria-label="Jam tutup"
+                  required
+                  type="time"
+                  value={store.close_time?.slice?.(0, 5) || "21:00"}
+                  onChange={(e) =>
+                    onChange({ ...store, close_time: e.target.value })
+                  }
+                  className={fieldClass}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-orange-100 bg-orange-50/60 p-4">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p className="flex items-center gap-1.5 text-xs font-bold text-gray-700">
+                  <MapPin size={14} className="text-primary" />
+                  Koordinat lokasi
+                </p>
+                <p className="mt-1 text-[10px] text-gray-500">
+                  Isi otomatis dari GPS perangkat atau masukkan manual.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={locate}
+                disabled={locating || saving}
+                className="inline-flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-bold text-primary shadow-sm disabled:opacity-50"
+              >
+                <LocateFixed size={14} />
+                {locating ? "Mencari..." : "Gunakan lokasi saya"}
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <label className="text-[10px] text-gray-500">
+                Latitude
+                <input
+                  required
+                  type="number"
+                  min="-90"
+                  max="90"
+                  step="any"
+                  value={store.latitude ?? ""}
+                  onChange={(e) =>
+                    onChange({
+                      ...store,
+                      latitude:
+                        e.target.value === "" ? null : Number(e.target.value),
+                    })
+                  }
+                  className={fieldClass}
+                />
+              </label>
+              <label className="text-[10px] text-gray-500">
+                Longitude
+                <input
+                  required
+                  type="number"
+                  min="-180"
+                  max="180"
+                  step="any"
+                  value={store.longitude ?? ""}
+                  onChange={(e) =>
+                    onChange({
+                      ...store,
+                      longitude:
+                        e.target.value === "" ? null : Number(e.target.value),
+                    })
+                  }
+                  className={fieldClass}
+                />
+              </label>
+            </div>
+            {locationError && (
+              <p className="mt-2 text-xs text-red-600">{locationError}</p>
+            )}
+          </div>
+          <button
+            type="button"
+            disabled={
+              saving ||
+              !store.name?.trim() ||
+              !store.address?.trim() ||
+              !validCoordinates
+            }
+            onClick={onSave}
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-sm font-bold text-white shadow-lg shadow-orange-200 transition hover:bg-primary-600 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Save size={16} />
+            {saving
+              ? "Menyimpan & menyinkronkan..."
+              : "Simpan dan Sinkronkan Realtime"}
+          </button>
+        </div>
+        {!compact && (
+          <div className="border-t border-gray-100 bg-gray-50 p-5 xl:border-l xl:border-t-0 sm:p-6">
+            <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
+              {embedUrl ? (
+                <iframe
+                  title="Peta lokasi toko"
+                  src={embedUrl}
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                  className="h-[360px] w-full border-0"
+                />
+              ) : (
+                <div className="grid h-[360px] place-items-center px-8 text-center">
+                  <div>
+                    <MapPin className="mx-auto text-gray-300" size={36} />
+                    <p className="mt-3 text-sm font-semibold text-gray-600">
+                      Koordinat belum lengkap
+                    </p>
+                    <p className="mt-1 text-xs text-gray-400">
+                      Gunakan lokasi perangkat atau isi latitude dan longitude.
+                    </p>
+                  </div>
+                </div>
+              )}
+              <div className="flex items-center justify-between gap-3 border-t p-4">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-bold">
+                    {store.name || "Lokasi toko"}
+                  </p>
+                  <p className="line-clamp-1 text-xs text-gray-500">
+                    {validCoordinates
+                      ? `${latitude}, ${longitude}`
+                      : "Belum ditentukan"}
+                  </p>
+                </div>
+                {mapUrl && (
+                  <a
+                    href={mapUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-bold text-primary"
+                  >
+                    <ExternalLink size={13} />
+                    Buka Maps
+                  </a>
+                )}
+              </div>
+            </div>
+            <div className="mt-4 rounded-2xl border bg-white p-4">
+              <p className="text-xs font-bold text-gray-700">
+                Sinkronisasi otomatis
+              </p>
+              <ul className="mt-2 space-y-2 text-xs text-gray-500">
+                <li>• Alamat dan koordinat tampil di pencarian lokasi.</li>
+                <li>• Status buka/tutup mengontrol penerimaan pesanan.</li>
+                <li>
+                  • Perubahan disinkronkan secara real-time melalui Supabase.
+                </li>
+              </ul>
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  );
 }
