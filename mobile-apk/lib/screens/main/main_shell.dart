@@ -5,6 +5,7 @@ import '../product/product_screen.dart';
 import '../order/order_screen.dart';
 import '../wishlist/wishlist_screen.dart';
 import '../profile/profile_screen.dart';
+import '../../theme/app_theme.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -43,8 +44,8 @@ class _MainShellState extends State<MainShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
-      extendBody: false,
+      backgroundColor: AppColors.canvas,
+      extendBody: true,
       body: SafeArea(
         child: NotificationListener<UserScrollNotification>(
           onNotification: (event) {
@@ -71,45 +72,40 @@ class _MainShellState extends State<MainShell> {
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeOutCubic,
         offset: _showNavigation ? Offset.zero : const Offset(0, 1),
-        child: DecoratedBox(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            border: Border(top: BorderSide(color: Color(0xFFECEFF3))),
-          ),
-          child: SafeArea(
+        child: SafeArea(
             top: false,
-            left: false,
-            right: false,
-            minimum: const EdgeInsets.only(bottom: 4),
-            child: SizedBox(
-              height: 68,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Row(
-                  children: List.generate(5, (index) {
-                    final active = index == _index;
-                    return Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 5),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(16),
-                          onTap: () => setState(() {
-                            _index = index;
-                            _showNavigation = true;
-                          }),
-                          child: _NavItem(
-                              icon: _icons[index],
-                              label: _labels[index],
-                              active: active,
-                              activeColor: _colors[index]),
-                        ),
+            minimum: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+            child: Container(
+              height: 64,
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: .97),
+                border: Border.all(color: const Color(0xFFF1F5F9)),
+                borderRadius: BorderRadius.circular(22),
+                boxShadow: const [BoxShadow(color: Color(0x1F111827), blurRadius: 24, offset: Offset(0, 8))],
+              ),
+              child: Row(
+                children: List.generate(5, (index) {
+                  final active = index == _index;
+                  return Expanded(
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: () => setState(() {
+                        _index = index;
+                        _showNavigation = true;
+                      }),
+                      child: _NavItem(
+                        icon: _icons[index],
+                        label: _labels[index],
+                        active: active,
+                        elevated: index == 2,
+                        activeColor: _colors[index],
                       ),
-                    );
-                  }),
-                ),
+                    ),
+                  );
+                }),
               ),
             ),
-          ),
         ),
       ),
     );
@@ -120,11 +116,13 @@ class _NavItem extends StatelessWidget {
   final IconData icon;
   final String label;
   final bool active;
+  final bool elevated;
   final Color activeColor;
   const _NavItem(
       {required this.icon,
       required this.label,
       required this.active,
+      this.elevated = false,
       required this.activeColor});
   @override
   Widget build(BuildContext context) => Semantics(
@@ -132,32 +130,36 @@ class _NavItem extends StatelessWidget {
         label: label,
         button: true,
         child: SizedBox.expand(
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
             AnimatedContainer(
               duration: const Duration(milliseconds: 180),
               curve: Curves.easeOutCubic,
-              width: 40,
-              height: 32,
+              width: elevated ? 48 : 36,
+              height: elevated ? 48 : 32,
+              transform: elevated ? Matrix4.translationValues(0, -6, 0) : Matrix4.identity(),
               decoration: BoxDecoration(
-                color: active
-                    ? activeColor.withValues(alpha: .12)
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(16),
+                color: elevated
+                    ? (active ? activeColor : activeColor.withValues(alpha: .10))
+                    : (active ? activeColor.withValues(alpha: .10) : Colors.transparent),
+                border: elevated ? Border.all(color: Colors.white, width: 4) : null,
+                borderRadius: BorderRadius.circular(elevated ? 999 : 12),
+                boxShadow: elevated ? const [BoxShadow(color: Color(0x29111827), blurRadius: 16, offset: Offset(0, 6))] : null,
               ),
               child: Icon(icon,
-                  size: active ? 24 : 22,
-                  color: active ? activeColor : const Color(0xFF667085)),
+                  size: elevated ? 21 : 20,
+                  color: elevated && active ? Colors.white : (active ? activeColor : const Color(0xFF64748B))),
             ),
-            const SizedBox(height: 3),
+            SizedBox(height: elevated ? 0 : 2),
             Text(label,
                 maxLines: 1,
                 overflow: TextOverflow.fade,
                 softWrap: false,
                 style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 10,
                     height: 1.1,
                     fontWeight: active ? FontWeight.w700 : FontWeight.w600,
-                    color: active ? activeColor : const Color(0xFF667085))),
+                    color: active ? activeColor : const Color(0xFF64748B))),
+            const SizedBox(height: 5),
           ]),
         ),
       );

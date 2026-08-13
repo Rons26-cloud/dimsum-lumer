@@ -8,8 +8,8 @@ import '../../services/catalog_service.dart';
 import '../../services/supabase_realtime_service.dart';
 import '../../widgets/product_image.dart';
 
-const _orange = Color(0xFFFF7A00);
-const _dark = Color(0xFF1D1D1D);
+const _orange = Color(0xFFE96818);
+const _dark = Color(0xFF0F172A);
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -94,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF8FAFC),
       body: StreamBuilder<List<Map<String, dynamic>>>(
         stream: ProductService.watchProducts(),
         builder: (context, snapshot) {

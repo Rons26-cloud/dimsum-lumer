@@ -1,5 +1,5 @@
 -- Read-only post-deployment checks for the final production security baseline.
--- Run in Supabase SQL Editor after zzzz_20260810_production_security_final.sql.
+-- Run in Supabase SQL Editor after 20260813_production_security_remediation.sql.
 
 select
   p.proname as function_name,
@@ -13,6 +13,8 @@ where n.nspname = 'public'
   and p.proname in (
     'is_admin',
     'is_superadmin',
+    'has_admin_mfa',
+    'assert_superadmin_mfa',
     'admin_promote_new_account',
     'admin_delete_admin_account',
     'protect_profile_privileged_fields',
@@ -20,6 +22,17 @@ where n.nspname = 'public'
     'checkout_order_v2'
   )
 order by p.proname;
+
+-- Must return true for an AAL2 superadmin session and false for an AAL1
+-- session. Run this statement while authenticated as the account under test.
+select public.is_superadmin() as is_superadmin,
+       public.has_admin_mfa() as has_aal2;
+
+-- Must return zero rows: no broad legacy profile management policy may remain.
+select schemaname, tablename, policyname, qual, with_check
+from pg_policies
+where schemaname = 'public' and tablename = 'profiles'
+  and policyname in ('admin_manage', 'admin manage profiles');
 
 -- Must return zero rows: the discount-from-client RPC and obsolete checkout
 -- overload must not exist in production.

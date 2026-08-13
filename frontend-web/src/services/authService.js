@@ -20,10 +20,31 @@ export async function signIn({ email, password }) {
 }
 
 export async function signInWithGoogle() {
-  const { data, error } = await supabase.auth.signInWithOAuth({ provider:"google", options:{ redirectTo:`${window.location.origin}/profil` } });
+  if (window.DimsumLumerApp?.postMessage) {
+    window.DimsumLumerApp.postMessage(JSON.stringify({ type: "google_sign_in" }));
+    return { native: true };
+  }
+  const redirectTo = new URL("/profil", window.location.origin).toString();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo },
+  });
   if (error) throw error;
   return data;
 }
+
+// Dipanggil shell APK setelah OAuth native berhasil. Session tetap divalidasi
+// oleh Supabase; frontend tidak menerima atau menyimpan kredensial Google.
+window.addEventListener("dimsum-lumer-auth", async (event) => {
+  const accessToken = event?.detail?.accessToken;
+  const refreshToken = event?.detail?.refreshToken;
+  if (!accessToken || !refreshToken) return;
+  const { error } = await supabase.auth.setSession({
+    access_token: accessToken,
+    refresh_token: refreshToken,
+  });
+  if (!error) window.location.replace("/profil?source=apk");
+});
 
 export async function requestPasswordReset(email) {
   const redirectTo = new URL("/reset-password", window.location.origin).toString();

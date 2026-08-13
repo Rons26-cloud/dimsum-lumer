@@ -1,5 +1,8 @@
 class AppConfig {
   static const appName = "Dimsum Lumer";
+  static const frontendUrl = "https://dimsum-lumerr.pages.dev/?source=apk";
+  static const frontendHost = "dimsum-lumerr.pages.dev";
+  static const authCallback = "io.dimsumlumer.app://login-callback/";
   static const tagline = "Kelezatan dalam Setiap Sajian";
   static const primaryColorHex = 0xFFE96818;
   static const creamColorHex = 0xFFFFF7ED;

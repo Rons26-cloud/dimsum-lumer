@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../screens/main/main_shell.dart';
+import '../screens/web/web_app_screen.dart';
 import '../screens/login/login_screen.dart';
 import '../screens/cart/cart_screen.dart';
 import '../screens/notification/notification_screen.dart';
@@ -16,7 +16,7 @@ class AppRouter {
     navigatorKey: rootNavigatorKey,
     initialLocation: '/',
     routes: [
-      GoRoute(path: '/', builder: (context, state) => const MainShell()),
+      GoRoute(path: '/', builder: (context, state) => const WebAppScreen()),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(path: '/cart', builder: (context, state) => const CartScreen()),
       GoRoute(

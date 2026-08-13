@@ -10,7 +10,7 @@ class ProfileScreen extends StatelessWidget {
     final user = SupabaseService.client.auth.currentUser;
     return Scaffold(
       appBar: AppBar(title: const Text('Akun Saya')),
-      body: ListView(padding: const EdgeInsets.all(16), children: [
+      body: ListView(padding: const EdgeInsets.fromLTRB(16, 16, 16, 110), children: [
         if (user == null) ...[
           const _GuestCard(),
           const SizedBox(height: 16),

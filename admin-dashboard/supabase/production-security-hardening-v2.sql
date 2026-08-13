@@ -1,4 +1,4 @@
--- Production security hardening v2 (password-only admin compatibility).
+-- Production security hardening v2 (AAL2 administrator sessions).
 -- Apply after all existing dashboard migrations in Supabase SQL Editor.
 -- This file is idempotent and is the final authority for admin privileges.
 create or replace function public.is_superadmin()
@@ -21,9 +21,8 @@ stable
 security invoker
 set search_path = ''
 as $$
-  -- MFA is disabled in the dashboard. Keep this compatibility function because
-  -- existing policies and RPCs call it; authentication and roles remain required.
-  select auth.uid() is not null;
+  select auth.uid() is not null
+    and coalesce(auth.jwt() ->> 'aal', 'aal1') = 'aal2';
 $$;
 
 revoke all on function public.is_superadmin() from public, anon;
@@ -40,7 +39,7 @@ security definer
 set search_path = ''
 as $$
 declare
-  requester_is_superadmin boolean := public.is_superadmin();
+  requester_is_superadmin boolean := public.is_superadmin() and public.has_admin_mfa();
 begin
   if tg_op = 'INSERT' then
     new.user_id := new.id;

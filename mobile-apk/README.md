@@ -56,3 +56,25 @@ lib/
 
 SQL kebijakan keamanan dan petunjuk hardening Supabase tersedia di folder
 `security/`.
+
+## Keselarasan desain web dan APK
+
+Halaman utama APK memuat frontend produksi dari
+`https://dimsum-lumerr.pages.dev`. Karena itu, tampilan dan fitur yang sudah
+dipublikasikan ke Cloudflare Pages langsung digunakan APK tanpa perlu menyalin
+setiap halaman React menjadi layar Flutter terpisah.
+
+URL dan domain yang dipercaya berada di `lib/config/app_config.dart`. Navigasi
+utama dibatasi ke HTTPS pada domain tersebut; tautan WhatsApp, telepon, surel,
+dan situs eksternal dibuka melalui aplikasi sistem. Permintaan lokasi WebView
+hanya disetujui untuk domain frontend resmi setelah pengguna memberikan izin
+Android.
+
+Jika domain produksi berubah, perbarui `frontendUrl` dan `frontendHost`, lalu
+bangun versi APK baru. Perubahan tampilan biasa cukup dipublikasikan ulang ke
+Cloudflare Pages.
+
+Login Google memakai OAuth Supabase melalui browser sistem dan kembali ke APK
+melalui `io.dimsumlumer.app://login-callback/`. URL callback tersebut harus
+terdaftar pada daftar Redirect URLs Supabase Auth. Provider Google juga harus
+diaktifkan menggunakan Client ID dan Client Secret dari Google Cloud Console.

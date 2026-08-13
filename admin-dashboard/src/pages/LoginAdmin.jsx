@@ -16,7 +16,7 @@ export default function LoginAdmin() {
     setLoading(true);
     try {
       await signInAdmin(form);
-      navigate("/");
+      navigate("/mfa", { replace: true });
     } catch (loginError) {
       setError(loginError.message === "Invalid login credentials" ? "Email atau password tidak cocok. Hapus autofill browser lalu ketik ulang password." : loginError.message || "Login gagal. Silakan coba kembali.");
     } finally {

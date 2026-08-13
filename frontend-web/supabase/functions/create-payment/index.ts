@@ -60,6 +60,6 @@ Deno.serve(async (request) => {
     return json(request, { redirect_url: gateway.redirect_url, token: gateway.token });
   } catch (error) {
     console.error('create-payment:', error);
-    return json(request, { error: error instanceof Error ? error.message : 'Pembayaran otomatis gagal dibuat.' }, 500);
+    return json(request, { error: 'Pembayaran otomatis gagal diproses.', request_id: crypto.randomUUID() }, 500);
   }
 });

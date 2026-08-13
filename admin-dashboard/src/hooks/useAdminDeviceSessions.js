@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../supabase/client.js";
 import { useLiveCollection } from "./useLiveCollection.js";
 
@@ -31,6 +31,7 @@ function deviceInfo() {
 export function useAdminDeviceSessions(adminId) {
   const rows = useLiveCollection("admin_sessions");
   const deviceId = useMemo(() => currentDeviceId(), []);
+  const [error, setError] = useState("");
   useEffect(() => {
     if (!adminId) return undefined;
     let active = true;
@@ -38,14 +39,36 @@ export function useAdminDeviceSessions(adminId) {
       if (!active) return;
       const payload = { admin_id: adminId, device_id: deviceId, ...deviceInfo(), last_seen_at: new Date().toISOString(), ended_at: null };
       const { error } = await supabase.from("admin_sessions").upsert(payload, { onConflict: "admin_id,device_id" });
-      if (error && !/does not exist|schema cache|PGRST205/i.test(error.message || "")) console.warn("Sesi perangkat gagal dicatat:", error.message);
+      if (error) {
+        if (active) setError(error.message || "Sesi perangkat gagal dicatat.");
+        console.warn("Sesi perangkat gagal dicatat:", error.message);
+        return;
+      }
+      if (active) {
+        setError("");
+        window.dispatchEvent(new CustomEvent("admin:refresh-data", { detail: { table: "admin_sessions" } }));
+      }
     };
     heartbeat();
     const timer = window.setInterval(heartbeat, 60_000);
     const visible = () => { if (document.visibilityState === "visible") heartbeat(); };
+    const dataError = (event) => {
+      if (event?.detail?.table === "admin_sessions" && active) setError(event.detail.message || "Data sesi gagal dimuat.");
+    };
+    const dataSuccess = (event) => {
+      if (event?.detail?.table === "admin_sessions" && active) setError("");
+    };
     document.addEventListener("visibilitychange", visible);
-    return () => { active = false; window.clearInterval(timer); document.removeEventListener("visibilitychange", visible); };
+    window.addEventListener("admin:data-error", dataError);
+    window.addEventListener("admin:data-success", dataSuccess);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", visible);
+      window.removeEventListener("admin:data-error", dataError);
+      window.removeEventListener("admin:data-success", dataSuccess);
+    };
   }, [adminId, deviceId]);
   const sessions = useMemo(() => (rows || []).filter((row) => String(row.admin_id) === String(adminId)).sort((a, b) => new Date(b.last_seen_at || 0) - new Date(a.last_seen_at || 0)), [rows, adminId]);
-  return { sessions, loading: rows === null, deviceId };
+  return { sessions, loading: rows === null, deviceId, error };
 }

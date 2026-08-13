@@ -25,23 +25,16 @@ security definer
 set search_path = ''
 as $$
 declare
-  requester_is_admin boolean := false;
+  requester_can_manage boolean := public.is_superadmin();
 begin
-  if auth.uid() is not null then
-    select coalesce(p.role in ('admin', 'superadmin'), false)
-      into requester_is_admin
-      from public.profiles p
-      where p.id = auth.uid();
-  end if;
-
   if tg_op = 'INSERT' then
     new.user_id := new.id;
-    if not requester_is_admin then
+    if not requester_can_manage then
       new.role := 'user';
       new.point := 0;
       new.member_level := 'Bronze';
     end if;
-  elsif not requester_is_admin then
+  elsif not requester_can_manage then
     new.role := old.role;
     new.point := old.point;
     new.member_level := old.member_level;

@@ -39,3 +39,25 @@ test("edge functions use an explicit origin allowlist", () => {
   assert.match(sql, /ALLOWED_ORIGINS/);
   assert.doesNotMatch(sql, /Access-Control-Allow-Origin['"]:\s*['"]\*['"]/);
 });
+
+test("production remediation blocks admin role escalation and requires AAL2", () => {
+  const migrationUrl = new URL(
+    "../../supabase/migrations/20260813_production_security_remediation.sql",
+    import.meta.url,
+  );
+  const sql = readFileSync(fileURLToPath(migrationUrl), "utf8");
+  assert.match(sql, /requester_can_manage boolean := public\.is_superadmin\(\) and public\.has_admin_mfa\(\)/i);
+  assert.match(sql, /auth\.jwt\(\) ->> 'aal'.*= 'aal2'/i);
+  assert.match(sql, /new\.role := old\.role/i);
+  assert.match(sql, /drop policy if exists admin_manage on public\.profiles/i);
+  assert.match(sql, /superadmin_manage_profiles/i);
+});
+
+test("client bundles reject service-role keys and edge errors stay generic", () => {
+  const adminClient = readFileSync(fileURLToPath(new URL("../../admin-dashboard/src/supabase/client.js", import.meta.url)), "utf8");
+  const paymentFunction = readFileSync(fileURLToPath(new URL("../supabase/functions/create-payment/index.ts", import.meta.url)), "utf8");
+  assert.match(adminClient, /service_role/);
+  assert.match(adminClient, /tidak boleh berisi service-role key/);
+  assert.doesNotMatch(paymentFunction, /error instanceof Error \? error\.message/);
+  assert.match(paymentFunction, /Pembayaran otomatis gagal diproses/);
+});

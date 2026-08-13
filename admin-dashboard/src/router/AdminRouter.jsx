@@ -7,6 +7,9 @@ import PermissionRoute from "./PermissionRoute.jsx";
 const DashboardLayout=lazy(()=>import("../layouts/DashboardLayout.jsx"));
 const AuthLayout=lazy(()=>import("../layouts/AuthLayout.jsx"));
 const LoginAdmin=lazy(()=>import("../pages/LoginAdmin.jsx"));
+const MfaAdmin=lazy(()=>import("../pages/MfaAdmin.jsx"));
+const MfaSetup=lazy(()=>import("../pages/MfaSetup.jsx"));
+const MfaVerify=lazy(()=>import("../pages/MfaVerify.jsx"));
 const DashboardHome=lazy(()=>import("../pages/Dashboard/DashboardHome.jsx"));
 const Product=lazy(()=>import("../pages/Product/index.jsx"));
 const FlashSale=lazy(()=>import("../pages/FlashSale/index.jsx"));
@@ -34,7 +37,12 @@ const Reward=lazy(()=>import("../pages/Reward/index.jsx"));
 
 export default function AdminRouter() {
   return <Suspense fallback={<Loading fullscreen/>}><Routes>
-    <Route element={<AuthLayout/>}><Route path="/login" element={<LoginAdmin/>}/></Route>
+    <Route element={<AuthLayout/>}>
+      <Route path="/login" element={<LoginAdmin/>}/>
+      <Route path="/mfa" element={<MfaAdmin/>}/>
+      <Route path="/mfa/setup" element={<MfaSetup/>}/>
+      <Route path="/mfa/verify" element={<MfaVerify/>}/>
+    </Route>
     <Route element={<ProtectedAdminRoute><DashboardLayout/></ProtectedAdminRoute>}>
       <Route index element={<DashboardHome/>}/>
       <Route path="produk" element={<Product/>}/><Route path="kategori" element={<Category/>}/>

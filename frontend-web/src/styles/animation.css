@@ -4,6 +4,38 @@
 @keyframes pulseSoft { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 .animate-pulse-soft { animation: pulseSoft 1.6s ease-in-out infinite; }
 
+@keyframes welcomeEnter { from { opacity: 0; transform: scale(.82); } to { opacity: 1; transform: scale(1); } }
+@keyframes welcomeFloat { 0%,100% { transform: translateY(0) rotate(-1.2deg) scale(1); } 35% { transform: translateY(-9px) rotate(.8deg) scale(1.012); } 70% { transform: translateY(-4px) rotate(1.2deg) scale(.995); } }
+@keyframes welcomeBlink { 0%,44%,48%,92%,96%,100% { transform: scaleY(0); } 45%,47%,93%,95% { transform: scaleY(1); } }
+@keyframes welcomeTalk { 0%,100% { transform: scaleY(1) translateY(0); } 35% { transform: scaleY(1.07) translateY(.4%); } 70% { transform: scaleY(.96) translateY(-.2%); } }
+@keyframes welcomeCheek { 0%,100% { opacity: .08; transform: scale(.92); } 50% { opacity: .28; transform: scale(1.08); } }
+@keyframes welcomeSpark { 0%,100% { opacity: 0; transform: translateY(8px) scale(.5) rotate(0); } 45% { opacity: .9; transform: translateY(-4px) scale(1) rotate(25deg); } }
+@keyframes welcomeSpeech { from { opacity: 0; transform: translateY(8px) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes welcomeProgress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.welcome-intro { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; padding: 1.5rem; background: radial-gradient(circle at 50% 38%, #fff7df 0, #fff 44%, #fff4ea 100%); color: #431407; text-align: center; animation: welcomeEnter .45s ease-out both; }
+.welcome-glow { position: absolute; width: 19rem; height: 19rem; border-radius: 999px; background: radial-gradient(circle, rgba(251,191,36,.35), rgba(249,115,22,.08) 58%, transparent 72%); animation: pulseSoft 1.8s ease-in-out infinite; }
+.welcome-mascot { position: relative; width: min(58vw, 15rem); aspect-ratio: 1; animation: welcomeFloat 2.2s ease-in-out infinite; }
+.welcome-mascot img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 18px 18px rgba(154,52,18,.18)); }
+.welcome-mouth-source { position: absolute; inset: 0; z-index: 2; clip-path: polygon(43% 62%,57% 62%,58% 75%,42% 75%); transform-origin: 50% 68%; filter: none !important; }
+.welcome-mascot.is-talking .welcome-mouth-source { animation: welcomeTalk .32s ease-in-out infinite; }
+.welcome-eye { position: absolute; top: 46%; width: 13%; height: 8%; border-radius: 50%; background: linear-gradient(#f6cb8f,#e9a85e); transform: scaleY(0); transform-origin: center; animation: welcomeBlink 4s linear infinite; }
+.welcome-eye-left { left: 29%; }.welcome-eye-right { right: 29%; }
+.welcome-cheek { position: absolute; z-index: 3; top: 58%; width: 14%; height: 9%; border-radius: 50%; background: radial-gradient(circle,rgba(251,113,133,.45),transparent 70%); animation: welcomeCheek 1.7s ease-in-out infinite; pointer-events: none; }
+.welcome-cheek-left { left: 18%; }.welcome-cheek-right { right: 18%; }
+.welcome-spark { position: absolute; z-index: 4; color: #f59e0b; text-shadow: 0 2px 8px rgba(245,158,11,.35); animation: welcomeSpark 2s ease-in-out infinite; }
+.welcome-spark-one { left: 4%; top: 25%; font-size: 1.25rem; }.welcome-spark-two { right: 5%; top: 18%; font-size: 1rem; animation-delay: .65s; }.welcome-spark-three { right: 1%; top: 48%; color: #fb7185; font-size: 1.5rem; animation-delay: 1.1s; }
+.welcome-speech { position: relative; z-index: 1; min-height: 3.25rem; max-width: 19rem; margin-bottom: .85rem; padding: .75rem 1rem; border: 1px solid #fed7aa; border-radius: 1.25rem 1.25rem 1.25rem .35rem; background: rgba(255,255,255,.94); box-shadow: 0 12px 30px rgba(154,52,18,.10); font-size: .78rem; font-weight: 700; line-height: 1.45; animation: welcomeSpeech .3s ease-out both; }
+.welcome-audio { display: inline-grid; width: 1.65rem; height: 1.65rem; margin-left: .45rem; place-items: center; border: 1px solid #fed7aa; border-radius: 999px; background: #fff7ed; color: #c2410c; font-size: .78rem; vertical-align: middle; }
+.welcome-audio:active { transform: scale(.9); }
+.welcome-caret { display: inline-block; margin-left: 1px; color: #f97316; animation: pulseSoft .55s steps(1,end) infinite; }
+.welcome-caret-done { opacity: 0; animation: none; }
+.welcome-intro h1 { position: relative; margin-top: .9rem; font-size: 1.65rem; font-weight: 900; color: #ea580c; }
+.welcome-intro>p { position: relative; margin-top: .25rem; font-size: .68rem; color: #9a3412; }
+.welcome-continue { position: relative; display: inline-flex; align-items: center; gap: .65rem; margin-top: 1.35rem; padding: .75rem 1.15rem; border: 1px solid #fed7aa; border-radius: 999px; background: #fff; color: #c2410c; box-shadow: 0 10px 24px rgba(194,65,12,.12); font-size: .75rem; font-weight: 800; }
+.welcome-continue strong { display: grid; width: 1.7rem; height: 1.7rem; place-items: center; border-radius: 999px; background: #f97316; color: #fff; font-size: 1rem; animation: welcomeArrow .9s ease-in-out infinite; }
+@keyframes welcomeArrow { 0%,100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
+.welcome-continue:active { transform: scale(.96); }
+
 @keyframes errorMascotFloat {
   0%, 100% { transform: translateY(0) rotate(-1deg); }
   50% { transform: translateY(-10px) rotate(1deg); }
@@ -29,5 +61,14 @@
 
 @media (prefers-reduced-motion: reduce) {
   .error-mascot,
-  .error-mascot-halo { animation: none; }
+  .error-mascot-halo,
+  .welcome-intro,
+  .welcome-glow,
+  .welcome-mascot,
+  .welcome-eye,
+  .welcome-mouth-source,
+  .welcome-cheek,
+  .welcome-spark,
+  .welcome-speech,
+  .welcome-continue strong { animation: none; }
 }

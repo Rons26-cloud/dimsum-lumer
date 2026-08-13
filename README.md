@@ -186,6 +186,17 @@ flutter test
 - Simpan credential produksi pada environment hosting, bukan di repository.
 - Distribusikan APK melalui Supabase Storage atau GitHub Releases, bukan sebagai file source repository.
 
+### Urutan hardening keamanan produksi
+
+1. Terapkan seluruh schema dan migrasi lama pada project staging.
+2. Terapkan `supabase/migrations/zzzz_20260810_production_security_final.sql` bila baseline lama belum pernah diterapkan.
+3. Terapkan `supabase/migrations/20260813_production_security_remediation.sql` paling akhir.
+4. Aktifkan MFA TOTP pada Supabase Auth. Dashboard akan meminta setiap admin mendaftarkan atau memverifikasi authenticator setelah login.
+5. Jalankan `supabase/security_post_deploy_check.sql` menggunakan sesi pengujian yang sesuai.
+6. Uji akses dengan empat identitas terpisah: anon, pelanggan, admin, dan superadmin dengan AAL2.
+
+Jangan menerapkan SQL dari `admin-dashboard/supabase`, `frontend-web/supabase/migrations`, atau `mobile-apk/security` secara acak pada produksi. Folder tersebut berisi modul atau baseline historis; migrasi root dan remediation terakhir adalah otoritas deployment.
+
 ## Keamanan
 
 - Row Level Security harus aktif pada tabel yang diakses klien.

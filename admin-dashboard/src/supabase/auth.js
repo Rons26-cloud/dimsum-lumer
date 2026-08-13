@@ -9,7 +9,7 @@ export async function signInAdmin({ email, password }) {
   const { data, error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password: normalizedPassword });
   if (error) throw error;
 
-  const admin = await resolveAdminUser(data.user);
+  const admin = await resolveAdminUser(data.user, { requireMfa: false });
   if (!admin) {
     await supabase.auth.signOut();
     throw new Error("Akun ini tidak memiliki akses admin.");
@@ -23,15 +23,34 @@ export async function signOutAdmin() {
 }
 
 export async function getCurrentAdminSession() {
-  const { data, error } = await supabase.auth.getSession();
-  if (error) throw error;
-  if (!data.session?.user) return null;
-  const admin = await resolveAdminUser(data.session.user);
-  return admin ? { ...data.session, user: admin } : null;
+  const state = await getAdminAuthState();
+  return state.admin && state.session ? { ...state.session, user: state.admin } : null;
 }
 
-export async function resolveAdminUser(user) {
+export async function getAdminAuthState() {
+  const { data, error } = await supabase.auth.getSession();
+  if (error) throw error;
+  if (!data.session?.user) return { session: null, admin: null, requiresMfa: false };
+
+  const admin = await resolveAdminUser(data.session.user, { requireMfa: false });
+  if (!admin) return { session: data.session, admin: null, requiresMfa: false };
+
+  const { data: assurance, error: assuranceError } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  if (assuranceError) throw assuranceError;
+  const mfaVerified = assurance?.currentLevel === "aal2";
+  return {
+    session: data.session,
+    admin: mfaVerified ? admin : null,
+    requiresMfa: !mfaVerified,
+  };
+}
+
+export async function resolveAdminUser(user, { requireMfa = true } = {}) {
   if (!user) return null;
+  if (requireMfa) {
+    const { data: assurance, error: assuranceError } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (assuranceError || assurance?.currentLevel !== "aal2") return null;
+  }
   const trustedRole = user.app_metadata?.role;
   if (["admin", "superadmin"].includes(trustedRole)) return { ...user, adminRole: trustedRole };
   const { data, error } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
@@ -40,10 +59,13 @@ export async function resolveAdminUser(user) {
 }
 
 export function onAdminAuthStateChange(callback) {
-  const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+  const { data: listener } = supabase.auth.onAuthStateChange((event) => {
     window.setTimeout(async () => {
-      const admin = await resolveAdminUser(session?.user);
-      callback(event, admin && session ? { ...session, user: admin } : null);
+      try {
+        callback(event, await getAdminAuthState());
+      } catch (error) {
+        callback(event, { session: null, admin: null, requiresMfa: false, error });
+      }
     }, 0);
   });
   return () => listener.subscription.unsubscribe();

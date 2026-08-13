@@ -27,7 +27,7 @@ const iconFor = (type) =>
   type === "mobile" ? Smartphone : type === "tablet" ? Tablet : Monitor;
 
 export default function AdminDeviceSessions({ adminId }) {
-  const { sessions, loading, deviceId } = useAdminDeviceSessions(adminId);
+  const { sessions, loading, deviceId, error } = useAdminDeviceSessions(adminId);
   return (
     <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
@@ -58,6 +58,14 @@ export default function AdminDeviceSessions({ adminId }) {
       {loading ? (
         <div className="grid min-h-32 place-items-center">
           <Loader2 className="animate-spin text-blue-500" />
+        </div>
+      ) : error ? (
+        <div role="alert" className="mt-5 rounded-2xl border border-red-200 bg-red-50 p-5 text-center">
+          <p className="text-sm font-bold text-red-700">Data sesi gagal dimuat</p>
+          <p className="mt-2 break-words text-xs leading-5 text-red-600">{error}</p>
+          <button type="button" onClick={() => window.dispatchEvent(new CustomEvent("admin:refresh-data", { detail: { table: "admin_sessions" } }))} className="mt-4 inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-xs font-bold text-white">
+            <RefreshCw size={14} /> Coba Lagi
+          </button>
         </div>
       ) : sessions.length ? (
         <div className="mt-5 grid gap-3 lg:grid-cols-2">
@@ -127,8 +135,11 @@ export default function AdminDeviceSessions({ adminId }) {
             Data sesi belum tersedia
           </p>
           <p className="mt-1 text-xs text-gray-400">
-            Jalankan SQL sesi perangkat, lalu buka kembali halaman ini.
+            Perangkat ini sedang didaftarkan. Tekan Coba Lagi jika data belum muncul.
           </p>
+          <button type="button" onClick={() => window.dispatchEvent(new CustomEvent("admin:refresh-data", { detail: { table: "admin_sessions" } }))} className="mt-4 inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs font-bold text-gray-600">
+            <RefreshCw size={14} /> Coba Lagi
+          </button>
         </div>
       )}
       <p className="mt-4 text-[10px] leading-5 text-gray-400">

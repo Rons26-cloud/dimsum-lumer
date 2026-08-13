@@ -14,6 +14,11 @@ class RealtimeAppConfig extends ChangeNotifier {
     'close_time': '21:00'
   };
   Map<String, dynamic> apkVersion = const {};
+  Map<String, dynamic> welcomeIntro = const {
+    'enabled': true,
+    'require_action': true,
+    'message': 'Halo! Selamat datang di Dimsum Lumer!'
+  };
   List<Map<String, dynamic>> homeBanners = const [];
   bool loading = true;
   String? error;
@@ -41,13 +46,16 @@ class RealtimeAppConfig extends ChangeNotifier {
       final rows = await SupabaseService.client
           .from('app_config')
           .select()
-          .inFilter('key', ['store_info', 'apk_version', 'home_banners']);
+          .inFilter('key', ['store_info', 'apk_version', 'home_banners', 'welcome_intro']);
       for (final raw in rows) {
         final row = Map<String, dynamic>.from(raw);
         if (row['key'] == 'store_info') {
           storeInfo = {...storeInfo, ..._value(row)};
         }
         if (row['key'] == 'apk_version') apkVersion = _value(row);
+        if (row['key'] == 'welcome_intro') {
+          welcomeIntro = {...welcomeIntro, ..._value(row)};
+        }
         if (row['key'] == 'home_banners') {
           final value = _value(row);
           final items = value['items'];
