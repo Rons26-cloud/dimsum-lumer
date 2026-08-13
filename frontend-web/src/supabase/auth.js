@@ -20,13 +20,16 @@ export const signIn = async ({ email, password }) => {
 };
 
 export const signInWithGoogle = async () => {
+  const isEmbedded = window.self !== window.top;
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
       redirectTo: `${window.location.origin}/profil`,
+      skipBrowserRedirect: isEmbedded,
     },
   });
   if (error) throw error;
+  if (isEmbedded && data?.url) window.top.location.assign(data.url);
   return data;
 };
 

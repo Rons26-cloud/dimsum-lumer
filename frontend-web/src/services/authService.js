@@ -25,11 +25,13 @@ export async function signInWithGoogle() {
     return { native: true };
   }
   const redirectTo = new URL("/profil", window.location.origin).toString();
+  const isEmbedded = window.self !== window.top;
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo },
+    options: { redirectTo, skipBrowserRedirect: isEmbedded },
   });
   if (error) throw error;
+  if (isEmbedded && data?.url) window.top.location.assign(data.url);
   return data;
 }
 

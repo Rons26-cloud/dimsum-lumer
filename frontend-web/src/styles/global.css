@@ -20,6 +20,20 @@
   text-rendering: optimizeLegibility;
 }
 
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --brand-50: #241c0d;
+  --brand-100: #392b10;
+  --brand-500: #d4af37;
+  --brand-600: #c49a2f;
+  --brand-700: #a97c22;
+  --surface: #18140d;
+  --canvas: #0d0b08;
+  --text: #fffdf5;
+  --muted: #d2c6ad;
+  --border: #4b3c21;
+}
+
 * { box-sizing: border-box; }
 
 html {
@@ -98,4 +112,80 @@ a, button, input, select, textarea, .transition-base {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
+}
+
+/* Tema gelap global: putih untuk isi, emas/kuningan untuk judul dan aksen. */
+html[data-theme='dark'] body,
+html[data-theme='dark'] #root {
+  background: #0d0b08;
+  color: #fffdf5;
+}
+
+html[data-theme='dark'] :is(h1, h2, h3, h4, h5, h6) {
+  color: #e0bd58 !important;
+}
+
+html[data-theme='dark'] :is(.bg-white, [class*='bg-white/']) {
+  background-color: rgb(24 20 13 / .96) !important;
+}
+
+html[data-theme='dark'] :is(.bg-gray-50, .bg-slate-50, .bg-gray-100, .bg-slate-100, [class*='bg-gray-50/'], [class*='bg-slate-50/']) {
+  background-color: #211b10 !important;
+}
+
+html[data-theme='dark'] :is(.bg-orange-50, .bg-amber-50, .bg-yellow-50, .bg-primary-50, [class*='from-orange-50'], [class*='to-orange-50']) {
+  background-color: #2b210d !important;
+}
+
+html[data-theme='dark'] :is(.text-dark, .text-black, .text-gray-950, .text-gray-900, .text-gray-800, .text-gray-700, .text-slate-950, .text-slate-900, .text-slate-800, .text-slate-700) {
+  color: #fffdf5 !important;
+}
+
+html[data-theme='dark'] :is(.text-gray-600, .text-gray-500, .text-gray-400, .text-slate-600, .text-slate-500, .text-slate-400) {
+  color: #d2c6ad !important;
+}
+
+html[data-theme='dark'] :is(.text-primary, .text-orange-950, .text-orange-900, .text-orange-800, .text-orange-700, .text-orange-600, .text-orange-500, .text-amber-900, .text-amber-800, .text-amber-700, .text-amber-600, .text-yellow-700, .text-yellow-600) {
+  color: #d4af37 !important;
+}
+
+html[data-theme='dark'] :is(.border-gray-100, .border-gray-200, .border-slate-100, .border-slate-200, .border-orange-100, .border-orange-200, .border-amber-100, .border-amber-200, [class*='border-gray-100/'], [class*='border-slate-200/']) {
+  border-color: #4b3c21 !important;
+}
+
+html[data-theme='dark'] :is(input, textarea, select) {
+  border-color: #514326 !important;
+  background-color: #151109 !important;
+  color: #fffdf5 !important;
+}
+
+html[data-theme='dark'] :is(input, textarea)::placeholder {
+  color: #9f9276 !important;
+}
+
+html[data-theme='dark'] :is(.shadow-sm, .shadow, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl, .shadow-card) {
+  --tw-shadow-color: rgb(0 0 0 / .48) !important;
+}
+
+html[data-theme='dark'] .theme-toggle {
+  border-color: #705a26 !important;
+  background: #2a210e !important;
+  color: #f1cc62 !important;
+}
+
+html[data-theme='dark'] .welcome-intro {
+  background: radial-gradient(circle at 50% 38%, #30250f 0, #151109 48%, #090806 100%);
+  color: #fffdf5;
+}
+
+html[data-theme='dark'] .welcome-speech,
+html[data-theme='dark'] .welcome-continue {
+  border-color: #705a26;
+  background: rgb(24 20 13 / .96);
+  color: #fffdf5;
+}
+
+html[data-theme='dark'] .welcome-intro h1,
+html[data-theme='dark'] .welcome-intro > p {
+  color: #d4af37 !important;
 }

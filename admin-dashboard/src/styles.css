@@ -17,6 +17,17 @@
   text-rendering: optimizeLegibility;
 }
 
+html[data-admin-theme='dark'] {
+  color-scheme: dark;
+  --brand: #d4af37;
+  --brand-dark: #b58b2a;
+  --canvas: #0d0b08;
+  --surface: #19150e;
+  --text: #fffdf5;
+  --muted: #d2c6ad;
+  --border: #665431;
+}
+
 * { box-sizing: border-box; }
 html { font-size: 15px; }
 html, body { min-height: 100%; margin: 0; }
@@ -62,4 +73,96 @@ button:disabled, [aria-disabled='true'] { cursor: not-allowed; }
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
+}
+
+/* Admin dark theme: high-contrast brass borders, white copy, gold headings. */
+html[data-admin-theme='dark'] body,
+html[data-admin-theme='dark'] #root,
+html[data-admin-theme='dark'] [class*='bg-[#F7F8FA]'],
+html[data-admin-theme='dark'] [class*='bg-[#f7f8fa]'] {
+  background-color: #0d0b08 !important;
+  color: #fffdf5;
+}
+
+html[data-admin-theme='dark'] :is(h1, h2, h3, h4, h5, h6) {
+  color: #e0bd58 !important;
+}
+
+html[data-admin-theme='dark'] :is(.bg-white, [class*='bg-white/']) {
+  background-color: rgb(25 21 14 / .97) !important;
+}
+
+html[data-admin-theme='dark'] :is(.bg-gray-50, .bg-gray-100, .bg-slate-50, .bg-slate-100, [class*='bg-gray-50/'], [class*='bg-slate-50/']) {
+  background-color: #241e12 !important;
+}
+
+html[data-admin-theme='dark'] :is(.bg-orange-50, .bg-orange-100, .bg-amber-50, .bg-amber-100, .bg-yellow-50, .bg-primary-50) {
+  background-color: #30250d !important;
+}
+
+html[data-admin-theme='dark'] :is(.text-dark, .text-black, .text-gray-950, .text-gray-900, .text-gray-800, .text-gray-700, .text-slate-950, .text-slate-900, .text-slate-800, .text-slate-700) {
+  color: #fffdf5 !important;
+}
+
+html[data-admin-theme='dark'] :is(.text-gray-600, .text-gray-500, .text-gray-400, .text-gray-300, .text-slate-600, .text-slate-500, .text-slate-400, .text-slate-300) {
+  color: #d2c6ad !important;
+}
+
+html[data-admin-theme='dark'] :is(.text-primary, .text-orange-950, .text-orange-900, .text-orange-800, .text-orange-700, .text-orange-600, .text-orange-500, .text-amber-900, .text-amber-800, .text-amber-700, .text-amber-600, .text-yellow-700, .text-yellow-600) {
+  color: #d4af37 !important;
+}
+
+html[data-admin-theme='dark'] :is(.border-gray-50, .border-gray-100, .border-gray-200, .border-gray-300, .border-slate-100, .border-slate-200, .border-slate-300, .border-orange-100, .border-orange-200, .border-amber-100, .border-amber-200, [class*='border-gray-100/'], [class*='border-gray-200/'], [class*='border-slate-200/']) {
+  border-color: #665431 !important;
+}
+
+html[data-admin-theme='dark'] :is(section, article, table, thead, tbody, tr, td, th, form, dialog, aside, header, nav, footer, div)[class*='border'] {
+  --tw-border-opacity: 1;
+}
+
+html[data-admin-theme='dark'] :is(table, thead, tbody, tr, td, th) {
+  border-color: #665431 !important;
+}
+
+html[data-admin-theme='dark'] :is(input, textarea, select) {
+  border-color: #806b3e !important;
+  background-color: #151109 !important;
+  color: #fffdf5 !important;
+}
+
+html[data-admin-theme='dark'] :is(input, textarea)::placeholder {
+  color: #a99a7b !important;
+}
+
+html[data-admin-theme='dark'] :is(.divide-gray-50, .divide-gray-100, .divide-gray-200, .divide-slate-100, .divide-slate-200) > :not([hidden]) ~ :not([hidden]) {
+  border-color: #665431 !important;
+}
+
+html[data-admin-theme='dark'] :is(.shadow-sm, .shadow, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl) {
+  --tw-shadow-color: rgb(0 0 0 / .58) !important;
+}
+
+html[data-admin-theme='dark'] .admin-theme-toggle {
+  border-color: #8b7134 !important;
+  background: #30250d !important;
+  color: #f3ce67 !important;
+}
+
+html[data-admin-theme='dark'] aside a[aria-current='page'] {
+  border-color: #d4af37 !important;
+  background: linear-gradient(135deg, #a97719, #d4af37) !important;
+  color: #120e07 !important;
+}
+
+html[data-admin-theme='dark'] aside a[aria-current='page'] :is(span, svg) {
+  color: #120e07 !important;
+}
+
+html[data-admin-theme='dark'] ::selection {
+  background: #d4af37;
+  color: #100d08;
+}
+
+html[data-admin-theme='dark'] ::-webkit-scrollbar-thumb {
+  background-color: #806b3e;
 }
