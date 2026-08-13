@@ -80,7 +80,7 @@ export async function updateConfig(key, value) {
   if (!CONFIG_KEYS.has(key)) throw new Error("Konfigurasi tidak diizinkan.");
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Nilai konfigurasi tidak valid.");
   const normalizedValue = key === "apk_version" ? { ...value, download_url: safeApkUrl(value.download_url) } : value;
-  const payload = { key, value: normalizedValue, updated_at: new Date().toISOString() };
+  const payload = { key, value: normalizedValue, is_public: true, updated_at: new Date().toISOString() };
   const { data, error } = await supabase.from("app_config").upsert(payload, { onConflict: "key" }).select().single();
   if (error) throw error;
   return unwrapConfig(data, normalizedValue);

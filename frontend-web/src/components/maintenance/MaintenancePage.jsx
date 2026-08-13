@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { CalendarDays, Clock3, MessageCircle, ShieldCheck, Wrench } from 'lucide-react';
-import logo from '../../assets/logo/logo.png';
+import maintenanceSadOpen from '../../assets/logo/maintenance-sad-open.png';
+import maintenanceSadClosed from '../../assets/logo/maintenance-sad-closed.png';
 
-const FALLBACK = 'Mohon maaf, Dimsum Lumer sedang dalam pemeliharaan untuk meningkatkan kualitas layanan. Silakan kembali beberapa saat lagi.';
+const FALLBACK = 'Kami sedang melakukan perawatan singkat agar layanan tetap lancar. Coba buka kembali beberapa saat lagi.';
 
 function Countdown({ endTime }) {
   const [now, setNow] = useState(Date.now());
@@ -26,8 +27,9 @@ export function MaintenancePage({ message, startTime, endTime }) {
       <div className="relative mx-auto h-32 w-32">
         <span className="absolute inset-0 animate-ping rounded-full border border-orange-300/40"/>
         <span className="absolute inset-3 animate-pulse rounded-full bg-orange-200/35 blur-xl"/>
-        <div className="absolute inset-1 animate-[bounce_2.4s_ease-in-out_infinite] drop-shadow-[0_14px_18px_rgba(234,88,12,0.22)]">
-          <img src={logo} alt="Logo Dimsum Lumer" className="h-full w-full object-contain"/>
+        <div className="maintenance-logo-motion absolute inset-1 drop-shadow-[0_14px_18px_rgba(234,88,12,0.22)]">
+          <img src={maintenanceSadOpen} alt="Logo Dimsum Lumer dengan ekspresi sedih" className="h-full w-full object-contain"/>
+          <img src={maintenanceSadClosed} alt="" aria-hidden="true" className="maintenance-logo-blink-frame absolute inset-0 h-full w-full object-contain"/>
         </div>
         <span className="absolute bottom-1 right-0 grid h-10 w-10 animate-[pulse_1.8s_ease-in-out_infinite] place-items-center rounded-full border-4 border-white bg-orange-500 text-white shadow-lg"><Wrench size={17}/></span>
       </div>

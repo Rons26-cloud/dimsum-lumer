@@ -17,8 +17,14 @@ function describeDevice(){
   return{model,os,browser};
 }
 
-function currentLocation(){
-  if(!navigator.geolocation)return Promise.resolve(null);
+async function currentLocation(){
+  if(!navigator.geolocation||!navigator.permissions?.query)return null;
+  try{
+    const permission=await navigator.permissions.query({name:"geolocation"});
+    // Login security must never trigger a location prompt. Location is optional
+    // and is recorded only when the customer has already granted access.
+    if(permission.state!=="granted")return null;
+  }catch{return null;}
   return new Promise((resolve)=>navigator.geolocation.getCurrentPosition(
     ({coords})=>resolve({latitude:coords.latitude,longitude:coords.longitude,accuracy:coords.accuracy}),
     ()=>resolve(null),

@@ -8,11 +8,13 @@ import RecommendationSection from "../sections/home/RecommendationSection.jsx";
 import OutletMapSection from "../sections/home/OutletMapSection.jsx";
 import CustomerReviewSection from "../sections/home/CustomerReviewSection.jsx";
 import InstallAppCard from "../components/pwa/InstallAppCard.jsx";
+import MemberOverviewSection from "../sections/home/MemberOverviewSection.jsx";
 
 export default function Home() {
   return (
     <div className="animate-fade-in pb-10 max-w-6xl mx-auto bg-white min-h-dvh md:my-4 md:rounded-3xl md:shadow-card md:overflow-hidden">
       <SearchSection />
+      <MemberOverviewSection />
       <HeroSliderSection />
       <InstallAppCard />
       <CategorySection />

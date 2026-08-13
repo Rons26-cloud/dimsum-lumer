@@ -15,6 +15,8 @@ import { usePoint } from "../hooks/usePoint.js";
 import ProfileAvatar from "../components/profile/ProfileAvatar.jsx";
 import MemberBadge from "../components/profile/MemberBadge.jsx";
 import PointCard from "../components/profile/PointCard.jsx";
+import LanguageSettings from "../components/profile/LanguageSettings.jsx";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 const content = {
   payment: {
@@ -51,6 +53,7 @@ const faqs = [
 export default function ProfileDetail() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
+  const { t } = useLanguage();
   const section = params.get("section") || "profile";
   const { profile, user, loading, error, updateProfile, uploadAvatar } =
     useProfile();
@@ -131,6 +134,15 @@ export default function ProfileDetail() {
       </div>
     );
   }
+  if (section === "language") return (
+    <div className="mx-auto min-h-dvh max-w-2xl bg-cream">
+      <header className="flex h-14 items-center bg-white px-3">
+        <button onClick={() => navigate(-1)} className="grid h-9 w-9 place-items-center rounded-full" aria-label={t("common.back")}><ArrowLeft size={20} /></button>
+        <h1 className="flex-1 text-center text-sm font-extrabold">{t("language.title")}</h1><span className="w-9" />
+      </header>
+      <main className="p-3"><LanguageSettings /></main>
+    </div>
+  );
   if (section === "faq")
     return (
       <div className="mx-auto min-h-dvh max-w-2xl bg-cream">

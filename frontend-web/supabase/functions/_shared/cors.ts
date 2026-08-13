@@ -8,7 +8,11 @@ const allowedOrigins = () => new Set(
 export const corsHeaders = (request: Request) => {
   const origin = request.headers.get('origin')?.replace(/\/$/, '') || '';
   const allowed = allowedOrigins();
-  const acceptedOrigin = origin && allowed.has(origin) ? origin : '';
+  const hostname = (() => {
+    try { return new URL(origin).hostname; } catch { return ''; }
+  })();
+  const isLocalDevelopment = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
+  const acceptedOrigin = origin && (allowed.has(origin) || isLocalDevelopment) ? origin : '';
   return {
     ...(acceptedOrigin ? { 'Access-Control-Allow-Origin': acceptedOrigin } : {}),
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -22,7 +26,14 @@ export const assertAllowedOrigin = (request: Request) => {
   const origin = request.headers.get('origin');
   // Server-to-server webhooks and native applications normally send no Origin.
   if (!origin) return;
-  if (!allowedOrigins().has(origin.replace(/\/$/, ''))) {
+  const normalizedOrigin = origin.replace(/\/$/, '');
+  const hostname = (() => {
+    try { return new URL(normalizedOrigin).hostname; } catch { return ''; }
+  })();
+  // Local Vite ports are safe for development. Production origins must still
+  // be explicitly listed in ALLOWED_ORIGINS.
+  const isLocalDevelopment = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
+  if (!isLocalDevelopment && !allowedOrigins().has(normalizedOrigin)) {
     throw new Error('ORIGIN_NOT_ALLOWED');
   }
 };

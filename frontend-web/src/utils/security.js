@@ -42,7 +42,7 @@ export function safeErrorMessage(error, fallback) {
   const message = String(error?.message || "").toLowerCase();
   if (message.includes("invalid login credentials")) return "Email atau kata sandi salah.";
   if (message.includes("rate limit") || message.includes("too many")) return "Terlalu banyak percobaan. Tunggu beberapa saat lalu coba lagi.";
-  if (message.includes("network") || message.includes("fetch")) return "Koneksi ke server bermasalah. Silakan coba lagi.";
+  if (message.includes("network") || message.includes("fetch")) return "Koneksi sedang tidak stabil. Coba lagi sebentar.";
   return fallback;
 }
 

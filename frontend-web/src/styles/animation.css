@@ -46,6 +46,21 @@
   50% { opacity: .72; transform: translate(-50%, -50%) scale(1.08); }
 }
 
+@keyframes maintenanceLogoSadMove {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  24% { transform: translateY(3px) rotate(-4deg); }
+  52% { transform: translateY(-5px) rotate(2deg); }
+  76% { transform: translateY(2px) rotate(-1deg); }
+}
+
+@keyframes maintenanceLogoBlinkFrame {
+  0%, 39%, 46%, 79%, 86%, 100% { opacity: 0; }
+  40%, 45%, 80%, 85% { opacity: 1; }
+}
+
+.maintenance-logo-motion { animation: maintenanceLogoSadMove 2.8s ease-in-out infinite; }
+.maintenance-logo-blink-frame { opacity: 0; animation: maintenanceLogoBlinkFrame 4.2s steps(1, end) infinite; }
+
 .error-mascot-wrap { position: relative; width: fit-content; }
 .error-mascot { animation: errorMascotFloat 3.4s ease-in-out infinite; }
 .error-mascot-halo {
@@ -62,6 +77,8 @@
 @media (prefers-reduced-motion: reduce) {
   .error-mascot,
   .error-mascot-halo,
+  .maintenance-logo-motion,
+  .maintenance-logo-blink-frame,
   .welcome-intro,
   .welcome-glow,
   .welcome-mascot,

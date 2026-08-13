@@ -20,6 +20,9 @@ export const TABLES = {
   APK_VERSIONS: "apk_versions",
   STORE_SETTINGS: "store_settings",
   APP_CONFIG: "app_config",
+  USER_PAYMENT_METHODS: "user_payment_methods",
+  LIVE_CHAT_CONVERSATIONS: "live_chat_conversations",
+  LIVE_CHAT_MESSAGES: "live_chat_messages",
 };
 
 export const BUCKETS = {

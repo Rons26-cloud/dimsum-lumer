@@ -10,7 +10,7 @@ export default function MainLayout() {
   const { pathname } = useLocation();
   const cartHasItems=useCart((state)=>state.items.length>0);
   const isProductDetail = /^\/produk\/[^/]+\/?$/.test(pathname) || /^\/flash-sale\/[^/]+\/?$/.test(pathname) || pathname === "/pesan-whatsapp";
-  const hasDedicatedHeader = pathname === "/wishlist" || pathname === "/orders";
+  const hasDedicatedHeader = pathname === "/wishlist" || pathname === "/orders" || pathname === "/promo";
   const hideHeader = isProductDetail || hasDedicatedHeader || pathname === "/lokasi-toko" || pathname === "/keranjang";
   const hideBottomChrome = isProductDetail || (pathname === "/keranjang" && cartHasItems);
 

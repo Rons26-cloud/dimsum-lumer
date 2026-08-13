@@ -16,8 +16,13 @@ Deno.serve(async (request) => {
     const userClient = createClient(url, anonKey, { global: { headers: { Authorization: authorization } } });
     const { data: { user }, error: authError } = await userClient.auth.getUser();
     if (authError || !user) return json(request, { error: 'Sesi tidak valid.' }, 401);
-    const { data: profile } = await userClient.from('profiles').select('role').eq('id', user.id).maybeSingle();
+    const { data: profile, error: profileError } = await userClient.from('profiles').select('role').eq('id', user.id).maybeSingle();
+    if (profileError) return json(request, { error: 'Akses administrator tidak dapat diverifikasi.' }, 403);
     if (!['admin', 'superadmin'].includes(profile?.role || '')) return json(request, { error: 'Hanya admin yang dapat melihat bukti pembayaran.' }, 403);
+    const { data: assurance, error: assuranceError } = await userClient.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (assuranceError || assurance?.currentLevel !== 'aal2') {
+      return json(request, { error: 'Verifikasi MFA administrator diperlukan.' }, 403);
+    }
     const { order_id: orderId } = await request.json();
     const admin = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
     const { data: order, error: orderError } = await admin.from('orders').select('payment_proof_path').eq('id', orderId).maybeSingle();

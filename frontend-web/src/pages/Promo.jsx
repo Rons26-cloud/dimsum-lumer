@@ -1,18 +1,27 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowLeft, Gift, Loader2, Search, Sparkles, TicketPercent } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { getActivePromos } from "../services/promoService.js";
 import PromoCard from "../components/cards/PromoCard.jsx";
 import EmptyState from "../components/ui/EmptyState.jsx";
-import Button from "../components/ui/Button.jsx";
 
-export default function Promo() {
-  const [promos, setPromos] = useState(null);
-  useEffect(() => { getActivePromos().then(setPromos).catch(() => setPromos([])); }, []);
-
-  return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
-      <h1 className="text-xl font-bold text-dark mb-4">Promo & Voucher</h1>
-      {promos?.length === 0 && <EmptyState title="Belum ada promo aktif" />}
-      <div className="grid gap-3">{promos?.map((p) => <PromoCard key={p.id} promo={p} />)}</div>
-    </div>
-  );
+export default function Promo(){
+  const navigate=useNavigate();
+  const[promos,setPromos]=useState(null);const[query,setQuery]=useState("");const[filter,setFilter]=useState("all");const[error,setError]=useState("");
+  useEffect(()=>{getActivePromos().then(data=>{setPromos(data||[]);setError("")}).catch(()=>{setPromos([]);setError("Promo gagal dimuat. Coba lagi sebentar.")})},[]);
+  const active=useMemo(()=>{const now=Date.now();return(promos||[]).filter(item=>(!item.starts_at||new Date(item.starts_at).getTime()<=now)&&(!item.ends_at||new Date(item.ends_at).getTime()>=now)&&(item.usage_limit==null||Number(item.used_count||0)<Number(item.usage_limit)))},[promos]);
+  const visible=active.filter(item=>{const matchFilter=filter==="all"||item.discount_type===filter;const text=`${item.title||""} ${item.description||""} ${item.code||""}`.toLowerCase();return matchFilter&&text.includes(query.trim().toLowerCase())});
+  const percentage=active.filter(item=>item.discount_type==="percentage").length;const fixed=active.length-percentage;
+  return <main className="mx-auto min-h-dvh w-full max-w-5xl space-y-5 bg-white px-3 pb-28 xs:px-4">
+    <header className="sticky top-0 z-40 -mx-3 flex h-[calc(3.5rem+env(safe-area-inset-top))] items-end gap-2 border-b border-slate-200 bg-white px-3 pb-2 pt-[env(safe-area-inset-top)] shadow-sm xs:-mx-4 xs:px-4">
+      <button type="button" onClick={()=>navigate(-1)} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-transparent text-gray-900 transition-colors active:bg-gray-100" aria-label="Kembali"><ArrowLeft size={19}/></button>
+      <div className="min-w-0 flex-1 pb-0.5"><h1 className="text-sm font-extrabold text-dark">Promo & Voucher</h1><p className="text-[9px] text-gray-400">Penawaran aktif yang bisa langsung dipakai</p></div>
+      <span className="flex h-8 min-w-8 items-center justify-center gap-1 rounded-full border border-primary/15 bg-primary-50 px-2 text-[9px] font-extrabold text-primary"><TicketPercent size={12}/>{promos===null?"…":active.length}</span>
+    </header>
+    <section className="relative isolate overflow-hidden rounded-[2rem] bg-slate-950 p-6 text-white shadow-xl shadow-orange-100"><span className="absolute -right-20 -top-20 -z-10 h-64 w-64 rounded-full bg-orange-500/30 blur-3xl"/><div className="flex items-start justify-between gap-4"><div><p className="text-[11px] font-extrabold uppercase tracking-[.18em] text-orange-300">Pilihan Minggu Ini</p><h1 className="mt-2 text-2xl font-black">Lebih hemat di pesanan berikutnya</h1><p className="mt-2 max-w-xl text-xs font-medium leading-5 text-white/80">Pilih voucher, salin kodenya, lalu pakai saat checkout.</p></div><span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-orange-500"><TicketPercent size={24}/></span></div><div className="mt-6 grid grid-cols-3 gap-2">{[[active.length,"Aktif"],[percentage,"Persentase"],[fixed,"Potongan"]].map(([value,label])=><div key={label} className="rounded-2xl border border-white/20 bg-white/10 p-3"><strong className="text-xl">{promos===null?"...":value}</strong><p className="mt-1 text-[10px] font-semibold text-white/75">{label}</p></div>)}</div></section>
+    <section className="rounded-3xl border border-gray-200 bg-white p-3 shadow-sm"><label className="flex min-h-12 items-center gap-2 rounded-2xl bg-gray-100 px-4"><Search size={18} className="text-gray-600"/><input value={query} onChange={event=>setQuery(event.target.value)} placeholder="Cari promo atau kode voucher" className="w-full bg-transparent text-sm font-medium text-gray-900 outline-none placeholder:text-gray-500"/></label><nav className="mt-3 grid grid-cols-3 gap-1 rounded-2xl bg-gray-100 p-1">{[["all","Semua"],["percentage","Persentase"],["fixed","Nominal"]].map(([value,label])=><button key={value} onClick={()=>setFilter(value)} className={`min-h-11 rounded-xl text-xs font-bold ${filter===value?"bg-white text-primary shadow-sm":"text-gray-600"}`}>{label}</button>)}</nav></section>
+    {error&&<p role="alert" className="rounded-2xl bg-red-50 p-3 text-xs text-red-600">{error}</p>}
+    {promos===null?<div className="grid min-h-56 place-items-center"><Loader2 className="animate-spin text-primary"/></div>:visible.length?<section className="grid items-start gap-5 md:grid-cols-2">{visible.map(promo=><PromoCard key={promo.id} promo={promo}/>)}</section>:<section className="rounded-3xl border border-dashed border-gray-200 bg-white"><EmptyState icon={Gift} title="Promo tidak ditemukan" description="Coba kata kunci lain atau pilih kategori berbeda."/></section>}
+    <section className="rounded-3xl border border-orange-200 bg-orange-50 p-5"><div className="flex gap-3"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white text-primary shadow-sm"><Sparkles size={19}/></span><div><h2 className="text-sm font-extrabold text-orange-950">Pakai voucher dalam tiga langkah</h2><p className="mt-1 text-xs font-medium leading-5 text-orange-950/80">Salin kode, pilih menu, lalu masukkan kodenya saat checkout. Diskon akan dihitung otomatis.</p></div></div></section>
+  </main>
 }

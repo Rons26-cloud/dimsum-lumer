@@ -20,7 +20,7 @@ import { VoucherSection } from '../components/checkout/VoucherSection.jsx';
 import { validatePromoCode } from '../services/promoService.js';
 
 const SHIPPING = { gojek: 15000, grab: 17000, pickup: 0 };
-const EMPTY_ADDRESS = { label:'Rumah', recipientName:'', phoneNumber:'', fullAddress:'', city:'', postalCode:'', landmark:'', isPrimary:false };
+const EMPTY_ADDRESS = { label:'Rumah', recipientName:'', phoneNumber:'', fullAddress:'', city:'', province:'', regency:'', district:'', village:'', postalCode:'', landmark:'', isPrimary:false };
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -73,7 +73,7 @@ export default function Checkout() {
 
   const openLocation = (address = null) => {
     setEditingAddressId(address?.id || null);
-    setAddressDraft(address ? { label:address.label || 'Rumah', recipientName:address.recipient_name || profile?.full_name || '', phoneNumber:address.phone_number || profile?.phone || '', fullAddress:address.full_address || '', city:address.city || '', postalCode:address.postal_code || '', landmark:address.landmark || '', isPrimary:Boolean(address.is_primary) } : { ...EMPTY_ADDRESS, recipientName:profile?.full_name || '', phoneNumber:profile?.phone || '', isPrimary:addresses.length === 0 });
+    setAddressDraft(address ? { label:address.label || 'Rumah', recipientName:address.recipient_name || profile?.full_name || '', phoneNumber:address.whatsapp || address.phone_number || profile?.phone || '', fullAddress:address.full_address || '', city:address.city || '', province:address.province || '', regency:address.regency || '', district:address.district || '', village:address.village || '', postalCode:address.postal_code || '', landmark:address.landmark || '', isPrimary:Boolean(address.is_primary) } : { ...EMPTY_ADDRESS, recipientName:profile?.full_name || '', phoneNumber:profile?.phone || '', isPrimary:addresses.length === 0 });
     setShowLocationModal(true);
     gps.start();
   };
@@ -87,7 +87,7 @@ export default function Checkout() {
       if (!response.ok) throw new Error('Alamat lokasi tidak ditemukan');
       const location = await response.json();
       const details = location.address || {};
-      setAddressDraft((current) => ({ ...current, fullAddress:location.display_name || current.fullAddress || `${gps.coords.lat.toFixed(6)}, ${gps.coords.lng.toFixed(6)}`, city:details.city || details.town || details.village || details.county || current.city, postalCode:details.postcode || current.postalCode }));
+      setAddressDraft((current) => ({ ...current, fullAddress:location.display_name || current.fullAddress || `${gps.coords.lat.toFixed(6)}, ${gps.coords.lng.toFixed(6)}`, city:details.city || details.town || details.regency || details.county || current.city, province:details.state || details.province || current.province, regency:details.city || details.town || details.regency || details.county || current.regency, district:details.city_district || details.district || details.suburb || current.district, village:details.village || details.town || details.hamlet || details.neighbourhood || current.village, postalCode:details.postcode || current.postalCode }));
     } catch {
       setAddressDraft((current) => ({ ...current, fullAddress:current.fullAddress || `${gps.coords.lat.toFixed(6)}, ${gps.coords.lng.toFixed(6)}` }));
     } finally { setLocationLookup(false); }
@@ -106,7 +106,7 @@ export default function Checkout() {
         if (primaryError) throw primaryError;
       }
       const addressId = editingAddressId || runtimeId();
-      const basePayload = { user_id:user.id, recipient_name:addressDraft.recipientName.trim(), phone_number:addressDraft.phoneNumber.trim(), full_address:addressDraft.fullAddress.trim(), city:addressDraft.city.trim() || null, postal_code:addressDraft.postalCode.trim() || null, label:addressDraft.label.trim(), is_primary:addressDraft.isPrimary };
+      const basePayload = { user_id:user.id, recipient_name:addressDraft.recipientName.trim(), phone_number:addressDraft.phoneNumber.trim(), whatsapp:addressDraft.phoneNumber.trim(), full_address:addressDraft.fullAddress.trim(), city:addressDraft.city.trim() || null, province:addressDraft.province.trim() || null, regency:addressDraft.regency.trim() || null, district:addressDraft.district.trim() || null, village:addressDraft.village.trim() || null, postal_code:addressDraft.postalCode.trim() || null, label:addressDraft.label.trim(), is_primary:addressDraft.isPrimary };
       const supportsAddressGps = import.meta.env.VITE_ADDRESS_GPS_COLUMNS === 'true';
       const fullPayload = supportsAddressGps ? { ...basePayload, landmark:addressDraft.landmark.trim() || null, latitude:gps.coords.lat, longitude:gps.coords.lng } : basePayload;
       const save = (payload) => editingAddressId ? supabase.from('addresses').update(payload).eq('id', editingAddressId).eq('user_id', user.id) : supabase.from('addresses').insert({ id:addressId, ...payload });

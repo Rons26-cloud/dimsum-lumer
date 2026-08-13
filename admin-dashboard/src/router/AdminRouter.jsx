@@ -34,6 +34,8 @@ const Notification=lazy(()=>import("../pages/Notification/index.jsx"));
 const SystemCenter=lazy(()=>import("../pages/SystemCenter/index.jsx"));
 const MonthlyArchive=lazy(()=>import("../pages/MonthlyArchive/index.jsx"));
 const Reward=lazy(()=>import("../pages/Reward/index.jsx"));
+const PaymentUser=lazy(()=>import("../pages/PaymentUser/index.jsx"));
+const LiveChat=lazy(()=>import("../pages/LiveChat/index.jsx"));
 
 export default function AdminRouter() {
   return <Suspense fallback={<Loading fullscreen/>}><Routes>
@@ -59,6 +61,8 @@ export default function AdminRouter() {
       <Route path="pusat-sistem" element={<SystemCenter/>}/>
       <Route path="banner-promo" element={<Banner/>}/><Route path="wishlist" element={<Wishlist/>}/>
       <Route path="reward" element={<Reward/>}/>
+      <Route path="payment-user" element={<PaymentUser/>}/>
+      <Route path="live-chat" element={<LiveChat/>}/>
       <Route path="pengaturan-map" element={<StoreMap/>}/><Route path="jam-operasional" element={<StoreHours/>}/>
       <Route path="*" element={<ComingSoon title="Halaman tidak ditemukan"/>}/>
     </Route>

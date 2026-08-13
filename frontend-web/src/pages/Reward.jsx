@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, Coins, Gift, Loader2, PackageCheck, Star } from "lucide-react";
+import { CalendarDays, Check, Coins, Crown, Gift, Loader2, PackageCheck, Search, ShieldCheck, Sparkles, Star, X } from "lucide-react";
 import { getAvailableRewards, redeemReward } from "../services/rewardService.js";
 import { usePoint } from "../hooks/usePoint.js";
 import EmptyState from "../components/ui/EmptyState.jsx";
@@ -10,75 +10,25 @@ import mentaiImage from "../assets/produk/dimsum-mentai-mozzarella.jpg";
 import pangsitImage from "../assets/produk/pangsit-goreng-lumer.jpg";
 import mixImage from "../assets/produk/mix.jpg";
 
-const fallbackImages = [originalImage, mentaiImage, pangsitImage, mixImage];
-const number = (value) => Number(value || 0).toLocaleString("id-ID");
+const fallbackImages=[originalImage,mentaiImage,pangsitImage,mixImage];
+const number=value=>Number(value||0).toLocaleString("id-ID");
+const date=value=>value?new Date(value).toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric"}):null;
 
-export default function Reward() {
-  const [rewards, setRewards] = useState(null);
-  const [selectedId, setSelectedId] = useState(null);
-  const [redeeming, setRedeeming] = useState(null);
-  const [notice, setNotice] = useState(null);
-  const { point, refresh } = usePoint();
+export default function Reward(){
+  const[rewards,setRewards]=useState(null);const[query,setQuery]=useState("");const[category,setCategory]=useState("all");const[confirming,setConfirming]=useState(null);const[redeeming,setRedeeming]=useState(null);const[notice,setNotice]=useState(null);const{point,refresh}=usePoint();
+  const load=()=>getAvailableRewards().then(setRewards).catch(()=>setRewards([]));
+  useEffect(()=>{load();const channel=supabase.channel("reward-catalog-live").on("postgres_changes",{event:"*",schema:"public",table:"rewards"},load).subscribe();return()=>supabase.removeChannel(channel)},[]);
+  const categories=useMemo(()=>[...new Set((rewards||[]).map(item=>item.category||"Reward"))],[rewards]);
+  const visible=useMemo(()=>(rewards||[]).filter(item=>{const text=`${item.nama_reward||item.name||""} ${item.deskripsi||item.description||""} ${item.category||""}`.toLowerCase();return(category==="all"||(item.category||"Reward")===category)&&text.includes(query.trim().toLowerCase())}),[rewards,query,category]);
+  const affordable=(rewards||[]).filter(item=>point>=Number(item.point_required??item.point_cost??0)&&Number(item.stok??1)>0).length;const featured=(rewards||[]).filter(item=>item.is_featured).length;
+  const redeem=async()=>{const item=confirming;if(!item)return;setRedeeming(item.id);setNotice(null);try{await redeemReward(item.id);await Promise.all([load(),refresh()]);setNotice({ok:true,text:"Penukaran berhasil. Permintaan Anda sedang diproses."});setConfirming(null)}catch(error){setNotice({ok:false,text:error.message||"Penukaran reward belum dapat diproses."})}finally{setRedeeming(null)}};
 
-  const load = () => getAvailableRewards().then(setRewards).catch(() => setRewards([]));
-  useEffect(() => {
-    load();
-    const channel = supabase.channel("reward-catalog-live")
-      .on("postgres_changes", { event: "*", schema: "public", table: "rewards" }, load)
-      .subscribe();
-    return () => supabase.removeChannel(channel);
-  }, []);
-
-  const selected = useMemo(() => rewards?.find((item) => item.id === selectedId), [rewards, selectedId]);
-  const redeem = async (item) => {
-    const cost = Number(item.point_required || item.point_cost || 0);
-    if (!confirm(`Tukarkan ${number(cost)} poin dengan ${item.nama_reward || item.name}?`)) return;
-    setRedeeming(item.id);
-    setNotice(null);
-    try {
-      await redeemReward(item.id);
-      await Promise.all([load(), refresh()]);
-      setNotice({ ok: true, text: "Permintaan penukaran berhasil diterima dan sedang diproses." });
-    } catch (error) {
-      setNotice({ ok: false, text: error.message || "Penukaran reward belum dapat diproses." });
-    } finally {
-      setRedeeming(null);
-    }
-  };
-
-  return <div className="space-y-5 text-black">
-    <ProfilePageHeader title="Reward" />
-    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-      <div className="flex items-start justify-between gap-4">
-        <div><p className="text-[10px] font-bold uppercase tracking-[.18em] text-black">Program Loyalitas</p><h1 className="mt-2 text-xl font-bold text-black">Reward Pelanggan</h1><p className="mt-2 max-w-md text-xs leading-5 text-black">Tukarkan poin dengan produk, voucher, dan manfaat keanggotaan yang tersedia.</p></div>
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-slate-100 text-black"><Gift size={21}/></span>
-      </div>
-      <div className="mt-5 flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-        <Coins size={20} className="text-black"/><span><small className="block text-[10px] text-black">Saldo poin</small><strong className="text-lg text-black">{number(point)} poin</strong></span>
-      </div>
-    </section>
-
-    {notice && <div className={`rounded-2xl border p-4 text-xs font-semibold text-black ${notice.ok ? "border-emerald-300 bg-emerald-50" : "border-red-300 bg-red-50"}`}>{notice.text}</div>}
-    {rewards === null ? <div className="grid min-h-40 place-items-center"><Loader2 className="animate-spin text-black"/></div>
-      : rewards.length === 0 ? <EmptyState icon={Gift} title="Reward belum tersedia" description="Katalog reward akan ditampilkan setelah diaktifkan oleh pengelola."/>
-      : <section>
-        <div className="mb-3 flex items-end justify-between"><div><h2 className="text-sm font-bold text-black">Katalog Reward</h2><p className="mt-1 text-[10px] text-black">Pilih reward untuk melihat status dan melakukan penukaran.</p></div><span className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-[10px] font-bold text-black">{rewards.length} pilihan</span></div>
-        <div className="grid gap-4 sm:grid-cols-2">{rewards.map((item, index) => {
-          const cost = Number(item.point_required ?? item.point_cost ?? 0);
-          const stock = Number(item.stok ?? 0);
-          const available = point >= cost && stock > 0;
-          const active = selectedId === item.id;
-          const image = item.gambar || item.image_url || fallbackImages[index % fallbackImages.length];
-          return <article key={item.id} onClick={() => setSelectedId(item.id)} className={`cursor-pointer overflow-hidden rounded-3xl border-2 bg-white shadow-sm transition ${active ? "border-primary ring-4 ring-primary/10" : "border-slate-200"}`}>
-            <div className="relative h-40 overflow-hidden bg-slate-100"><img src={image} alt={item.nama_reward || item.name} className="h-full w-full object-cover"/><span className={`absolute left-3 top-3 rounded-full border px-2.5 py-1 text-[9px] font-bold ${active ? "border-primary bg-primary text-white" : "border-slate-300 bg-white text-black"}`}>{item.category || "Reward"}</span>{item.is_featured && <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full border border-slate-300 bg-white px-2.5 py-1 text-[9px] font-bold text-black"><Star size={10}/>Unggulan</span>}</div>
-            <div className="p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="text-sm font-bold text-black">{item.nama_reward || item.name}</h3><p className="mt-1 line-clamp-2 min-h-10 text-xs leading-5 text-black">{item.deskripsi || item.description || "Reward keanggotaan Dimsum Lumer."}</p></div><PackageCheck size={18} className={active ? "shrink-0 text-primary" : "shrink-0 text-black"}/></div>
-              <dl className="mt-3 grid grid-cols-2 gap-2 rounded-xl bg-slate-50 p-3 text-[10px] text-black"><div><dt>Poin diperlukan</dt><dd className="mt-1 font-bold">{number(cost)} poin</dd></div><div><dt>Persediaan</dt><dd className="mt-1 font-bold">{stock > 0 ? `${number(stock)} tersedia` : "Tidak tersedia"}</dd></div></dl>
-              {item.terms && <p className="mt-3 text-[10px] leading-4 text-black">Syarat: {item.terms}</p>}
-              <button type="button" onClick={(event) => { event.stopPropagation(); active ? redeem(item) : setSelectedId(item.id); }} disabled={(active && !available) || redeeming === item.id} className={`mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border text-xs font-bold transition disabled:border-slate-200 disabled:bg-slate-100 disabled:text-black ${active ? "border-primary bg-primary text-white" : "border-black bg-white text-black"}`}>{redeeming === item.id ? <Loader2 size={15} className="animate-spin"/> : active ? <Check size={15}/> : <Gift size={15}/>} {active ? (stock <= 0 ? "Tidak Tersedia" : point < cost ? `Kurang ${number(cost-point)} poin` : "Tukarkan Reward") : "Pilih Reward"}</button>
-            </div>
-          </article>;
-        })}</div>
-        {selected && <p className="mt-4 text-center text-[10px] text-black">Reward terpilih: <strong>{selected.nama_reward || selected.name}</strong></p>}
-      </section>}
-  </div>;
+  return <div className="space-y-5"><ProfilePageHeader title="Reward"/>
+    <section className="relative isolate overflow-hidden rounded-[2rem] bg-slate-950 p-6 text-white shadow-xl shadow-orange-100"><span className="absolute -right-20 -top-24 -z-10 h-64 w-64 rounded-full bg-orange-500/30 blur-3xl"/><div className="flex items-start justify-between gap-4"><div><p className="text-[10px] font-extrabold uppercase tracking-[.18em] text-orange-300">Program Loyalitas</p><h1 className="mt-2 text-2xl font-black">Hadiah untuk Anda</h1><p className="mt-2 max-w-lg text-xs font-medium leading-5 text-white/75">Tukarkan poin dengan produk, voucher, dan manfaat eksklusif Dimsum Lumer.</p></div><span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-orange-500"><Gift size={24}/></span></div><div className="mt-6 rounded-2xl border border-white/10 bg-white/10 p-4"><p className="text-[10px] font-semibold text-white/60">Saldo poin tersedia</p><strong className="mt-1 flex items-center gap-2 text-3xl font-black"><Coins size={24} className="text-orange-300"/>{number(point)} <span className="text-sm text-orange-300">poin</span></strong></div><div className="mt-3 grid grid-cols-3 gap-2">{[[(rewards||[]).length,"Reward"],[affordable,"Bisa ditukar"],[featured,"Unggulan"]].map(([value,label])=><div key={label} className="rounded-xl border border-white/10 bg-white/5 p-3"><strong className="text-lg">{rewards===null?"...":value}</strong><p className="mt-0.5 text-[9px] font-medium text-white/60">{label}</p></div>)}</div></section>
+    {notice&&<div role="status" className={`flex items-start gap-3 rounded-2xl border p-4 text-xs font-semibold ${notice.ok?"border-emerald-200 bg-emerald-50 text-emerald-800":"border-red-200 bg-red-50 text-red-700"}`}><Check size={17} className="shrink-0"/>{notice.text}</div>}
+    <section className="rounded-3xl border border-gray-200 bg-white p-3 shadow-sm"><label className="flex min-h-12 items-center gap-2 rounded-2xl bg-gray-100 px-4"><Search size={18} className="text-gray-500"/><input value={query} onChange={event=>setQuery(event.target.value)} placeholder="Cari produk, voucher, atau reward" className="w-full bg-transparent text-sm font-medium text-gray-900 outline-none placeholder:text-gray-500"/></label>{categories.length>0&&<div className="mt-3 flex gap-2 overflow-x-auto pb-1">{[["all","Semua"],...categories.map(value=>[value,value])].map(([value,label])=><button key={value} onClick={()=>setCategory(value)} className={`min-h-10 shrink-0 rounded-xl px-4 text-xs font-bold ${category===value?"bg-primary text-white":"bg-gray-100 text-gray-600"}`}>{label}</button>)}</div>}</section>
+    {rewards===null?<div className="grid min-h-56 place-items-center"><Loader2 className="animate-spin text-primary"/></div>:visible.length?<section className="grid items-start gap-5 sm:grid-cols-2">{visible.map((item,index)=>{const cost=Number(item.point_required??item.point_cost??0);const stock=Number(item.stok??0);const enough=point>=cost;const available=enough&&stock>0;const missing=Math.max(0,cost-point);const progress=cost>0?Math.min(100,(point/cost)*100):100;const image=item.gambar||item.image_url||fallbackImages[index%fallbackImages.length];return <article key={item.id} className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-[0_12px_35px_rgba(15,23,42,.07)]"><div className="relative h-48 overflow-hidden bg-gray-100"><img src={image} alt={item.nama_reward||item.name} className="h-full w-full object-cover transition duration-500 hover:scale-105"/><span className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent"/><span className="absolute left-3 top-3 rounded-full bg-white px-3 py-1.5 text-[10px] font-extrabold text-gray-900 shadow">{item.category||"Reward"}</span>{item.is_featured&&<span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-amber-400 px-3 py-1.5 text-[10px] font-extrabold text-amber-950"><Star size={11} fill="currentColor"/>Unggulan</span>}<div className="absolute inset-x-4 bottom-4 flex items-end justify-between gap-3 text-white"><span><small className="block text-[9px] font-semibold text-white/70">Diperlukan</small><strong className="text-lg font-black">{number(cost)} poin</strong></span><span className={`rounded-full px-3 py-1 text-[9px] font-bold ${stock>0?"bg-emerald-500":"bg-red-500"}`}>{stock>0?`${number(stock)} tersedia`:"Stok habis"}</span></div></div><div className="p-5"><h2 className="text-base font-black text-gray-950">{item.nama_reward||item.name}</h2><p className="mt-2 min-h-10 text-xs font-medium leading-5 text-gray-600">{item.deskripsi||item.description||"Reward eksklusif untuk pelanggan Dimsum Lumer."}</p><div className="mt-4 rounded-2xl bg-gray-50 p-4"><div className="flex justify-between gap-3 text-[10px]"><span className="font-semibold text-gray-600">Progres poin</span><strong className={enough?"text-emerald-700":"text-gray-900"}>{enough?"Poin mencukupi":`Kurang ${number(missing)} poin`}</strong></div><div className="mt-2 h-2 overflow-hidden rounded-full bg-gray-200"><span className={`block h-full rounded-full ${enough?"bg-emerald-500":"bg-primary"}`} style={{width:`${progress}%`}}/></div></div><div className="mt-4 space-y-2.5 border-y border-dashed border-gray-200 py-4 text-[10px] text-gray-600">{(item.starts_at||item.ends_at)&&<p className="flex items-center gap-2"><CalendarDays size={15} className="text-primary"/>Periode reward <strong className="ml-auto text-right text-gray-900">{date(item.starts_at)||"Sekarang"} – {date(item.ends_at)||"Tanpa batas"}</strong></p>}<p className="flex items-start gap-2"><ShieldCheck size={15} className="mt-0.5 shrink-0 text-primary"/><span><strong className="block text-gray-900">Syarat penukaran</strong>{item.terms||"Berlaku untuk satu kali penukaran dan tidak dapat diuangkan."}</span></p></div><button type="button" onClick={()=>setConfirming(item)} disabled={!available} className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-xs font-extrabold text-white disabled:bg-gray-200 disabled:text-gray-500">{available?<><Gift size={16}/>Tukarkan Reward</>:stock<=0?<><X size={16}/>Stok Tidak Tersedia</>:<><Coins size={16}/>Poin Belum Cukup</>}</button></div></article>})}</section>:<section className="rounded-3xl border border-dashed border-gray-200 bg-white"><EmptyState icon={Gift} title="Reward tidak ditemukan" description="Coba kata kunci atau kategori lain. Reward terbaru akan ditampilkan di halaman ini."/></section>}
+    <section className="rounded-3xl border border-violet-200 bg-violet-50 p-5"><div className="flex gap-3"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white text-violet-700 shadow-sm"><Crown size={20}/></span><div><h2 className="text-sm font-extrabold text-violet-950">Cara menukarkan reward</h2><p className="mt-1 text-xs font-medium leading-5 text-violet-950/75">Pastikan poin dan stok mencukupi, pilih reward, lalu konfirmasi penukaran. Poin akan dipotong setelah permintaan berhasil dan status penukaran diproses oleh pengelola.</p></div></div></section>
+    {confirming&&<div className="fixed inset-0 z-50 grid place-items-end bg-black/55 p-0 sm:place-items-center sm:p-4"><section role="dialog" aria-modal="true" className="w-full max-w-md rounded-t-3xl bg-white p-5 shadow-2xl sm:rounded-3xl"><div className="flex items-start justify-between gap-3"><div><p className="text-[10px] font-extrabold uppercase tracking-wider text-primary">Konfirmasi Penukaran</p><h2 className="mt-1 text-lg font-black text-gray-950">{confirming.nama_reward||confirming.name}</h2></div><button onClick={()=>setConfirming(null)} className="grid h-9 w-9 place-items-center rounded-xl bg-gray-100"><X size={17}/></button></div><div className="mt-5 rounded-2xl bg-slate-950 p-5 text-white"><p className="text-[10px] text-white/60">Poin yang digunakan</p><strong className="mt-1 block text-2xl font-black text-orange-300">{number(confirming.point_required??confirming.point_cost)} poin</strong><p className="mt-3 text-[10px] text-white/60">Sisa poin setelah penukaran: <strong className="text-white">{number(point-Number(confirming.point_required??confirming.point_cost??0))} poin</strong></p></div><p className="mt-4 text-xs font-medium leading-5 text-gray-600">Periksa pilihan Anda sebelum melanjutkan. Penukaran yang telah diproses tidak dapat dibatalkan secara mandiri.</p><div className="mt-5 grid grid-cols-2 gap-2"><button onClick={()=>setConfirming(null)} className="min-h-12 rounded-2xl bg-gray-100 text-xs font-bold text-gray-700">Batal</button><button onClick={redeem} disabled={redeeming===confirming.id} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-primary text-xs font-extrabold text-white disabled:opacity-60">{redeeming===confirming.id?<Loader2 size={16} className="animate-spin"/>:<PackageCheck size={16}/>}Konfirmasi</button></div></section></div>}
+  </div>
 }

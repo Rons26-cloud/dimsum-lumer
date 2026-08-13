@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Heart, Home, ReceiptText, User, Utensils } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useLanguage } from "../../i18n/LanguageContext.jsx";
 
-const tabs = [
-  { id: "home", label: "Beranda", path: "/", Icon: Home, color: "text-orange-600", soft: "bg-orange-50" },
-  { id: "menu", label: "Menu", path: "/produk", Icon: Utensils, color: "text-amber-600", soft: "bg-amber-50" },
-  { id: "orders", label: "Pesanan", path: "/orders", Icon: ReceiptText, color: "text-blue-600", soft: "bg-blue-50", elevated: true },
-  { id: "wishlist", label: "Favorit", path: "/wishlist", Icon: Heart, color: "text-rose-600", soft: "bg-rose-50" },
-  { id: "profile", label: "Profil", path: "/profil", Icon: User, color: "text-violet-600", soft: "bg-violet-50" },
+const tabDefinitions = [
+  { id: "home", labelKey: "nav.home", path: "/", Icon: Home, color: "text-orange-600", soft: "bg-orange-50" },
+  { id: "menu", labelKey: "nav.menu", path: "/produk", Icon: Utensils, color: "text-amber-600", soft: "bg-amber-50" },
+  { id: "orders", labelKey: "nav.orders", path: "/orders", Icon: ReceiptText, color: "text-blue-600", soft: "bg-blue-50", elevated: true },
+  { id: "wishlist", labelKey: "nav.wishlist", path: "/wishlist", Icon: Heart, color: "text-rose-600", soft: "bg-rose-50" },
+  { id: "profile", labelKey: "nav.profile", path: "/profil", Icon: User, color: "text-violet-600", soft: "bg-violet-50" },
 ];
 
 function tabFromPath(pathname) {
@@ -20,6 +21,8 @@ function tabFromPath(pathname) {
 }
 
 export default function BottomNavigation() {
+  const { t } = useLanguage();
+  const tabs = useMemo(() => tabDefinitions.map((tab) => ({ ...tab, label: t(tab.labelKey) })), [t]);
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const currentTab = useMemo(() => tabFromPath(pathname), [pathname]);
@@ -85,7 +88,7 @@ export default function BottomNavigation() {
 
   return (
     <nav
-      aria-label="Navigasi utama"
+      aria-label={t("nav.main")}
       className={`fixed inset-x-3 bottom-[calc(.5rem+env(safe-area-inset-bottom))] z-40 mx-auto h-16 max-w-md rounded-[22px] border border-gray-100/90 bg-white/95 px-1.5 shadow-[0_8px_24px_rgba(17,24,39,.12)] backdrop-blur-md transition-all duration-300 ease-out md:hidden ${visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-[calc(100%+2rem)] opacity-0"}`}
     >
       <div className="grid h-full grid-cols-5 items-center">

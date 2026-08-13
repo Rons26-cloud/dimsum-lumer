@@ -15,7 +15,7 @@ function Switch({ checked, onChange, disabled }) {
       aria-checked={checked}
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={`relative h-8 w-14 rounded-full transition ${checked ? "bg-emerald-500" : "bg-gray-300"} disabled:opacity-50`}
+      className={`relative h-8 w-14 rounded-full transition ${checked ? "bg-emerald-500" : "bg-red-600"} disabled:opacity-50`}
     >
       <span
         className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition-all ${checked ? "left-7" : "left-1"}`}
@@ -80,7 +80,7 @@ export default function StoreControlCard({
   };
   return (
     <section className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
-      <div className="flex flex-col gap-4 border-b border-gray-100 bg-gradient-to-r from-gray-950 to-gray-800 p-5 text-white sm:flex-row sm:items-center sm:justify-between">
+      <div className={`flex flex-col gap-4 border-b border-gray-100 p-5 text-white transition-colors sm:flex-row sm:items-center sm:justify-between ${store.is_open !== false ? "bg-gradient-to-r from-emerald-700 to-emerald-500" : "bg-gradient-to-r from-gray-950 to-red-950"}`}>
         <div className="flex items-center gap-3">
           <span className="grid h-11 w-11 place-items-center rounded-2xl bg-white/10">
             <Store size={21} />

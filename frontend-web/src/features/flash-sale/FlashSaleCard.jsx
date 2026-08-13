@@ -26,7 +26,7 @@ export function FlashSaleCard({ sale }) {
       <div className="flex min-h-[82px] flex-1 flex-col pt-1.5">
         <div className="flex items-center justify-between gap-1 text-[9px]"><span className="flex items-center gap-0.5 text-amber-600"><Star size={9} fill="currentColor" /> {product?.rating || "4.8"}</span><span className="truncate text-gray-400">Sisa {sale.flash_stock}</span></div>
         <Link to={detailUrl} className="mt-1 line-clamp-2 min-h-[26px] text-[9px] font-bold leading-3 text-gray-800 xs:text-xs">{product?.name}</Link>
-        <div className="mt-auto pt-2"><span className="block whitespace-nowrap text-[8px] text-gray-400 line-through">Rp{saleProduct.original_price.toLocaleString("id-ID")}</span><strong className="block whitespace-nowrap text-[9px] text-dark xs:text-[10px]">Rp{saleProduct.price.toLocaleString("id-ID")}</strong></div>
+        <div className="mt-auto pt-2"><div className="mb-1 h-1 overflow-hidden rounded-full bg-orange-100"><span className="block h-full rounded-full bg-primary" style={{width:`${Math.max(8,Math.min(100,Number(sale.flash_stock||0)/(Number(sale.initial_stock||sale.flash_stock||1))*100))}%`}}/></div><span className="block whitespace-nowrap text-[8px] text-gray-400 line-through">Rp{saleProduct.original_price.toLocaleString("id-ID")}</span><strong className="block whitespace-nowrap text-[9px] text-dark xs:text-[10px]">Rp{saleProduct.price.toLocaleString("id-ID")}</strong></div>
       </div>
     </article>
   );

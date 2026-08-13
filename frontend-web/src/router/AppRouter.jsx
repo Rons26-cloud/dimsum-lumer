@@ -36,6 +36,7 @@ const Notification=lazy(()=>import("../pages/Notification.jsx"));
 const NotificationDetail=lazy(()=>import("../pages/NotificationDetail.jsx"));
 const NotificationSettings=lazy(()=>import("../pages/NotificationSettings.jsx"));
 const Payment=lazy(()=>import("../pages/Payment.jsx"));
+const PaymentMethods=lazy(()=>import("../pages/PaymentMethods.jsx"));
 
 import ProtectedRoute from "./ProtectedRoute.jsx";
 import GuestRoute from "./GuestRoute.jsx";
@@ -88,6 +89,7 @@ export default function AppRouter() {
         <Route path="/profil/riwayat-poin" element={<ProtectedRoute><PointHistory /></ProtectedRoute>} />
         <Route path="/profil/reward" element={<ProtectedRoute><Reward /></ProtectedRoute>} />
         <Route path="/profil/pengaturan-notifikasi" element={<ProtectedRoute><NotificationSettings /></ProtectedRoute>} />
+        <Route path="/profil/metode-pembayaran" element={<ProtectedRoute><PaymentMethods /></ProtectedRoute>} />
       </Route>
 
       <Route path="*" element={<NotFound />} />

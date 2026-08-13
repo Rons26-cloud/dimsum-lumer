@@ -1,3 +1,19 @@
+[auth]
+# Membuat sesi sementara di belakang layar agar pengunjung dapat memakai live
+# chat tanpa membuat akun atau melewati halaman login.
+site_url = "https://dimsum-lumerr.pages.dev"
+additional_redirect_urls = ["https://dimsum-lumerr.pages.dev/profil"]
+enable_anonymous_sign_ins = true
+
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+[auth.email]
+enable_confirmations = true
+max_frequency = "1m0s"
+otp_length = 8
+
 [functions.create-payment]
 # Preflight OPTIONS tidak membawa JWT. Auth user tetap diverifikasi di dalam
 # function menggunakan supabase.auth.getUser() sebelum data pesanan dibaca.
@@ -7,4 +23,12 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.get-payment-proof]
+verify_jwt = false
+
+[functions.send-live-chat]
+# Browser preflight tidak membawa JWT. Fungsi tetap memverifikasi access token
+# (termasuk sesi anonim) dengan auth.getUser() sebelum menulis lewat service role.
+verify_jwt = false
+
+[functions.close-live-chat]
 verify_jwt = false

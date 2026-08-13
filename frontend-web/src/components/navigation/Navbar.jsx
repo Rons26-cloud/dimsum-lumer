@@ -73,7 +73,7 @@ export default function Navbar({ sticky = true, autoHide = false }) {
 
   return (
     <header className={`${sticky ? "sticky top-0 z-30" : "relative z-10"} h-[calc(3.5rem+env(safe-area-inset-top))] shrink-0 border-b border-gray-100 bg-white/95 pt-[env(safe-area-inset-top)] backdrop-blur-md transition-all duration-300 ease-out sm:h-[calc(4rem+env(safe-area-inset-top))] md:translate-y-0 md:opacity-100 ${visible ? "translate-y-0 opacity-100" : "pointer-events-none -translate-y-full opacity-0"}`}>
-      <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4 sm:h-16">
+      <div className={`mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4 sm:h-16 ${autoHide ? "translate-y-1" : ""}`}>
         <Link to="/" className="flex items-center gap-2 min-w-0">
           <img src={logo} alt="Dimsum Lumer" className="h-10 w-10 shrink-0 object-contain sm:h-11 sm:w-11" />
           <span className="font-extrabold text-sm sm:text-base text-primary leading-tight truncate">

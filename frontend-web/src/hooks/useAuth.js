@@ -57,7 +57,7 @@ export function useAuth() {
     let isMounted = true;
 
     supabase.auth.getSession()
-      .then(({ data }) => { if (isMounted) setUser(data?.session?.user ?? null); })
+      .then(({ data }) => { if (isMounted) setUser(data?.session?.user?.is_anonymous ? null : (data?.session?.user ?? null)); })
       .catch((error) => {
         console.warn("Sesi lokal tidak dapat dipulihkan:", error?.message || error);
         if (isMounted) setUser(null);
@@ -68,7 +68,7 @@ export function useAuth() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (isMounted) {
-        setUser(session?.user ?? null);
+        setUser(session?.user?.is_anonymous ? null : (session?.user ?? null));
         setLoading(false);
       }
     });

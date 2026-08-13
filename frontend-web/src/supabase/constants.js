@@ -16,6 +16,9 @@ export const TABLES = {
   CART_ITEMS: "cart_items",
   STORES: "stores",
   PROMOS: "promos",
+  USER_PAYMENT_METHODS: "user_payment_methods",
+  LIVE_CHAT_CONVERSATIONS: "live_chat_conversations",
+  LIVE_CHAT_MESSAGES: "live_chat_messages",
 };
 
 export const BUCKETS = {

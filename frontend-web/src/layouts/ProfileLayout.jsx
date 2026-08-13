@@ -15,7 +15,7 @@ export default function ProfileLayout() {
   const { pathname } = useLocation();
   const isOverview = pathname === "/profil" || pathname === "/profil/detail";
   const isInformation = pathname.startsWith("/profil/informasi/");
-  const isLoyaltyPage = ["/profil/poin", "/profil/riwayat-poin", "/profil/reward", "/profil/pengaturan-notifikasi"].includes(pathname);
+  const isLoyaltyPage = ["/profil/alamat", "/profil/poin", "/profil/riwayat-poin", "/profil/reward", "/profil/pengaturan-notifikasi", "/profil/metode-pembayaran"].includes(pathname);
   const hasDedicatedHeader = isInformation || isLoyaltyPage;
   return (
     <div className="min-h-dvh flex flex-col bg-gray-50">

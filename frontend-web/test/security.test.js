@@ -61,3 +61,27 @@ test("client bundles reject service-role keys and edge errors stay generic", () 
   assert.doesNotMatch(paymentFunction, /error instanceof Error \? error\.message/);
   assert.match(paymentFunction, /Pembayaran otomatis gagal diproses/);
 });
+
+test("payment proof memerlukan admin AAL2 sebelum service-role digunakan", () => {
+  const source = readFileSync(fileURLToPath(new URL("../supabase/functions/get-payment-proof/index.ts", import.meta.url)), "utf8")
+  const roleCheck = source.indexOf("['admin', 'superadmin'].includes")
+  const assuranceCheck = source.indexOf("getAuthenticatorAssuranceLevel")
+  const aal2Check = source.indexOf("currentLevel !== 'aal2'")
+  const serviceClient = source.indexOf("createClient(url, serviceKey")
+
+  assert.ok(roleCheck > 0)
+  assert.ok(assuranceCheck > roleCheck)
+  assert.ok(aal2Check > assuranceCheck)
+  assert.ok(serviceClient > aal2Check)
+  assert.match(source.slice(aal2Check, serviceClient), /403/)
+  assert.doesNotMatch(source.slice(0, serviceClient), /createSignedUrl/)
+});
+
+test("live chat memisahkan blok setiap pelanggan melalui RLS", () => {
+  const source = readFileSync(fileURLToPath(new URL("../../supabase/migrations/20260814_live_chat_private_user_blocks.sql", import.meta.url)), "utf8");
+  assert.match(source, /revoke all on public\.live_chat_messages from public, anon/i);
+  assert.match(source, /user_id\s*=\s*auth\.uid\(\)/i);
+  assert.match(source, /conversation\.user_id\s*=\s*auth\.uid\(\)/i);
+  assert.match(source, /public\.is_admin_aal2\(\)/i);
+  assert.doesNotMatch(source, /using\s*\(\s*true\s*\)/i);
+});

@@ -6,6 +6,7 @@ import DevicePreviewFrame from "./components/layout/DevicePreviewFrame.jsx";
 import AppErrorBoundary from "./components/maintenance/AppErrorBoundary.jsx";
 import CartRealtimeSync from "./components/cart/CartRealtimeSync.jsx";
 import PullToRefresh from "./components/layout/PullToRefresh.jsx";
+import LiveChatWidget from "./components/chat/LiveChatWidget.jsx";
 
 const DESKTOP_BREAKPOINT = 1024;
 const OVERRIDE_KEY = "dimsumFrameMode"; // "frame" | "full" | null (null = otomatis)
@@ -67,6 +68,7 @@ export default function App() {
         <CartRealtimeSync />
         <AppRouter />
       </PullToRefresh>
+      <LiveChatWidget />
       {}
       {isWide && !isEmbedded() && (
         <button

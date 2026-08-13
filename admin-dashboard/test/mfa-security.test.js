@@ -10,6 +10,7 @@ const router = source("router/AdminRouter.jsx");
 const guard = source("router/ProtectedAdminRoute.jsx");
 const auth = source("supabase/auth.js");
 const masterSql = readFileSync(new URL("../../SUPABASE_MASTER_FIXED.sql", import.meta.url), "utf8");
+const aal2Migration = readFileSync(new URL("../../supabase/migrations/20260814_enforce_admin_mfa_aal2.sql", import.meta.url), "utf8");
 
 test("MFA memakai API TOTP Supabase lengkap", () => {
   for (const call of ["mfa.enroll", "mfa.listFactors", "mfa.challenge", "mfa.verify", "getAuthenticatorAssuranceLevel"]) {
@@ -48,4 +49,49 @@ test("SQL sesi perangkat hanya dapat diakses admin dengan AAL2", () => {
   assert.match(sessionBlock, /admin_id = auth\.uid\(\)/);
   assert.match(masterSql, /select auth\.uid\(\) is not null\s+and coalesce\(auth\.jwt\(\) ->> 'aal', ''\) = 'aal2'/);
   assert.doesNotMatch(masterSql, /Compatibility gate: MFA disabled/);
+});
+
+test("metode pembayaran pengguna tidak dapat dihapus oleh aplikasi pelanggan", () => {
+  const paymentService = readFileSync(new URL("../../frontend-web/src/services/paymentMethodService.js", import.meta.url), "utf8");
+  const paymentBlock = masterSql.slice(
+    masterSql.indexOf("-- USER PAYMENT METHODS"),
+    masterSql.indexOf("commit;", masterSql.indexOf("-- USER PAYMENT METHODS")) + 7,
+  );
+  assert.match(paymentBlock, /payment methods owner read/);
+  assert.match(paymentBlock, /payment methods owner insert/);
+  assert.doesNotMatch(paymentBlock, /create policy "payment methods owner update"/);
+  assert.doesNotMatch(paymentBlock, /payment methods owner delete/);
+  assert.match(paymentBlock, /revoke update,delete on public\.user_payment_methods from authenticated/i);
+  assert.match(paymentBlock, /admin_delete_user_payment_method/);
+  assert.match(paymentBlock, /payment_method_admin_logs/);
+  assert.doesNotMatch(paymentService, /\.(?:update|delete)\s*\(/);
+});
+
+test("database memisahkan pemeriksaan role admin dan gerbang AAL2", () => {
+  const roleStart = aal2Migration.indexOf("create or replace function public.is_admin()")
+  const aal2Start = aal2Migration.indexOf("create or replace function public.is_admin_aal2()")
+  const roleBlock = aal2Migration.slice(roleStart, aal2Start)
+  const aal2Block = aal2Migration.slice(aal2Start, aal2Migration.indexOf("create or replace function public.assert_admin_aal2()"))
+
+  assert.match(roleBlock, /role in \('admin', 'superadmin'\)/)
+  assert.doesNotMatch(roleBlock, /->> 'aal'/)
+  assert.match(aal2Block, /public\.is_admin\(\)/)
+  assert.match(aal2Block, /auth\.jwt\(\) ->> 'aal'.*'aal2'/s)
+});
+
+test("policy dan SECURITY DEFINER admin dimigrasikan ke AAL2 tanpa reset", () => {
+  assert.match(aal2Migration, /from pg_policies/)
+  assert.match(aal2Migration, /replace\(replace\(policy_record\.qual/)
+  assert.match(aal2Migration, /'public\.is_admin\(\)', 'public\.is_admin_aal2\(\)'/)
+  assert.match(aal2Migration, /'public\.is_superadmin\(\)', 'public\.is_superadmin_aal2\(\)'/)
+  assert.match(aal2Migration, /and p\.prosecdef/)
+  assert.match(aal2Migration, /pg_get_functiondef/)
+  assert.doesNotMatch(aal2Migration, /truncate|disable row level security|drop table/i)
+});
+
+test("app_config hanya membuka key yang diklasifikasikan publik", () => {
+  assert.match(aal2Migration, /add column if not exists is_public boolean not null default false/)
+  assert.match(aal2Migration, /using \(is_public = true\)/)
+  assert.match(aal2Migration, /key !~\* '\(secret\|password\|token/)
+  assert.doesNotMatch(aal2Migration, /app_config[\s\S]{0,160}for select[\s\S]{0,80}using \(true\)/i)
 });

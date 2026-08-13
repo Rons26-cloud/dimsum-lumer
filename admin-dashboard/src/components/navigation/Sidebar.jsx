@@ -1,12 +1,14 @@
 import { NavLink, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import clsx from "clsx";
 import {
   LayoutDashboard, Package, Tag, Image, Percent, Receipt, Users, Heart, Zap,
-  MapPin, Clock, BarChart3, FileText, Settings, UserCog, LogOut, Wrench, BellRing, ServerCog, Archive, Gift,
+  MapPin, Clock, BarChart3, FileText, Settings, UserCog, LogOut, Wrench, BellRing, ServerCog, Archive, Gift, WalletCards, MessageCircle,
 } from "lucide-react";
 import logo from "../../assets/logo/logo.png";
 import { signOutAdmin } from "../../services/authService.js";
 import GoogleMapsLogo from "../ui/GoogleMapsLogo.jsx";
+import { supabase } from "../../supabase/client.js";
 
 const menuGroups = [
   {
@@ -19,7 +21,9 @@ const menuGroups = [
       { to: "/banner-promo", label: "Banner Promo", Icon: Image, color: "text-violet-600", bg: "bg-violet-50" },
       { to: "/promo", label: "Promo", Icon: Percent, color: "text-pink-600", bg: "bg-pink-50" },
       { to: "/pesanan", label: "Pesanan", Icon: Receipt, color: "text-emerald-600", bg: "bg-emerald-50" },
+      { to: "/live-chat", label: "Live Chat", Icon: MessageCircle, color: "text-orange-600", bg: "bg-orange-50" },
       { to: "/pelanggan", label: "Pelanggan", Icon: Users, color: "text-indigo-600", bg: "bg-indigo-50" },
+      { to: "/payment-user", label: "Metode Pembayaran", Icon: WalletCards, color: "text-blue-600", bg: "bg-blue-50" },
       { to: "/wishlist", label: "Wishlist", Icon: Heart, color: "text-rose-600", bg: "bg-rose-50" },
       { to: "/reward", label: "Reward", Icon: Gift, color: "text-fuchsia-600", bg: "bg-fuchsia-50" },
     ],
@@ -54,6 +58,8 @@ const menuGroups = [
 
 export default function Sidebar({ open, onClose }) {
   const navigate = useNavigate();
+  const [pendingChats,setPendingChats]=useState(0);
+  useEffect(()=>{let active=true;const load=async()=>{const {count}=await supabase.from('live_chat_conversations').select('id',{count:'exact',head:true}).eq('status','open').or('admin_read_at.is.null,admin_replied_at.is.null');if(active)setPendingChats(count||0)};load();const channel=supabase.channel('admin-sidebar-live-chat').on('postgres_changes',{event:'*',schema:'public',table:'live_chat_conversations'},load).subscribe();return()=>{active=false;supabase.removeChannel(channel)}},[]);
   const handleMenuNavigation = (event, to) => {
     if (to === "/akun-admin") {
       event.preventDefault();
@@ -108,7 +114,8 @@ export default function Sidebar({ open, onClose }) {
                     {isActive && <span className="absolute -left-1 h-6 w-1 rounded-full bg-gray-900" aria-hidden="true"/>}
                     <span className={clsx("grid h-7 w-7 place-items-center rounded-lg", isActive ? "bg-white/20 text-white" : `${bg} ${color}`)}><Icon size={17} strokeWidth={isActive ? 2.6 : 2}/></span>
                     <span className={isActive ? "text-white" : "text-inherit"}>{label}</span>
-                    {isActive && <span className="ml-auto h-2 w-2 rounded-full bg-white ring-4 ring-white/20" aria-label="Menu aktif"/>}
+                    {to === "/live-chat" && pendingChats > 0 && <span className={`ml-auto grid min-w-5 place-items-center rounded-full px-1.5 py-0.5 text-[9px] font-extrabold ${isActive ? "bg-white text-red-600" : "bg-red-600 text-white"}`}>{pendingChats > 99 ? "99+" : pendingChats}</span>}
+                    {isActive && to !== "/live-chat" && <span className="ml-auto h-2 w-2 rounded-full bg-white ring-4 ring-white/20" aria-label="Menu aktif"/>}
                   </>}
                 </NavLink>
               ))}
