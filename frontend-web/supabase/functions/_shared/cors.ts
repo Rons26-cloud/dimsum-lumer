@@ -1,9 +1,15 @@
-const allowedOrigins = () => new Set(
-  (Deno.env.get('ALLOWED_ORIGINS') || '')
-    .split(',')
-    .map((value) => value.trim().replace(/\/$/, ''))
-    .filter(Boolean),
-);
+const PRODUCTION_ORIGIN = 'https://dimsum-lumerr.pages.dev';
+
+const allowedOrigins = () => {
+  const configuredOrigins = (Deno.env.get('ALLOWED_ORIGINS') || '').split(',');
+  const frontendOrigin = Deno.env.get('FRONTEND_URL') || '';
+
+  return new Set(
+    [PRODUCTION_ORIGIN, frontendOrigin, ...configuredOrigins]
+      .map((value) => value.trim().replace(/\/$/, ''))
+      .filter(Boolean),
+  );
+};
 
 export const corsHeaders = (request: Request) => {
   const origin = request.headers.get('origin')?.replace(/\/$/, '') || '';
