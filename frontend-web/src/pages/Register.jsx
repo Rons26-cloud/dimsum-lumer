@@ -79,7 +79,7 @@ export default function Register() {
               type="text"
               required
               placeholder="Nama Lengkap"
-              className="bg-transparent outline-none text-sm w-full text-gray-800 placeholder-gray-400"
+              className="professional-text-field w-full"
               value={form.fullName}
               onChange={(e) => setForm({ ...form, fullName: e.target.value })}
             />
@@ -91,7 +91,7 @@ export default function Register() {
               type="email"
               required
               placeholder="Email"
-              className="bg-transparent outline-none text-sm w-full text-gray-800 placeholder-gray-400"
+              className="professional-text-field w-full"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
             />
@@ -103,7 +103,7 @@ export default function Register() {
               type="tel"
               required
               placeholder="No. HP"
-              className="bg-transparent outline-none text-sm w-full text-gray-800 placeholder-gray-400"
+              className="professional-text-field w-full"
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
             />
@@ -115,7 +115,7 @@ export default function Register() {
               type={showPassword ? "text" : "password"}
               required
               placeholder="Kata Sandi"
-              className="bg-transparent outline-none text-sm w-full text-gray-800 placeholder-gray-400"
+              className="professional-text-field w-full"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
             />

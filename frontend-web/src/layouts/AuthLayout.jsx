@@ -10,7 +10,7 @@ export default function AuthLayout() {
   };
 
   return (
-    <div className="min-h-dvh bg-white">
+    <div className="mobile-app-shell min-h-dvh bg-white">
       <header className="fixed inset-x-0 top-0 z-50 border-b border-gray-100 bg-white/95 pt-[max(env(safe-area-inset-top),0.375rem)] backdrop-blur-md">
         <div className="relative mx-auto flex h-14 w-full max-w-md items-center justify-center px-4 sm:h-16">
           <button

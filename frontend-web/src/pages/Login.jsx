@@ -71,7 +71,7 @@ export default function Login() {
               type="email"
               required
               placeholder="Email"
-              className="bg-transparent outline-none text-sm w-full text-gray-800 placeholder-gray-400"
+              className="professional-text-field w-full"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
             />
@@ -83,7 +83,7 @@ export default function Login() {
               type={showPassword ? "text" : "password"}
               required
               placeholder="Kata Sandi"
-              className="bg-transparent outline-none text-sm w-full text-gray-800 placeholder-gray-400"
+              className="professional-text-field w-full"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
             />

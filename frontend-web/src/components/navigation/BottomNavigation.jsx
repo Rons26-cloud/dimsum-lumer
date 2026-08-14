@@ -89,7 +89,7 @@ export default function BottomNavigation() {
   return (
     <nav
       aria-label={t("nav.main")}
-      className={`fixed inset-x-3 bottom-[calc(.5rem+env(safe-area-inset-bottom))] z-40 mx-auto h-16 max-w-md rounded-[22px] border border-gray-100/90 bg-white/95 px-1.5 shadow-[0_8px_24px_rgba(17,24,39,.12)] backdrop-blur-md transition-all duration-300 ease-out md:hidden ${visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-[calc(100%+2rem)] opacity-0"}`}
+      className={`fixed inset-x-3 bottom-[calc(.5rem+env(safe-area-inset-bottom))] z-40 mx-auto h-16 max-w-[26rem] rounded-[22px] border border-gray-100/90 bg-white/95 px-1.5 shadow-[0_8px_24px_rgba(17,24,39,.12)] backdrop-blur-md transition-all duration-300 ease-out ${visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-[calc(100%+2rem)] opacity-0"}`}
     >
       <div className="grid h-full grid-cols-5 items-center">
         {tabs.map((tab) => {

@@ -72,31 +72,25 @@ export default function Navbar({ sticky = true, autoHide = false }) {
   }, [autoHide]);
 
   return (
-    <header className={`${sticky ? "sticky top-0 z-30" : "relative z-10"} h-[calc(3.5rem+env(safe-area-inset-top))] shrink-0 border-b border-gray-100 bg-white/95 pt-[env(safe-area-inset-top)] backdrop-blur-md transition-all duration-300 ease-out sm:h-[calc(4rem+env(safe-area-inset-top))] md:translate-y-0 md:opacity-100 ${visible ? "translate-y-0 opacity-100" : "pointer-events-none -translate-y-full opacity-0"}`}>
-      <div className={`mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4 sm:h-16 ${autoHide ? "translate-y-1" : ""}`}>
-        <Link to="/" className="flex items-center gap-2 min-w-0">
-          <img src={logo} alt="Dimsum Lumer" className="h-10 w-10 shrink-0 object-contain sm:h-11 sm:w-11" />
-          <span className="font-extrabold text-sm sm:text-base text-primary leading-tight truncate">
+    <header className={`${sticky ? "sticky top-0 z-30" : "relative z-10"} h-[calc(3.5rem+env(safe-area-inset-top))] w-full shrink-0 border-b border-gray-100 bg-white/95 pt-[env(safe-area-inset-top)] backdrop-blur-md transition-all duration-300 ease-out md:opacity-100 ${visible ? "translate-y-0 opacity-100" : "pointer-events-none -translate-y-full opacity-0"}`}>
+      <div className="mx-auto flex h-14 w-full max-w-md items-center justify-between px-4">
+        <Link to="/" className="flex min-w-0 items-center gap-2.5">
+          <img src={logo} alt="Dimsum Lumer" className="h-9 w-9 shrink-0 object-contain" />
+          <span className="truncate text-sm font-extrabold leading-none text-primary">
             Dimsum Lumer
           </span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
-          <Link to="/produk" className="hover:text-primary transition-colors">Produk</Link>
-          <Link to="/promo" className="hover:text-primary transition-colors">Promo</Link>
-          <Link to="/lokasi-toko" className="hover:text-primary transition-colors">Lokasi Toko</Link>
-        </nav>
-
-        <div className="flex items-center gap-1.5 sm:gap-3">
+        <div className="flex shrink-0 items-center gap-1.5">
           <ThemeToggle />
           <Link
             to="/keranjang"
-            className="relative flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 text-gray-700 transition-all hover:bg-gray-100 active:scale-95"
+            className="relative grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gray-50 text-gray-700 transition-all hover:bg-gray-100 active:scale-95"
             aria-label="Keranjang"
           >
             <ShoppingCart size={17} strokeWidth={2} />
             {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center animate-fade-in">
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-white animate-fade-in">
                 {cartCount}
               </span>
             )}
@@ -104,12 +98,12 @@ export default function Navbar({ sticky = true, autoHide = false }) {
 
           <button
             onClick={() => navigate("/notifikasi")}
-            className="relative flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 text-gray-700 transition-all hover:bg-gray-100 active:scale-95"
+            className="relative grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gray-50 text-gray-700 transition-all hover:bg-gray-100 active:scale-95"
             aria-label="Notifikasi"
           >
             <Bell size={17} strokeWidth={2} />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center animate-fade-in">
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-white animate-fade-in">
                 {unreadCount}
               </span>
             )}
