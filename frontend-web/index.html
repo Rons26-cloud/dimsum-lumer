@@ -3,23 +3,86 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#E63946" />
-    <meta name="description" content="Dimsum Lumer — Pesan dimsum lumer favoritmu, anytime, anywhere." />
 
+    <!-- Primary SEO -->
+    <title>Dimsum Lumer | Dimsum Lezat, Praktis & Siap Dipesan</title>
+    <meta
+      name="description"
+      content="Dimsum Lumer menghadirkan aneka dimsum lezat dengan pemesanan praktis melalui website. Lihat produk, pilih favoritmu, dan pesan dengan mudah."
+    />
+    <meta
+      name="keywords"
+      content="dimsum lumer, dimsum, dimsum lezat, dimsum online, pesan dimsum, makanan dimsum"
+    />
+    <meta name="author" content="Dimsum Lumer" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow" />
+
+    <!-- Canonical -->
+    <link rel="canonical" href="https://dimsum-lumerr.pages.dev/" />
+
+    <!-- Theme / PWA -->
+    <meta name="theme-color" content="#E63946" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    
+
+    <!-- Favicons -->
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 
+    <!-- Mobile App -->
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Dimsum Lumer" />
 
-    <title>Dimsum Lumer</title>
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="id_ID" />
+    <meta property="og:site_name" content="Dimsum Lumer" />
+    <meta property="og:title" content="Dimsum Lumer | Dimsum Lezat, Praktis & Siap Dipesan" />
+    <meta
+      property="og:description"
+      content="Temukan aneka Dimsum Lumer favoritmu dan pesan dengan mudah melalui website resmi."
+    />
+    <meta property="og:url" content="https://dimsum-lumerr.pages.dev/" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Dimsum Lumer | Dimsum Lezat, Praktis & Siap Dipesan" />
+    <meta
+      name="twitter:description"
+      content="Temukan aneka Dimsum Lumer favoritmu dan pesan dengan mudah melalui website resmi."
+    />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://dimsum-lumerr.pages.dev/#organization",
+            "name": "Dimsum Lumer",
+            "url": "https://dimsum-lumerr.pages.dev/",
+            "logo": "https://dimsum-lumerr.pages.dev/apple-touch-icon.png"
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://dimsum-lumerr.pages.dev/#website",
+            "url": "https://dimsum-lumerr.pages.dev/",
+            "name": "Dimsum Lumer",
+            "inLanguage": "id-ID",
+            "publisher": {
+              "@id": "https://dimsum-lumerr.pages.dev/#organization"
+            }
+          }
+        ]
+      }
+    </script>
   </head>
+
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
