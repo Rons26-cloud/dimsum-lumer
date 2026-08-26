@@ -16,7 +16,7 @@ export default function SearchSection() {
       <form onSubmit={submit} className="flex items-center gap-2.5 bg-gray-100 rounded-2xl px-3.5 sm:px-4 min-h-12 focus-within:ring-2 focus-within:ring-primary/30 focus-within:bg-white transition-all">
         <Search size={18} className="text-gray-400 shrink-0" />
         <input value={query} onChange={(event) => setQuery(event.target.value)} type="search" placeholder="Cari produk atau kategori…" className="professional-text-field min-w-0 flex-1" aria-label="Cari produk" />
-        <button type="button" onClick={() => navigate('/produk')} className="w-8 h-8 rounded-lg grid place-items-center text-gray-400 hover:text-primary" aria-label="Buka semua produk"><SlidersHorizontal size={18} /></button>
+        <button type="button" onClick={() => navigate('/produk')} className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-gray-600 hover:bg-white hover:text-primary" aria-label="Buka semua produk"><SlidersHorizontal size={18} /></button>
       </form>
     </section>
   );

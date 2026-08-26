@@ -76,7 +76,7 @@ export default function HeroSliderSection() {
               <p className="text-white/75 text-[9px] xs:text-[10px] sm:text-xs font-bold tracking-widest uppercase mb-1">{slide.eyebrow}</p>
               <h2 className="text-base font-extrabold leading-tight text-white xs:text-lg sm:text-4xl">{slide.title}</h2>
               <p className="mt-1 line-clamp-1 text-[8px] leading-relaxed text-white/85 xs:text-[9px] sm:mt-1.5 sm:text-sm">{slide.subtitle}</p>
-              <Link to={slide.to} className="mt-2 inline-flex min-h-8 w-fit items-center rounded-lg bg-primary px-3 text-[9px] font-extrabold text-white shadow-[0_6px_18px_rgba(233,104,24,.35)] active:scale-95 sm:mt-5 sm:min-h-11 sm:rounded-xl sm:px-5 sm:text-sm">Pesan Sekarang</Link>
+              <Link to={slide.to} className="mt-2 inline-flex min-h-11 w-fit items-center rounded-xl bg-primary px-4 text-xs font-extrabold text-white shadow-[0_6px_18px_rgba(233,104,24,.35)] active:scale-95 sm:mt-5 sm:px-5 sm:text-sm">{slide.cta}</Link>
             </div>
           </div>
         ))}
@@ -85,7 +85,7 @@ export default function HeroSliderSection() {
         <button onClick={() => move(1)} className="hidden sm:grid absolute z-20 right-3 top-1/2 -translate-y-1/2 w-9 h-9 place-items-center rounded-full bg-white/20 backdrop-blur text-white hover:bg-white/30" aria-label="Banner berikutnya"><ChevronRight size={19} /></button>
 
         <div className="absolute z-20 bottom-2.5 sm:bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1 rounded-full bg-black/20 px-2 py-1 backdrop-blur-sm">
-          {slides.map((slide, index) => <button key={slide.title} onClick={() => setActive(index)} className={`h-1 rounded-full transition-all ${index === active ? "w-4 bg-white" : "w-1 bg-white/55"}`} aria-label={`Tampilkan banner ${index + 1}`} aria-current={index === active} />)}
+          {slides.map((slide, index) => <button key={slide.title} onClick={() => setActive(index)} className="grid h-11 w-8 place-items-center" aria-label={`Tampilkan banner ${index + 1}`} aria-current={index === active}><span className={`h-1 rounded-full transition-all ${index === active ? "w-4 bg-white" : "w-1 bg-white/70"}`}/></button>)}
         </div>
       </div>}
     </section>

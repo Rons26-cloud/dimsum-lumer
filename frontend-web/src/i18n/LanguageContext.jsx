@@ -29,7 +29,6 @@ function translateLegacyText(value) {
 
 function localizeDocument(language) {
   document.documentElement.lang = language;
-  document.title = language === "en" ? "Dimsum Lumer – Delicious Outside, Melty Inside" : "Dimsum Lumer – Gurih di Luar, Lumer di Dalam";
   const root = document.getElementById("root");
   if (!root) return () => {};
   const attributes = ["aria-label", "placeholder", "title"];
