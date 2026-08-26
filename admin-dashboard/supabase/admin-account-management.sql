@@ -31,7 +31,7 @@ begin
 
   update auth.users
   set raw_app_meta_data = coalesce(raw_app_meta_data, '{}'::jsonb) || '{"role":"admin"}'::jsonb,
-      raw_user_meta_data = coalesce(raw_user_meta_data, '{}'::jsonb) || jsonb_build_object('full_name', trim(admin_full_name), 'phone', nullif(trim(coalesce(admin_phone, '')), ''), 'role', 'admin'),
+      raw_user_meta_data = (coalesce(raw_user_meta_data, '{}'::jsonb) - 'role') || jsonb_build_object('full_name', trim(admin_full_name), 'phone', nullif(trim(coalesce(admin_phone, '')), '')),
       updated_at = now()
   where id = target_user_id;
   return result;

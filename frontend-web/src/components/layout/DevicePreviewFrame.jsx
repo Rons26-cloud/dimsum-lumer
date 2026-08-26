@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Signal, Wifi, BatteryFull } from "lucide-react";
-import logo from "../../assets/logo/logo.png";
+const logo = "/icon-192.png";
 
 function getTime() {
   return new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });

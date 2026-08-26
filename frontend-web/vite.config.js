@@ -77,5 +77,15 @@ export default defineConfig(({ command }) => {
     strictPort: true,
     headers: createSecurityHeaders(false),
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "vendor-react": ["react", "react-dom", "react-router-dom", "zustand"],
+          "vendor-supabase": ["@supabase/supabase-js"],
+        },
+      },
+    },
+  },
   };
 });

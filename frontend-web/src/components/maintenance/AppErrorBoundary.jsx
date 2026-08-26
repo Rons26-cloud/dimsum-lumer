@@ -1,6 +1,6 @@
 import React from "react";
 import { AlertTriangle, Home, RefreshCw } from "lucide-react";
-import logo from "../../assets/logo/logo.png";
+const logo = "/icon-192.png";
 
 const RECOVERY_KEY = "dimsum-lumer-refresh-recovery";
 const recoveryStorage = {

@@ -7,7 +7,7 @@ import {
   Sparkles,
   UserPlus,
 } from "lucide-react";
-import logo from "../../assets/logo/logo.png";
+const logo = "/icon-192.png";
 
 const benefits = [
   { Icon: PackageCheck, label: "Pantau pesanan" },

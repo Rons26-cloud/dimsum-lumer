@@ -43,7 +43,7 @@ export default function AdminAccount() {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [passwords, setPasswords] = useState({ password: "", confirmation: "" });
 
-  const role = admin?.adminRole || admin?.app_metadata?.role || admin?.user_metadata?.role || "admin";
+  const role = admin?.adminRole || admin?.app_metadata?.role || "admin";
   const initials = initialName.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join("").toUpperCase() || "AD";
   const strength = useMemo(() => {
     const value = passwords.password;

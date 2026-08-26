@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import logo from "../../assets/logo/logo.png";
 import { supabase } from "../../supabase/client.js";
+
+const logo = "/icon-192.png";
 
 const DEFAULTS = {
   enabled: true,

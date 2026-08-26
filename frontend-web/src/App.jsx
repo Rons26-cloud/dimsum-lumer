@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Smartphone } from "lucide-react";
 import AppRouter from "./router/AppRouter.jsx";
 import MaintenanceGuard from "./components/maintenance/MaintenanceGuard.jsx";
@@ -6,7 +6,8 @@ import DevicePreviewFrame from "./components/layout/DevicePreviewFrame.jsx";
 import AppErrorBoundary from "./components/maintenance/AppErrorBoundary.jsx";
 import CartRealtimeSync from "./components/cart/CartRealtimeSync.jsx";
 import PullToRefresh from "./components/layout/PullToRefresh.jsx";
-import LiveChatWidget from "./components/chat/LiveChatWidget.jsx";
+
+const LiveChatWidget = lazy(() => import("./components/chat/LiveChatWidget.jsx"));
 
 const DESKTOP_BREAKPOINT = 1024;
 const OVERRIDE_KEY = "dimsumFrameMode"; // "frame" | "full" | null (null = otomatis)
@@ -68,7 +69,7 @@ export default function App() {
         <CartRealtimeSync />
         <AppRouter />
       </PullToRefresh>
-      <LiveChatWidget />
+      <Suspense fallback={null}><LiveChatWidget /></Suspense>
       {}
       {isWide && !isEmbedded() && (
         <button

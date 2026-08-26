@@ -30,7 +30,7 @@ export default function AdminManagement({ currentAdminId, canDelete = false }) {
     const fullName = form.fullName.trim();
     const email = form.email.trim().toLowerCase();
     if (fullName.length < 3) return setNotice({ type: "error", text: "Nama lengkap minimal 3 karakter." });
-    if (form.password.length < 8 || !/[A-Z]/.test(form.password) || !/\d/.test(form.password)) return setNotice({ type: "error", text: "Password minimal 8 karakter serta mengandung huruf besar dan angka." });
+    if (form.password.length < 12 || !/[a-z]/.test(form.password) || !/[A-Z]/.test(form.password) || !/\d/.test(form.password) || !/[^A-Za-z0-9]/.test(form.password)) return setNotice({ type: "error", text: "Password sementara minimal 12 karakter dan wajib berisi huruf besar, huruf kecil, angka, serta simbol." });
 
     setSaving(true);
     try {
@@ -40,7 +40,9 @@ export default function AdminManagement({ currentAdminId, canDelete = false }) {
       const { data, error } = await isolatedAuth.auth.signUp({
         email,
         password: form.password,
-        options: { data: { full_name: fullName, phone: form.phone.trim(), role: "admin" } },
+        // Role is deliberately absent from user_metadata. Only the AAL2
+        // superadmin RPC below may assign the protected administrator role.
+        options: { data: { full_name: fullName, phone: form.phone.trim() } },
       });
       if (error) throw error;
       if (!data.user?.id) throw new Error("Supabase tidak mengembalikan ID akun baru.");
@@ -54,7 +56,7 @@ export default function AdminManagement({ currentAdminId, canDelete = false }) {
       if (data.session) await isolatedAuth.auth.signOut();
       window.dispatchEvent(new CustomEvent("admin:refresh-data", { detail: { table: "profiles" } }));
       setForm({ fullName: "", email: "", password: "", phone: "" });
-      setNotice({ type: "success", text: data.session ? "Akun admin berhasil dibuat dan sudah aktif." : "Akun admin berhasil dibuat. Pemilik akun perlu mengonfirmasi email sebelum login." });
+      setNotice({ type: "success", text: data.session ? "Akun admin berhasil dibuat. Pada login pertama pemilik email wajib menyiapkan MFA miliknya." : "Akun admin berhasil dibuat. Pemilik email harus mengonfirmasi email, lalu menyiapkan MFA miliknya saat login pertama." });
     } catch (error) {
       setNotice({ type: "error", text: error.message || "Akun admin gagal dibuat." });
     } finally { setSaving(false); }
@@ -92,11 +94,11 @@ export default function AdminManagement({ currentAdminId, canDelete = false }) {
       <form onSubmit={createAdmin} className="max-h-[94dvh] w-full max-w-xl overflow-y-auto rounded-3xl bg-white shadow-2xl">
         <header className="sticky top-0 z-10 flex items-center justify-between border-b bg-white/95 px-5 py-4 backdrop-blur"><div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-orange-50 text-primary"><UserPlus size={19}/></span><div><h2 className="font-bold text-gray-900">Tambah Akun Admin</h2><p className="text-[10px] text-gray-500">Akses khusus pengelola Dashboard</p></div></div><button type="button" onClick={close} className="grid h-9 w-9 place-items-center rounded-xl bg-gray-100 text-gray-500"><X size={17}/></button></header>
         <div className="space-y-4 p-5 sm:p-6">
-          <div className="rounded-2xl border border-blue-100 bg-blue-50 p-3 text-[11px] leading-5 text-blue-700"><ShieldCheck className="mr-1 inline" size={14}/>Akun baru memperoleh akses pengelolaan admin. Gunakan email milik staf yang dipercaya.</div>
+          <div className="rounded-2xl border border-blue-100 bg-blue-50 p-3 text-[11px] leading-5 text-blue-700"><ShieldCheck className="mr-1 inline" size={14}/>Gunakan email pribadi staf yang dipercaya. Setiap email menjadi akun admin terpisah dan wajib mengaktifkan MFA sendiri pada login pertama. MFA mengikuti akun, bukan satu perangkat dashboard.</div>
           {notice && <div role="alert" className={`flex gap-2 rounded-xl border p-3 text-xs ${notice.type === "success" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-red-200 bg-red-50 text-red-700"}`}>{notice.type === "success" ? <CheckCircle2 size={15}/> : <ShieldCheck size={15}/>}<span>{notice.text}</span></div>}
           <div className="grid gap-4 sm:grid-cols-2"><label className="text-xs font-semibold text-gray-600">Nama lengkap<input required minLength={3} maxLength={80} value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} placeholder="Nama administrator" className={inputClass}/></label><label className="text-xs font-semibold text-gray-600">Nomor telepon (opsional)<input maxLength={20} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="08xxxxxxxxxx" className={inputClass}/></label></div>
           <label className="block text-xs font-semibold text-gray-600">Email admin<div className="relative"><Mail className="absolute left-3.5 top-1/2 mt-0.5 -translate-y-1/2 text-gray-400" size={15}/><input type="email" required autoComplete="off" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="admin@contoh.com" className={`${inputClass} pl-10`}/></div></label>
-          <label className="block text-xs font-semibold text-gray-600">Password sementara<div className="relative"><input type={showPassword ? "text" : "password"} required minLength={8} maxLength={128} autoComplete="new-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Minimal 8 karakter" className={`${inputClass} pr-11`}/><button type="button" onClick={() => setShowPassword((value) => !value)} className="absolute bottom-0 right-0 grid h-11 w-11 place-items-center text-gray-400">{showPassword ? <EyeOff size={16}/> : <Eye size={16}/>}</button></div><span className="mt-1.5 block text-[10px] font-normal text-gray-400">Wajib mengandung huruf besar dan angka.</span></label>
+          <label className="block text-xs font-semibold text-gray-600">Password sementara<div className="relative"><input type={showPassword ? "text" : "password"} required minLength={12} maxLength={128} autoComplete="new-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Minimal 12 karakter" className={`${inputClass} pr-11`}/><button type="button" onClick={() => setShowPassword((value) => !value)} className="absolute bottom-0 right-0 grid h-11 w-11 place-items-center text-gray-400">{showPassword ? <EyeOff size={16}/> : <Eye size={16}/>}</button></div><span className="mt-1.5 block text-[10px] font-normal text-gray-400">Wajib mengandung huruf besar, huruf kecil, angka, dan simbol.</span></label>
           <div className="rounded-xl bg-gray-50 p-3 text-[10px] leading-5 text-gray-500"><strong className="text-gray-700">Role:</strong> Admin Dashboard · dapat mengelola produk, pesanan, pelanggan, promo, dan pengaturan.</div>
         </div>
         <footer className="sticky bottom-0 flex gap-2 border-t bg-white/95 p-4 backdrop-blur sm:justify-end"><button type="button" onClick={close} disabled={saving} className="min-h-11 flex-1 rounded-xl border px-5 text-xs font-bold text-gray-600 sm:flex-none">Batal</button><button disabled={saving} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-xs font-bold text-white disabled:opacity-50 sm:flex-none">{saving ? <Loader2 className="animate-spin" size={15}/> : <UserPlus size={15}/>}Buat Akun Admin</button></footer>

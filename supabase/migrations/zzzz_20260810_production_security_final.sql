@@ -234,7 +234,7 @@ begin
       or new.product_id is distinct from old.product_id;
   end if;
 
-  if changed and not public.is_superadmin() then
+  if changed and not public.is_superadmin_aal2() then
     raise exception 'Superadmin permission required for financial changes';
   end if;
   if changed then
@@ -278,12 +278,12 @@ drop policy if exists "admins manage non-APK config" on public.app_config;
 drop policy if exists "superadmins manage APK config" on public.app_config;
 create policy "admins manage non-APK config" on public.app_config
 for all to authenticated
-using (key <> 'apk_version' and public.is_admin())
-with check (key <> 'apk_version' and public.is_admin());
+using (key <> 'apk_version' and public.is_admin_aal2())
+with check (key <> 'apk_version' and public.is_admin_aal2());
 create policy "superadmins manage APK config" on public.app_config
 for all to authenticated
-using (key = 'apk_version' and public.is_superadmin())
-with check (key = 'apk_version' and public.is_superadmin());
+using (key = 'apk_version' and public.is_superadmin_aal2())
+with check (key = 'apk_version' and public.is_superadmin_aal2());
 
 -- Remove every broad APK writer policy accumulated by legacy migrations.
 drop policy if exists "admin manage control plane files" on storage.objects;
@@ -293,12 +293,12 @@ drop policy if exists "admins manage non-APK control plane files" on storage.obj
 drop policy if exists "superadmins manage APK" on storage.objects;
 create policy "admins manage non-APK control plane files"
 on storage.objects for all to authenticated
-using (bucket_id in ('product-images','category-images','banners','store-photos') and public.is_admin())
-with check (bucket_id in ('product-images','category-images','banners','store-photos') and public.is_admin());
+using (bucket_id in ('product-images','category-images','banners','store-photos') and public.is_admin_aal2())
+with check (bucket_id in ('product-images','category-images','banners','store-photos') and public.is_admin_aal2());
 create policy "superadmins manage APK"
 on storage.objects for all to authenticated
-using (bucket_id = 'apk' and public.is_superadmin())
-with check (bucket_id = 'apk' and public.is_superadmin());
+using (bucket_id = 'apk' and public.is_superadmin_aal2())
+with check (bucket_id = 'apk' and public.is_superadmin_aal2());
 
 -- Explicit table privileges complement RLS. Customer roles never receive
 -- direct write access to authoritative catalogue/order financial tables.

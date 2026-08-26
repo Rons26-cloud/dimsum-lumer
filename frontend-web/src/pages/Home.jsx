@@ -1,14 +1,20 @@
+import { lazy, Suspense } from "react";
 import SearchSection from "../sections/home/SearchSection.jsx";
 import HeroSliderSection from "../sections/home/HeroSliderSection.jsx";
 import CategorySection from "../sections/home/CategorySection.jsx";
-import PromoSection from "../sections/home/PromoSection.jsx";
-import FlashSaleSection from "../features/flash-sale/FlashSaleSection.jsx";
-import PopularProductSection from "../sections/home/PopularProductSection.jsx";
-import RecommendationSection from "../sections/home/RecommendationSection.jsx";
-import OutletMapSection from "../sections/home/OutletMapSection.jsx";
-import CustomerReviewSection from "../sections/home/CustomerReviewSection.jsx";
-import InstallAppCard from "../components/pwa/InstallAppCard.jsx";
 import MemberOverviewSection from "../sections/home/MemberOverviewSection.jsx";
+
+const InstallAppCard = lazy(() => import("../components/pwa/InstallAppCard.jsx"));
+const OutletMapSection = lazy(() => import("../sections/home/OutletMapSection.jsx"));
+const PopularProductSection = lazy(() => import("../sections/home/PopularProductSection.jsx"));
+const PromoSection = lazy(() => import("../sections/home/PromoSection.jsx"));
+const FlashSaleSection = lazy(() => import("../features/flash-sale/FlashSaleSection.jsx"));
+const RecommendationSection = lazy(() => import("../sections/home/RecommendationSection.jsx"));
+const CustomerReviewSection = lazy(() => import("../sections/home/CustomerReviewSection.jsx"));
+
+const DeferredSection = ({ children }) => (
+  <Suspense fallback={<div className="min-h-24" aria-hidden="true" />}>{children}</Suspense>
+);
 
 export default function Home() {
   return (
@@ -16,14 +22,14 @@ export default function Home() {
       <SearchSection />
       <MemberOverviewSection />
       <HeroSliderSection />
-      <InstallAppCard />
+      <DeferredSection><InstallAppCard /></DeferredSection>
       <CategorySection />
-      <OutletMapSection />
-      <PopularProductSection />
-      <PromoSection />
-      <FlashSaleSection />
-      <RecommendationSection />
-      <CustomerReviewSection />
+      <DeferredSection><OutletMapSection /></DeferredSection>
+      <DeferredSection><PopularProductSection /></DeferredSection>
+      <DeferredSection><PromoSection /></DeferredSection>
+      <DeferredSection><FlashSaleSection /></DeferredSection>
+      <DeferredSection><RecommendationSection /></DeferredSection>
+      <DeferredSection><CustomerReviewSection /></DeferredSection>
     </div>
   );
 }

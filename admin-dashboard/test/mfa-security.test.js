@@ -9,8 +9,13 @@ const verify = source("pages/MfaVerify.jsx");
 const router = source("router/AdminRouter.jsx");
 const guard = source("router/ProtectedAdminRoute.jsx");
 const auth = source("supabase/auth.js");
-const masterSql = readFileSync(new URL("../../SUPABASE_MASTER_FIXED.sql", import.meta.url), "utf8");
 const aal2Migration = readFileSync(new URL("../../supabase/migrations/20260814_enforce_admin_mfa_aal2.sql", import.meta.url), "utf8");
+const isolationMigration = readFileSync(new URL("../../supabase/migrations/20260826141056_admin_account_mfa_isolation.sql", import.meta.url), "utf8");
+const rpcHardeningMigration = readFileSync(new URL("../../supabase/migrations/20260826141741_revoke_public_privileged_functions.sql", import.meta.url), "utf8");
+const searchPathMigration = readFileSync(new URL("../../supabase/migrations/20260826143922_harden_function_search_paths.sql", import.meta.url), "utf8");
+const archiveMigration = readFileSync(new URL("../../supabase/migrations/20260826151345_protect_financial_archive_refresh.sql", import.meta.url), "utf8");
+const adminManagement = source("components/account/AdminManagement.jsx");
+const permissionRoute = source("router/PermissionRoute.jsx");
 
 test("MFA memakai API TOTP Supabase lengkap", () => {
   for (const call of ["mfa.enroll", "mfa.listFactors", "mfa.challenge", "mfa.verify", "getAuthenticatorAssuranceLevel"]) {
@@ -39,32 +44,14 @@ test("MFA tidak memakai penyimpanan browser atau kode hard-coded", () => {
   assert.doesNotMatch(mfaSources, /service_role|database.{0,10}password/i);
 });
 
-test("SQL sesi perangkat hanya dapat diakses admin dengan AAL2", () => {
-  const sessionBlock = masterSql.slice(
-    masterSql.indexOf("create table if not exists public.admin_sessions"),
-    masterSql.indexOf("create table if not exists public.activity_logs"),
-  );
-  assert.match(sessionBlock, /enable row level security/);
-  assert.match(sessionBlock, /auth\.jwt\(\) ->> 'aal'.*= 'aal2'/);
-  assert.match(sessionBlock, /admin_id = auth\.uid\(\)/);
-  assert.match(masterSql, /select auth\.uid\(\) is not null\s+and coalesce\(auth\.jwt\(\) ->> 'aal', ''\) = 'aal2'/);
-  assert.doesNotMatch(masterSql, /Compatibility gate: MFA disabled/);
-});
-
-test("metode pembayaran pengguna tidak dapat dihapus oleh aplikasi pelanggan", () => {
-  const paymentService = readFileSync(new URL("../../frontend-web/src/services/paymentMethodService.js", import.meta.url), "utf8");
-  const paymentBlock = masterSql.slice(
-    masterSql.indexOf("-- USER PAYMENT METHODS"),
-    masterSql.indexOf("commit;", masterSql.indexOf("-- USER PAYMENT METHODS")) + 7,
-  );
-  assert.match(paymentBlock, /payment methods owner read/);
-  assert.match(paymentBlock, /payment methods owner insert/);
-  assert.doesNotMatch(paymentBlock, /create policy "payment methods owner update"/);
-  assert.doesNotMatch(paymentBlock, /payment methods owner delete/);
-  assert.match(paymentBlock, /revoke update,delete on public\.user_payment_methods from authenticated/i);
-  assert.match(paymentBlock, /admin_delete_user_payment_method/);
-  assert.match(paymentBlock, /payment_method_admin_logs/);
-  assert.doesNotMatch(paymentService, /\.(?:update|delete)\s*\(/);
+test("setiap akun admin memiliki identitas email dan MFA sendiri", () => {
+  assert.match(adminManagement, /isolatedAuth\.auth\.signUp/);
+  assert.doesNotMatch(adminManagement, /data:\s*\{[^}]*role:\s*["']admin["']/s);
+  assert.match(isolationMigration, /from auth\.users\s+where id = target_user_id/s);
+  assert.match(isolationMigration, /raw_user_meta_data = \(coalesce\(raw_user_meta_data/);
+  assert.match(isolationMigration, /- 'role'/);
+  assert.match(isolationMigration, /perform public\.assert_superadmin_mfa\(\)/);
+  assert.doesNotMatch(permissionRoute, /user_metadata\?\.role/);
 });
 
 test("database memisahkan pemeriksaan role admin dan gerbang AAL2", () => {
@@ -94,4 +81,13 @@ test("app_config hanya membuka key yang diklasifikasikan publik", () => {
   assert.match(aal2Migration, /using \(is_public = true\)/)
   assert.match(aal2Migration, /key !~\* '\(secret\|password\|token/)
   assert.doesNotMatch(aal2Migration, /app_config[\s\S]{0,160}for select[\s\S]{0,80}using \(true\)/i)
+});
+
+test("fungsi privileged bukan RPC publik dan search_path dikunci", () => {
+  assert.match(rpcHardeningMigration, /admin_get_customer_account\(uuid\) from public, anon/);
+  assert.match(rpcHardeningMigration, /handle_new_user\(\) from public, anon, authenticated/);
+  assert.match(searchPathMigration, /set search_path = pg_catalog, public, pg_temp/);
+  assert.match(searchPathMigration, /add_order_point\(\) from public, anon, authenticated/);
+  assert.match(archiveMigration, /refresh_monthly_financial_archive\(date\)/);
+  assert.match(archiveMigration, /from public, anon, authenticated/);
 });

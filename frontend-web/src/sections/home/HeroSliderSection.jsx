@@ -1,9 +1,9 @@
 ﻿import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import bannerMentai from "../../assets/banners/banner-mentai.png";
-import bannerFamily from "../../assets/banners/banner-family.png";
-import bannerFrozen from "../../assets/banners/banner-frozen.png";
+import bannerMentai from "../../assets/banners/banner-mentai.jpg";
+import bannerFamily from "../../assets/banners/banner-family.jpg";
+import bannerFrozen from "../../assets/banners/banner-frozen.jpg";
 import { supabase } from "../../supabase/client.js";
 import { useRealtime } from "../../hooks/useRealtime.js";
 
@@ -70,7 +70,7 @@ export default function HeroSliderSection() {
       {slides.length > 0 && <div className="relative aspect-[16/7] overflow-hidden rounded-xl shadow-sm xs:aspect-[16/7] sm:rounded-2xl md:aspect-[21/8]" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onTouchStart={(e) => { touchStart.current = e.touches[0].clientX; setPaused(true); }} onTouchEnd={(e) => { handleTouchEnd(e); setPaused(false); }}>
         {slides.map((slide, index) => (
           <div key={slide.title} className={`absolute inset-0 transition-opacity duration-700 ${index === active ? "opacity-100 z-10" : "opacity-0"}`} aria-hidden={index !== active}>
-            <img src={slide.image} alt="" className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: slide.position }} loading={index === 0 ? "eager" : "lazy"} />
+            <img src={slide.image} alt={slide.title} width="1280" height="853" className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: slide.position }} loading={index === 0 ? "eager" : "lazy"} fetchPriority={index === 0 ? "high" : "low"} decoding="async" />
             <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-transparent" />
             <div className="relative flex h-full max-w-[72%] flex-col justify-center px-4 py-3 sm:max-w-[58%] sm:px-8 sm:py-5">
               <p className="text-white/75 text-[9px] xs:text-[10px] sm:text-xs font-bold tracking-widest uppercase mb-1">{slide.eyebrow}</p>

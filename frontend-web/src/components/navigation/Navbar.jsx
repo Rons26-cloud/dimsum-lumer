@@ -4,8 +4,9 @@ import { ShoppingCart, Bell } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth.js";
 import { useCart } from "../../hooks/useCart.js";
 import { useNotifications } from "../../hooks/useNotifications.js";
-import logo from "../../assets/logo/logo.png";
 import ThemeToggle from "../theme/ThemeToggle.jsx";
+
+const logo = "/icon-192.png";
 
 export default function Navbar({ sticky = true, autoHide = false }) {
   const { user } = useAuth();

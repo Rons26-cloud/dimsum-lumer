@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
 
     <!-- Primary SEO -->
-    <title>Dimsum Lumer | Dimsum Lezat, Praktis & Siap Dipesan</title>
+    <title>Dimsum Lumer Medan | Pesan Dimsum Lezat Online</title>
     <meta
       name="description"
-      content="Dimsum Lumer menghadirkan aneka dimsum lezat dengan pemesanan praktis melalui website. Lihat produk, pilih favoritmu, dan pesan dengan mudah."
+      content="Pesan Dimsum Lumer di Medan secara online. Pilih dimsum mentai, original, frozen, promo, dan menu favorit dengan pemesanan praktis."
     />
     <meta
       name="keywords"
@@ -20,9 +20,10 @@
 
     <!-- Canonical -->
     <link rel="canonical" href="https://dimsum-lumerr.pages.dev/" />
+    <link rel="preload" as="image" href="/src/assets/banners/banner-mentai.jpg" fetchpriority="high" />
 
     <!-- Theme / PWA -->
-    <meta name="theme-color" content="#E63946" />
+    <meta name="theme-color" content="#FF7A00" />
     <link rel="manifest" href="/manifest.webmanifest" />
 
     <!-- Favicons -->
@@ -47,9 +48,12 @@
       content="Temukan aneka Dimsum Lumer favoritmu dan pesan dengan mudah melalui website resmi."
     />
     <meta property="og:url" content="https://dimsum-lumerr.pages.dev/" />
+    <meta property="og:image" content="https://dimsum-lumerr.pages.dev/logo.png" />
+    <meta property="og:image:alt" content="Logo Dimsum Lumer" />
 
     <!-- Twitter / X -->
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://dimsum-lumerr.pages.dev/logo.png" />
     <meta name="twitter:title" content="Dimsum Lumer | Dimsum Lezat, Praktis & Siap Dipesan" />
     <meta
       name="twitter:description"
@@ -67,6 +71,18 @@
             "name": "Dimsum Lumer",
             "url": "https://dimsum-lumerr.pages.dev/",
             "logo": "https://dimsum-lumerr.pages.dev/apple-touch-icon.png"
+          },
+          {
+            "@type": "Restaurant",
+            "@id": "https://dimsum-lumerr.pages.dev/#restaurant",
+            "name": "Dimsum Lumer",
+            "url": "https://dimsum-lumerr.pages.dev/",
+            "image": "https://dimsum-lumerr.pages.dev/logo.png",
+            "logo": "https://dimsum-lumerr.pages.dev/logo.png",
+            "priceRange": "Rp",
+            "servesCuisine": ["Dimsum", "Chinese", "Frozen Food"],
+            "areaServed": { "@type": "City", "name": "Medan" },
+            "acceptsReservations": false
           },
           {
             "@type": "WebSite",

@@ -5,20 +5,19 @@ import "./styles/global.css";
 import "./styles/scrollbar.css";
 import "./styles/animation.css";
 import { initializeLoginSecurity } from "./services/loginSecurityService.js";
-import WelcomeIntro from "./components/welcome/WelcomeIntro.jsx";
 import { ThemeProvider } from "./theme/ThemeContext.jsx";
 import { LanguageProvider } from "./i18n/LanguageContext.jsx";
+import SeoManager from "./components/seo/SeoManager.jsx";
 
 initializeLoginSecurity();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <ThemeProvider>
     <LanguageProvider>
-      <WelcomeIntro>
-        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          <App />
-        </BrowserRouter>
-      </WelcomeIntro>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <SeoManager />
+        <App />
+      </BrowserRouter>
     </LanguageProvider>
   </ThemeProvider>
 );

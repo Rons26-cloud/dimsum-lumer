@@ -8,7 +8,9 @@ export function useMaintenance() {
   const [message, setMessage] = useState('');
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // Do not block first paint on a remote maintenance request. The default is
+  // fail-open and the realtime/RPC result updates the guard immediately.
+  const [loading, setLoading] = useState(false);
   const [clock, setClock] = useState(Date.now());
 
   useEffect(() => {

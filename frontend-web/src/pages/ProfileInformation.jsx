@@ -1,6 +1,6 @@
 import { ArrowLeft, ChevronDown, CircleHelp, Clock3, CreditCard, ExternalLink, HeartHandshake, Info, Mail, MessageCircle, PackageSearch, ShieldCheck, Sparkles, Target, UserRound } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import logo from "../assets/logo/logo.png";
+const logo = "/icon-192.png";
 
 const faqItems = [
   ["Bagaimana cara membuat pesanan?", "Pilih produk, tentukan varian dan jumlah, lalu tambahkan ke keranjang. Periksa alamat dan metode pembayaran sebelum menyelesaikan checkout."],

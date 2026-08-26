@@ -1,6 +1,6 @@
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import logo from "../assets/logo/logo.png";
+const logo = "/icon-192.png";
 
 export default function AuthLayout() {
   const navigate = useNavigate();

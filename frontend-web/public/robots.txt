@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /checkout
+Disallow: /pembayaran
+Disallow: /profil
+Disallow: /notifikasi
+Disallow: /orders
+Disallow: /keranjang
+
+Sitemap: https://dimsum-lumerr.pages.dev/sitemap.xml
