@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { CheckCircle, X } from 'lucide-react';
 import { BrandLogo } from './BrandLogo.jsx';
 import qrisPlaceholder from '../../assets/payment/qris-placeholder.jpg';
+import { useMerchantAccounts } from '../../hooks/useMerchantAccounts.js';
+import { selectMerchantAccount } from '../../services/merchantAccountService.js';
 
 const methods = [
   { id:'transfer', name:'Transfer BCA', brand:'bca' }, { id:'qris', name:'QRIS', brand:'qris' },
@@ -12,8 +14,10 @@ const methods = [
 
 export function PaymentMethodSection({ paymentMethod, setPaymentMethod, isAgreed, setIsAgreed }) {
   const [detail,setDetail] = useState(null);
+  const accounts = useMerchantAccounts();
   const choose = (method) => { setPaymentMethod(method.id); setDetail(method); };
-  const seller = { bank:import.meta.env.VITE_SELLER_BANK || 'BCA', account:import.meta.env.VITE_SELLER_ACCOUNT || '1234567890', owner:import.meta.env.VITE_SELLER_NAME || 'DIMSUM LUMER', phone:import.meta.env.VITE_SELLER_WALLET || import.meta.env.VITE_ADMIN_WA_NUMBER || '08xxxxxxxxxx', qrisImage:import.meta.env.VITE_SELLER_QRIS_IMAGE || qrisPlaceholder, hasRealQris:Boolean(import.meta.env.VITE_SELLER_QRIS_IMAGE) };
+  const configured = selectMerchantAccount(accounts, detail?.id || paymentMethod);
+  const seller = { bank:configured?.provider_name || import.meta.env.VITE_SELLER_BANK || 'BCA', account:configured?.account_number || import.meta.env.VITE_SELLER_ACCOUNT || '1234567890', owner:configured?.account_name || import.meta.env.VITE_SELLER_NAME || 'DIMSUM LUMER', phone:configured?.account_number || import.meta.env.VITE_SELLER_WALLET || import.meta.env.VITE_ADMIN_WA_NUMBER || '08xxxxxxxxxx', qrisImage:configured?.qr_image_url || import.meta.env.VITE_SELLER_QRIS_IMAGE || qrisPlaceholder, hasRealQris:Boolean(configured?.qr_image_url || import.meta.env.VITE_SELLER_QRIS_IMAGE) };
   return <section className="rounded-2xl border border-gray-100 bg-white p-4 shadow-card sm:p-5">
     <div className="flex items-center justify-between gap-3"><h2 className="text-sm font-bold text-dark">5. Metode Pembayaran</h2><span className="text-right text-[9px] text-gray-400">Tekan logo untuk detail</span></div>
     <div className="my-4 grid grid-cols-4 gap-2 sm:grid-cols-7">{methods.map((method) => <button title={method.name} aria-label={method.name} type="button" key={method.id} onClick={() => choose(method)} className={`grid h-12 min-w-0 place-items-center rounded-xl border px-1 transition-colors ${paymentMethod === method.id ? 'border-primary bg-primary-50 shadow-sm' : 'border-gray-100 bg-gray-50'}`}><BrandLogo brand={method.brand}/></button>)}</div>

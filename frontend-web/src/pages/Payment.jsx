@@ -13,11 +13,14 @@ import { runtimeId } from '../utils/runtimeId.js';
 import PaymentHeaderCard from '../components/payment/PaymentHeaderCard.jsx';
 import qrisLogo from '../assets/payment/qris-logo.svg';
 import bankTransferLogo from '../assets/payment/bank-transfer-logo.svg';
+import { useMerchantAccounts } from '../hooks/useMerchantAccounts.js';
+import { selectMerchantAccount } from '../services/merchantAccountService.js';
 
 const money = (value) => `Rp${Number(value || 0).toLocaleString('id-ID')}`;
 const paymentLabel = { qris: 'QRIS', transfer: 'Transfer Bank', gopay: 'GoPay', ovo: 'OVO', shopeepay: 'ShopeePay', dana: 'DANA' };
 
 export default function Payment() {
+  const merchantAccounts = useMerchantAccounts();
   const { orderId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -147,10 +150,11 @@ export default function Payment() {
   const shipping = Number(order.shipping_cost || order.shipping_fee || 0);
   const discount = Number(order.discount_amount || 0);
   const subtotal = Number(order.subtotal || Math.max(0, total - shipping + discount));
-  const account = import.meta.env.VITE_SELLER_ACCOUNT || '1234567890';
   const method = order.payment_method || 'transfer';
-  const bank = import.meta.env.VITE_SELLER_BANK || 'BCA';
-  const seller = import.meta.env.VITE_SELLER_NAME || 'DIMSUM LUMER';
+  const merchantAccount = selectMerchantAccount(merchantAccounts, method);
+  const account = merchantAccount?.account_number || import.meta.env.VITE_SELLER_ACCOUNT || '1234567890';
+  const bank = merchantAccount?.provider_name || import.meta.env.VITE_SELLER_BANK || 'BCA';
+  const seller = merchantAccount?.account_name || import.meta.env.VITE_SELLER_NAME || 'DIMSUM LUMER';
   const expiresAt = new Date(new Date(order.created_at || Date.now()).getTime() + 24 * 60 * 60 * 1000);
   const remaining = Math.max(0, expiresAt.getTime() - now);
   const remainingHours = Math.floor(remaining / 3600000);

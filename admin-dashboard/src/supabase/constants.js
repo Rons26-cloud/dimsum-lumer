@@ -19,6 +19,7 @@ export const TABLES = {
   WISHLIST: "wishlist",
   APK_VERSIONS: "apk_versions",
   APP_UPDATES: "app_updates",
+  MERCHANT_PAYMENT_ACCOUNTS: "merchant_payment_accounts",
   STORE_SETTINGS: "store_settings",
   APP_CONFIG: "app_config",
   USER_PAYMENT_METHODS: "user_payment_methods",

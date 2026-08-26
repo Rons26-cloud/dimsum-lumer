@@ -3,6 +3,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../services/supabase_service.dart';
+import '../../services/merchant_payment_service.dart';
 import '../../security/safe_error.dart';
 
 class CheckoutScreen extends StatefulWidget {
@@ -20,6 +21,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   bool _loading = true;
   bool _saving = false;
   List<Map<String, dynamic>> _items = [];
+  List<Map<String, dynamic>> _paymentAccounts = [];
   String _error = '';
   String _promoError = '';
   Map<String, dynamic>? _appliedPromo;
@@ -51,9 +53,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               'id,product_id,quantity,variant,flash_sale_id,products(id,name,price)')
           .eq('user_id', user.id)
           .order('created_at');
+      final paymentAccounts = await MerchantPaymentService.loadAccounts();
       if (mounted)
         setState(() {
           _items = List<Map<String, dynamic>>.from(rows);
+          _paymentAccounts = paymentAccounts;
           _loading = false;
         });
     } catch (_) {
@@ -330,12 +334,25 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 style: TextStyle(fontSize: 11, color: Colors.black54)),
             Wrap(
                 spacing: 8,
-                children: ['transfer', 'qris', 'gopay', 'ovo', 'dana', 'cod']
+                children: (_paymentAccounts.isEmpty ? ['transfer', 'qris', 'gopay', 'ovo', 'dana', 'cod'] : [..._paymentAccounts.map((row) => '${row['method_code']}').toSet(), 'cod'])
                     .map((method) => ChoiceChip(
                         label: Text(method.toUpperCase()),
                         selected: _payment == method,
                         onSelected: (_) => setState(() => _payment = method)))
                     .toList()),
+            Builder(builder: (context) {
+              final account = MerchantPaymentService.forMethod(_paymentAccounts, _payment);
+              if (account == null || _payment == 'cod') return const SizedBox.shrink();
+              return Container(
+                margin: const EdgeInsets.only(top: 10), padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(color: const Color(0xFFFFF7ED), borderRadius: BorderRadius.circular(12)),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text('${account['provider_name']}', style: const TextStyle(fontWeight: FontWeight.w800)),
+                  if (account['account_number'] != null) Text('${account['account_number']}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+                  if (account['account_name'] != null) Text('a.n. ${account['account_name']}', style: const TextStyle(fontSize: 11)),
+                  if (account['instructions'] != null) Text('${account['instructions']}', style: const TextStyle(fontSize: 10)),
+                ]));
+            }),
             CheckboxListTile(
                 contentPadding: EdgeInsets.zero,
                 value: _agreed,

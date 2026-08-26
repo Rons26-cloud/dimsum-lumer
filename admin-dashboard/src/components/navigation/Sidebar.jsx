@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import clsx from "clsx";
 import {
   LayoutDashboard, Package, Tag, Image, Percent, Receipt, Users, Heart, Zap,
-  MapPin, Clock, BarChart3, FileText, Settings, UserCog, LogOut, Wrench, BellRing, ServerCog, Archive, Gift, WalletCards, MessageCircle, Smartphone,
+  MapPin, Clock, BarChart3, FileText, Settings, UserCog, LogOut, Wrench, BellRing, ServerCog, Archive, Gift, WalletCards, MessageCircle, Smartphone, Landmark,
 } from "lucide-react";
 import logo from "../../assets/logo/logo.png";
 import { signOutAdmin } from "../../services/authService.js";
@@ -38,6 +38,7 @@ const menuGroups = [
   {
     title: "TOKO & LOKASI",
     items: [
+      { to: "/rekening-toko", label: "Rekening Toko", Icon: Landmark, color: "text-emerald-600", bg: "bg-emerald-50", roles: ["admin", "superadmin"] },
       { to: "/lokasi-toko", label: "Lokasi Toko", Icon: MapPin, color: "text-red-600", bg: "bg-red-50" },
       { to: "/pengaturan-map", label: "Pengaturan Map", Icon: GoogleMapsLogo },
       { to: "/jam-operasional", label: "Jam Operasional", Icon: Clock, color: "text-teal-600", bg: "bg-teal-50" },

@@ -19,6 +19,8 @@ const permissionRoute = source("router/PermissionRoute.jsx");
 const appUpdateMigration = readFileSync(new URL("../../supabase/migrations/20260826195731_app_update_management.sql", import.meta.url), "utf8");
 const appUpdatePage = source("pages/AppUpdates/index.jsx");
 const appUpdateService = source("services/appUpdateService.js");
+const merchantMigration = readFileSync(new URL("../../supabase/migrations/20260826203522_merchant_payment_accounts.sql", import.meta.url), "utf8");
+const merchantPage = source("pages/MerchantAccounts/index.jsx");
 
 test("MFA memakai API TOTP Supabase lengkap", () => {
   for (const call of ["mfa.enroll", "mfa.listFactors", "mfa.challenge", "mfa.verify", "getAuthenticatorAssuranceLevel"]) {
@@ -115,4 +117,18 @@ test("halaman app update memakai konfirmasi dan URL HTTPS terkontrol", () => {
   assert.match(appUpdateService, /url\.protocol !== "https:"/);
   assert.match(appUpdateService, /com\.dimsumlumer\.dimsum_lumer/);
   assert.doesNotMatch(appUpdateService, /service_role|key\.properties|keystore/i);
+});
+
+test("rekening toko hanya dapat dimutasi administrator AAL2", () => {
+  assert.match(merchantMigration, /for insert to authenticated[\s\S]*public\.is_admin_aal2\(\)/);
+  assert.match(merchantMigration, /for update to authenticated[\s\S]*public\.is_admin_aal2\(\)/);
+  assert.match(merchantMigration, /revoke all on table public\.merchant_payment_accounts from public, anon/);
+  assert.doesNotMatch(merchantMigration, /grant (insert|update|delete)[^;]* to anon/i);
+});
+
+test("read model rekening publik minimum dan halaman admin menyediakan CRUD", () => {
+  assert.match(merchantMigration, /get_merchant_payment_accounts\(\)/);
+  const publicColumns = merchantMigration.match(/get_merchant_payment_accounts\(\)[\s\S]*?returns table \(([\s\S]*?)\)/)?.[1] || "";
+  assert.doesNotMatch(publicColumns, /created_at|updated_at/);
+  for (const action of ["Tambah Rekening", "Ubah", "Hapus", "Aktif di pelanggan"]) assert.match(merchantPage, new RegExp(action));
 });
