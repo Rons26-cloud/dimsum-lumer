@@ -1,6 +1,6 @@
 -- ============================================================
 -- REALTIME
--- Mengaktifkan replikasi realtime untuk tabel yang perlu update
+-- Replicate tables consumed by realtime clients.
 -- otomatis di frontend-web / admin-dashboard / mobile-apk tanpa refresh.
 -- ============================================================
 

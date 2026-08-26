@@ -16,6 +16,9 @@ const searchPathMigration = readFileSync(new URL("../../supabase/migrations/2026
 const archiveMigration = readFileSync(new URL("../../supabase/migrations/20260826151345_protect_financial_archive_refresh.sql", import.meta.url), "utf8");
 const adminManagement = source("components/account/AdminManagement.jsx");
 const permissionRoute = source("router/PermissionRoute.jsx");
+const appUpdateMigration = readFileSync(new URL("../../supabase/migrations/20260826195731_app_update_management.sql", import.meta.url), "utf8");
+const appUpdatePage = source("pages/AppUpdates/index.jsx");
+const appUpdateService = source("services/appUpdateService.js");
 
 test("MFA memakai API TOTP Supabase lengkap", () => {
   for (const call of ["mfa.enroll", "mfa.listFactors", "mfa.challenge", "mfa.verify", "getAuthenticatorAssuranceLevel"]) {
@@ -90,4 +93,26 @@ test("fungsi privileged bukan RPC publik dan search_path dikunci", () => {
   assert.match(searchPathMigration, /add_order_point\(\) from public, anon, authenticated/);
   assert.match(archiveMigration, /refresh_monthly_financial_archive\(date\)/);
   assert.match(archiveMigration, /from public, anon, authenticated/);
+});
+
+test("app update mutation hanya tersedia untuk superadmin AAL2", () => {
+  assert.match(appUpdateMigration, /for insert\s+to authenticated\s+with check \(public\.is_superadmin_aal2\(\)\)/s);
+  assert.match(appUpdateMigration, /for update\s+to authenticated\s+using \(public\.is_superadmin_aal2\(\)\)/s);
+  assert.doesNotMatch(appUpdateMigration, /grant (insert|update|delete)[^;]* to anon/i);
+  assert.match(appUpdateMigration, /revoke all on function public\.publish_android_app_update[\s\S]*from public, anon/);
+});
+
+test("public update check hanya mengembalikan read model minimum", () => {
+  for (const field of ["updateEnabled", "latestVersion", "latestBuild", "minimumBuild", "forceUpdate", "downloadUrl", "releaseTitle", "releaseNotes"]) {
+    assert.match(appUpdateMigration, new RegExp(`'${field}'`));
+  }
+  assert.doesNotMatch(appUpdateMigration.slice(appUpdateMigration.indexOf("create or replace function public.get_android_app_update")), /admin_id|old_data|new_data/);
+});
+
+test("halaman app update memakai konfirmasi dan URL HTTPS terkontrol", () => {
+  assert.match(appUpdatePage, /Simpan perubahan update aplikasi/);
+  assert.match(appUpdatePage, /Riwayat Update/);
+  assert.match(appUpdateService, /url\.protocol !== "https:"/);
+  assert.match(appUpdateService, /com\.dimsumlumer\.dimsum_lumer/);
+  assert.doesNotMatch(appUpdateService, /service_role|key\.properties|keystore/i);
 });

@@ -3,7 +3,6 @@ import java.util.Properties
 
 plugins {
     id("com.android.application")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -15,7 +14,7 @@ val releaseBuildRequested = gradle.startParameter.taskNames.any {
 if (releaseKeystoreFile.exists()) {
     FileInputStream(releaseKeystoreFile).use(releaseKeystoreProperties::load)
 } else if (releaseBuildRequested) {
-    throw GradleException("Release signing belum dikonfigurasi. Salin key.properties.example menjadi key.properties dan gunakan keystore produksi dari secret CI/local.")
+    throw GradleException("Release signing is not configured. Copy key.properties.example to key.properties and provide the production keystore through local or CI secrets.")
 }
 
 android {
@@ -29,10 +28,7 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.dimsumlumer.dimsum_lumer"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

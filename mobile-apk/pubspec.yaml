@@ -1,7 +1,7 @@
 name: dimsum_lumer
-description: Aplikasi pemesanan dan layanan pelanggan Dimsum Lumer.
+description: Customer ordering and support app for Dimsum Lumer.
 publish_to: "none"
-version: 1.2.2+5
+version: 1.2.3+6
 
 environment:
   sdk: ">=3.3.0 <4.0.0"

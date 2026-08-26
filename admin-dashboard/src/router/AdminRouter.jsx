@@ -36,6 +36,7 @@ const MonthlyArchive=lazy(()=>import("../pages/MonthlyArchive/index.jsx"));
 const Reward=lazy(()=>import("../pages/Reward/index.jsx"));
 const PaymentUser=lazy(()=>import("../pages/PaymentUser/index.jsx"));
 const LiveChat=lazy(()=>import("../pages/LiveChat/index.jsx"));
+const AppUpdates=lazy(()=>import("../pages/AppUpdates/index.jsx"));
 
 export default function AdminRouter() {
   return <Suspense fallback={<Loading fullscreen/>}><Routes>
@@ -54,6 +55,7 @@ export default function AdminRouter() {
       <Route path="laporan-penjualan" element={<Report/>}/><Route path="statistik" element={<Statistics/>}/>
       <Route path="arsip-bulanan" element={<MonthlyArchive/>}/>
       <Route path="apk" element={<PermissionRoute allow={["superadmin"]}><Apk/></PermissionRoute>}/>
+      <Route path="app-updates" element={<PermissionRoute allow={["superadmin"]}><AppUpdates/></PermissionRoute>}/>
       <Route path="pengaturan-umum" element={<Settings/>}/>
       <Route path="maintenance" element={<Maintenance/>}/>
       <Route path="akun-admin" element={<AdminAccount/>}/>

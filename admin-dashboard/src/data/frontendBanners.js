@@ -1,6 +1,6 @@
-import bannerMentai from "../../../frontend-web/src/assets/banners/banner-mentai.png";
-import bannerFamily from "../../../frontend-web/src/assets/banners/banner-family.png";
-import bannerFrozen from "../../../frontend-web/src/assets/banners/banner-frozen.png";
+import bannerMentai from "../../../frontend-web/src/assets/banners/banner-mentai.jpg";
+import bannerFamily from "../../../frontend-web/src/assets/banners/banner-family.jpg";
+import bannerFrozen from "../../../frontend-web/src/assets/banners/banner-frozen.jpg";
 
 export const FRONTEND_BANNERS = [
   { id: "frontend-mentai", title: "Mentai Lumer", subtitle: "Creamy, gurih, dan dibuat hangat saat dipesan.", image_url: bannerMentai, target_url: "/produk", is_active: true, source: "frontend" },

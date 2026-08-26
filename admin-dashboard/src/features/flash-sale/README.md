@@ -1,4 +1,4 @@
-# Modul Flash Sale
+# Flash sales
 
-Modul khusus pengaturan produk Flash Sale, harga promo, stok, jadwal, dan status aktif.
-Halaman utama CRUD berada di `pages/FlashSale/index.jsx`.
+Flash-sale product, pricing, stock, schedule, and status helpers live here. The
+main editor is in `pages/FlashSale/index.jsx`.

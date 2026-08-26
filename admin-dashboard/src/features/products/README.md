@@ -1,4 +1,4 @@
-# Modul Produk
+# Products
 
-Komponen dan logika pengelolaan katalog produk admin ditempatkan di modul ini.
-Halaman utama CRUD berada di `pages/Product/index.jsx`.
+Product catalog components and data helpers live here. The main editor is in
+`pages/Product/index.jsx`.

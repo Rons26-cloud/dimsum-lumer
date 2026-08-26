@@ -1,4 +1,4 @@
--- Defense in depth untuk seluruh tabel yang disentuh aplikasi customer.
+-- Defense in depth for tables exposed to customer clients.
 -- Supabase/PostgREST menggunakan parameter binding, sehingga input tidak
 -- digabung menjadi SQL mentah. RLS di bawah tetap menjadi batas otorisasi utama.
 

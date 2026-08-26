@@ -3,14 +3,21 @@ import { useEffect, useState } from "react";
 import clsx from "clsx";
 import {
   LayoutDashboard, Package, Tag, Image, Percent, Receipt, Users, Heart, Zap,
-  MapPin, Clock, BarChart3, FileText, Settings, UserCog, LogOut, Wrench, BellRing, ServerCog, Archive, Gift, WalletCards, MessageCircle,
+  MapPin, Clock, BarChart3, FileText, Settings, UserCog, LogOut, Wrench, BellRing, ServerCog, Archive, Gift, WalletCards, MessageCircle, Smartphone,
 } from "lucide-react";
 import logo from "../../assets/logo/logo.png";
 import { signOutAdmin } from "../../services/authService.js";
 import GoogleMapsLogo from "../ui/GoogleMapsLogo.jsx";
 import { supabase } from "../../supabase/client.js";
+import { useAdminAuth } from "../../hooks/useAdminAuth.js";
 
 const menuGroups = [
+  {
+    title: "APLIKASI",
+    items: [
+      { to: "/app-updates", label: "Update Aplikasi", Icon: Smartphone, color: "text-blue-600", bg: "bg-blue-50", roles: ["superadmin"] },
+    ],
+  },
   {
     title: "MENU UTAMA",
     items: [
@@ -58,6 +65,7 @@ const menuGroups = [
 
 export default function Sidebar({ open, onClose }) {
   const navigate = useNavigate();
+  const { admin } = useAdminAuth();
   const [pendingChats,setPendingChats]=useState(0);
   useEffect(()=>{let active=true;const load=async()=>{const {count}=await supabase.from('live_chat_conversations').select('id',{count:'exact',head:true}).eq('status','open').or('admin_read_at.is.null,admin_replied_at.is.null');if(active)setPendingChats(count||0)};load();const channel=supabase.channel('admin-sidebar-live-chat').on('postgres_changes',{event:'*',schema:'public',table:'live_chat_conversations'},load).subscribe();return()=>{active=false;supabase.removeChannel(channel)}},[]);
   const handleMenuNavigation = (event, to) => {
@@ -92,10 +100,13 @@ export default function Sidebar({ open, onClose }) {
         </div>
 
         <nav className="px-3 py-4">
-          {menuGroups.map((group) => (
+          {menuGroups.map((group) => {
+            const visibleItems = group.items.filter((item) => !item.roles || item.roles.includes(admin?.adminRole));
+            if (!visibleItems.length) return null;
+            return (
             <div key={group.title} className="mb-5">
               <p className="text-[10px] font-bold text-gray-400 tracking-wider px-3 mb-1.5">{group.title}</p>
-              {group.items.map(({ to, label, Icon, color = "text-slate-600", bg = "bg-slate-100", end }) => (
+              {visibleItems.map(({ to, label, Icon, color = "text-slate-600", bg = "bg-slate-100", end }) => (
                 <NavLink
                   key={to}
                   to={to}
@@ -120,7 +131,7 @@ export default function Sidebar({ open, onClose }) {
                 </NavLink>
               ))}
             </div>
-          ))}
+          );})}
 
           <button
             type="button"

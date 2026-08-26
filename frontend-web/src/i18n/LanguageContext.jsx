@@ -21,7 +21,7 @@ function translateLegacyText(value) {
   const trailing = value.match(/\s*$/)?.[0] || "";
   const source = value.trim();
   if (!source) return value;
-  // Gunakan hanya terjemahan kalimat utuh yang telah ditinjau. Penggantian
+  // Only apply reviewed, complete-sentence translations. Replacement
   // kata per kata dapat merusak tata bahasa, nama produk, dan data pengguna.
   const result = additionalEnglish[source] || legacyEnglish[source] || source;
   return `${leading}${result}${trailing}`;

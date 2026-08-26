@@ -1,5 +1,5 @@
 -- Jalankan migration ini melalui Supabase SQL Editor atau Supabase CLI.
--- Jangan pernah menerima role dari raw_user_meta_data karena metadata tersebut
+-- Authorization roles must not come from user-editable raw_user_meta_data.
 -- dapat dikirim dan diubah oleh client.
 
 alter table public.profiles

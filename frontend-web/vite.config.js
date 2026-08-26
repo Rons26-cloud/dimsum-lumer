@@ -19,7 +19,6 @@ function createSecurityHeaders(isDevelopment = false) {
 };
 
 // Frontend Web — dikonfigurasi sebagai PWA agar terasa & bisa diinstall
-// seperti aplikasi (APK) di HP, sekaligus tetap 100% website biasa di desktop.
 export default defineConfig(({ command }) => {
   const isDevelopment = command === "serve";
   return {

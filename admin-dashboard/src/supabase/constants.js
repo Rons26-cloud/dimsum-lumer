@@ -18,6 +18,7 @@ export const TABLES = {
   ADMIN_SESSIONS: "admin_sessions",
   WISHLIST: "wishlist",
   APK_VERSIONS: "apk_versions",
+  APP_UPDATES: "app_updates",
   STORE_SETTINGS: "store_settings",
   APP_CONFIG: "app_config",
   USER_PAYMENT_METHODS: "user_payment_methods",

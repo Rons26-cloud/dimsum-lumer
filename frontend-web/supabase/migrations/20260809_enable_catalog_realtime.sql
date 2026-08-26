@@ -1,4 +1,4 @@
--- Pastikan perubahan dari dashboard admin disiarkan ke aplikasi customer.
+-- Broadcast catalog changes from the admin dashboard to customer clients.
 -- Aman dijalankan berulang kali.
 do $$
 begin

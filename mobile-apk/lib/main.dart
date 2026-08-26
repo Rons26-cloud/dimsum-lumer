@@ -420,7 +420,7 @@ class _RealtimeGateState extends State<_RealtimeGate> {
       return;
     }
     _checking = true;
-    await AppConfigService.showForceUpdate(dialogContext);
+    await AppUpdateService.showUpdatePrompt(dialogContext);
     _checking = false;
     if (mounted) setState(() {});
   }
