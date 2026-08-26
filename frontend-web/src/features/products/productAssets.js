@@ -1,30 +1,37 @@
-import original from "../../assets/produk/original.jpg";
-import udang from "../../assets/produk/udang.jpg";
-import mozarella from "../../assets/produk/mozarella.jpg";
-import pangsit from "../../assets/produk/pangsit-goreng-lumer.jpg";
-import pedas from "../../assets/produk/pedas.jpg";
-import keju from "../../assets/produk/keju.jpg";
-import bbq from "../../assets/produk/bbq.jpg";
-import mix from "../../assets/produk/mix.jpg";
-import jagung from "../../assets/produk/jagung.jpg";
-import jamur from "../../assets/produk/jamur.jpg";
-import sosis from "../../assets/produk/sosis.jpg";
-import ayamPremium from "../../assets/produk/ayampremium.jpg";
-
 const LOCAL_IMAGE_BY_SLUG = {
-  "dimsum-ayam-original": original,
-  "dimsum-udang": udang,
-  "dimsum-mozarella": mozarella,
-  "dimsum-mozzarella": mozarella,
-  "pangsit-goreng-lumer": pangsit,
-  "dimsum-pedas": pedas,
-  "dimsum-keju": keju,
-  "dimsum-bbq": bbq,
-  "dimsum-mix": mix,
-  "dimsum-jagung": jagung,
-  "dimsum-jamur": jamur,
-  "dimsum-sosis": sosis,
-  "dimsum-ayam-premium": ayamPremium,
+  "dimsum-ayam-original": new URL("../../assets/produk/original.jpg", import.meta.url).href,
+  "dimsum-udang": new URL("../../assets/produk/udang.jpg", import.meta.url).href,
+  "dimsum-mozarella": new URL("../../assets/produk/mozarella.jpg", import.meta.url).href,
+  "dimsum-mozzarella": new URL("../../assets/produk/mozarella.jpg", import.meta.url).href,
+  "pangsit-goreng-lumer": new URL("../../assets/produk/pangsit-goreng-lumer.jpg", import.meta.url).href,
+  "dimsum-pedas": new URL("../../assets/produk/pedas.jpg", import.meta.url).href,
+  "dimsum-keju": new URL("../../assets/produk/keju.jpg", import.meta.url).href,
+  "dimsum-bbq": new URL("../../assets/produk/bbq.jpg", import.meta.url).href,
+  "dimsum-mix": new URL("../../assets/produk/mix.jpg", import.meta.url).href,
+  "dimsum-jagung": new URL("../../assets/produk/jagung.jpg", import.meta.url).href,
+  "dimsum-jamur": new URL("../../assets/produk/jamur.jpg", import.meta.url).href,
+  "dimsum-sosis": new URL("../../assets/produk/sosis.jpg", import.meta.url).href,
+  "dimsum-ayam-premium": new URL("../../assets/produk/ayampremium.jpg", import.meta.url).href,
+};
+
+const NAME_FALLBACKS = [
+  [() => true, new URL("../../assets/produk/original.jpg", import.meta.url).href],
+];
+
+const _nameImage = (name) => {
+  if (name.includes("ayam premium")) return new URL("../../assets/produk/ayampremium.jpg", import.meta.url).href;
+  if (name.includes("pangsit")) return new URL("../../assets/produk/pangsit-goreng-lumer.jpg", import.meta.url).href;
+  if (name.includes("udang")) return new URL("../../assets/produk/udang.jpg", import.meta.url).href;
+  if (name.includes("moza") || name.includes("mentai")) return new URL("../../assets/produk/mozarella.jpg", import.meta.url).href;
+  if (name.includes("pedas")) return new URL("../../assets/produk/pedas.jpg", import.meta.url).href;
+  if (name.includes("keju")) return new URL("../../assets/produk/keju.jpg", import.meta.url).href;
+  if (name.includes("bbq")) return new URL("../../assets/produk/bbq.jpg", import.meta.url).href;
+  if (name.includes("mix")) return new URL("../../assets/produk/mix.jpg", import.meta.url).href;
+  if (name.includes("jagung")) return new URL("../../assets/produk/jagung.jpg", import.meta.url).href;
+  if (name.includes("jamur")) return new URL("../../assets/produk/jamur.jpg", import.meta.url).href;
+  if (name.includes("sosis")) return new URL("../../assets/produk/sosis.jpg", import.meta.url).href;
+  if (name.includes("ayam") || name.includes("original")) return new URL("../../assets/produk/original.jpg", import.meta.url).href;
+  return "";
 };
 
 
@@ -45,17 +52,5 @@ export function resolveProductImage(product) {
   const slug = String(product?.slug || "").toLowerCase();
   if (LOCAL_IMAGE_BY_SLUG[slug]) return LOCAL_IMAGE_BY_SLUG[slug];
   const name = String(product?.name || product?.title || "").toLowerCase();
-  if (name.includes("ayam premium")) return ayamPremium;
-  if (name.includes("pangsit")) return pangsit;
-  if (name.includes("udang")) return udang;
-  if (name.includes("moza") || name.includes("mentai")) return mozarella;
-  if (name.includes("pedas")) return pedas;
-  if (name.includes("keju")) return keju;
-  if (name.includes("bbq")) return bbq;
-  if (name.includes("mix")) return mix;
-  if (name.includes("jagung")) return jagung;
-  if (name.includes("jamur")) return jamur;
-  if (name.includes("sosis")) return sosis;
-  if (name.includes("ayam") || name.includes("original")) return original;
-  return "";
+  return _nameImage(name);
 }

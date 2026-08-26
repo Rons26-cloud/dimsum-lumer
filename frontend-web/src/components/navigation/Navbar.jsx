@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useDeferredValue } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ShoppingCart, Bell } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth.js";
@@ -12,6 +12,7 @@ export default function Navbar({ sticky = true, autoHide = false }) {
   const { user } = useAuth();
   const cartCount = useCart((s) => s.items.reduce((n, i) => n + i.qty, 0));
   const { unreadCount } = useNotifications();
+  const deferredCount = useDeferredValue(unreadCount);
   const navigate = useNavigate();
   const [visible, setVisible] = useState(true);
   const lastScrollY = useRef(0);
@@ -103,9 +104,9 @@ export default function Navbar({ sticky = true, autoHide = false }) {
             aria-label="Notifikasi"
           >
             <Bell size={17} strokeWidth={2} />
-            {unreadCount > 0 && (
+            {deferredCount > 0 && (
               <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-white animate-fade-in">
-                {unreadCount}
+                {deferredCount}
               </span>
             )}
           </button>

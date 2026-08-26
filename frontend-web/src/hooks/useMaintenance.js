@@ -14,7 +14,7 @@ export function useMaintenance() {
   const [clock, setClock] = useState(Date.now());
 
   useEffect(() => {
-    const timer = window.setInterval(() => setClock(Date.now()), 1000);
+    const timer = window.setInterval(() => setClock(Date.now()), 10000);
     return () => window.clearInterval(timer);
   }, []);
 

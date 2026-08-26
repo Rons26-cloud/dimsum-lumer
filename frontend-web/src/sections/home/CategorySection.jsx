@@ -5,10 +5,6 @@ import { useLiveCollection } from "../../hooks/useLiveCollection.js";
 import { TABLES } from "../../supabase/constants.js";
 import CategoryCard from "../../components/cards/CategoryCard.jsx";
 import Skeleton from "../../components/ui/Skeleton.jsx";
-import ayam from "../../assets/produk/dimsum-ayam-original.jpg";
-import udang from "../../assets/produk/dimsum-udang-spesial.jpg";
-import mentai from "../../assets/produk/dimsum-mentai-mozzarella.jpg";
-import pangsit from "../../assets/produk/pangsit-goreng-lumer.jpg";
 
 const ICON_MAP = {
   daging: Beef,
@@ -20,17 +16,20 @@ const ICON_MAP = {
   frozen: Snowflake,
 };
 
+const PLACEHOLDER_COLORS = ["bg-orange-100", "bg-rose-100", "bg-amber-100", "bg-emerald-100"];
+
 export default function CategorySection() {
   const navigate = useNavigate();
   const categories = useLiveCollection(TABLES.CATEGORIES, { order: { column: "name" } });
   const [active, setActive] = useState("semua");
 
   const items = [
-    { id: "semua", name: "Semua", Icon: Home, image_url: ayam },
+    { id: "semua", name: "Semua", Icon: Home, image_url: "" },
     ...(categories ?? []).map((c, index) => ({
       ...c,
       Icon: ICON_MAP[c.slug?.toLowerCase()] ?? Utensils,
-      image_url: c.image_url || c.icon_url || [ayam, udang, mentai, pangsit][index % 4],
+      image_url: c.image_url || c.icon_url || "",
+      _placeholder: PLACEHOLDER_COLORS[index % PLACEHOLDER_COLORS.length],
     })),
   ];
 
