@@ -14,10 +14,6 @@ const LOCAL_IMAGE_BY_SLUG = {
   "dimsum-ayam-premium": new URL("../../assets/produk/ayampremium.jpg", import.meta.url).href,
 };
 
-const NAME_FALLBACKS = [
-  [() => true, new URL("../../assets/produk/original.jpg", import.meta.url).href],
-];
-
 const _nameImage = (name) => {
   if (name.includes("ayam premium")) return new URL("../../assets/produk/ayampremium.jpg", import.meta.url).href;
   if (name.includes("pangsit")) return new URL("../../assets/produk/pangsit-goreng-lumer.jpg", import.meta.url).href;
