@@ -95,9 +95,9 @@ test("fungsi privileged bukan RPC publik dan search_path dikunci", () => {
   assert.match(archiveMigration, /from public, anon, authenticated/);
 });
 
-test("app update mutation hanya tersedia untuk superadmin AAL2", () => {
-  assert.match(appUpdateMigration, /for insert\s+to authenticated\s+with check \(public\.is_superadmin_aal2\(\)\)/s);
-  assert.match(appUpdateMigration, /for update\s+to authenticated\s+using \(public\.is_superadmin_aal2\(\)\)/s);
+test("app update mutation hanya tersedia untuk administrator AAL2", () => {
+  assert.match(appUpdateMigration, /for insert\s+to authenticated\s+with check \(public\.is_admin_aal2\(\)\)/s);
+  assert.match(appUpdateMigration, /for update\s+to authenticated\s+using \(public\.is_admin_aal2\(\)\)/s);
   assert.doesNotMatch(appUpdateMigration, /grant (insert|update|delete)[^;]* to anon/i);
   assert.match(appUpdateMigration, /revoke all on function public\.publish_android_app_update[\s\S]*from public, anon/);
 });

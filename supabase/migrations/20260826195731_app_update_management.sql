@@ -1,4 +1,4 @@
-+begin;
+begin;
 
 set local lock_timeout = '30s';
 set local statement_timeout = '2min';
@@ -19,7 +19,7 @@ create table public.app_updates (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint app_updates_platform_check check (platform = 'android'),
-  constraint app_updates_version_check check (version_name ~ '^[0-9]+\\.[0-9]+\\.[0-9]+([+-][0-9A-Za-z.-]+)?$'),
+  constraint app_updates_version_check check (version_name ~ '^[0-9]+[.][0-9]+[.][0-9]+([+-][0-9A-Za-z.-]+)?$'),
   constraint app_updates_build_check check (build_number > 0),
   constraint app_updates_minimum_build_check check (
     minimum_build_number > 0 and minimum_build_number <= build_number
@@ -53,18 +53,18 @@ for select
 to authenticated
 using (public.is_admin_aal2());
 
-create policy "superadmin aal2 creates app updates"
+create policy "admin aal2 creates app updates"
 on public.app_updates
 for insert
 to authenticated
-with check (public.is_superadmin_aal2());
+with check (public.is_admin_aal2());
 
-create policy "superadmin aal2 updates app updates"
+create policy "admin aal2 updates app updates"
 on public.app_updates
 for update
 to authenticated
-using (public.is_superadmin_aal2())
-with check (public.is_superadmin_aal2());
+using (public.is_admin_aal2())
+with check (public.is_admin_aal2());
 
 create or replace function public.set_app_update_updated_at()
 returns trigger
@@ -103,10 +103,10 @@ declare
   result public.app_updates;
   normalized_url text := nullif(trim(coalesce(p_download_url, '')), '');
 begin
-  if not public.is_superadmin_aal2() then
-    raise exception using errcode = '42501', message = 'Superadmin MFA/AAL2 required';
+  if not public.is_admin_aal2() then
+    raise exception using errcode = '42501', message = 'Administrator MFA/AAL2 required';
   end if;
-  if trim(coalesce(p_version_name, '')) !~ '^[0-9]+\\.[0-9]+\\.[0-9]+([+-][0-9A-Za-z.-]+)?$' then
+  if trim(coalesce(p_version_name, '')) !~ '^[0-9]+[.][0-9]+[.][0-9]+([+-][0-9A-Za-z.-]+)?$' then
     raise exception using errcode = '22023', message = 'Invalid version name';
   end if;
   if p_build_number is null or p_build_number <= 0 then

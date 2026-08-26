@@ -15,7 +15,7 @@ const menuGroups = [
   {
     title: "APLIKASI",
     items: [
-      { to: "/app-updates", label: "Update Aplikasi", Icon: Smartphone, color: "text-blue-600", bg: "bg-blue-50", roles: ["superadmin"] },
+      { to: "/app-updates", label: "Update Aplikasi", Icon: Smartphone, color: "text-blue-600", bg: "bg-blue-50", roles: ["admin", "superadmin"] },
     ],
   },
   {

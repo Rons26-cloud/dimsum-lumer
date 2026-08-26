@@ -55,7 +55,7 @@ export default function AdminRouter() {
       <Route path="laporan-penjualan" element={<Report/>}/><Route path="statistik" element={<Statistics/>}/>
       <Route path="arsip-bulanan" element={<MonthlyArchive/>}/>
       <Route path="apk" element={<PermissionRoute allow={["superadmin"]}><Apk/></PermissionRoute>}/>
-      <Route path="app-updates" element={<PermissionRoute allow={["superadmin"]}><AppUpdates/></PermissionRoute>}/>
+      <Route path="app-updates" element={<PermissionRoute allow={["admin", "superadmin"]}><AppUpdates/></PermissionRoute>}/>
       <Route path="pengaturan-umum" element={<Settings/>}/>
       <Route path="maintenance" element={<Maintenance/>}/>
       <Route path="akun-admin" element={<AdminAccount/>}/>
