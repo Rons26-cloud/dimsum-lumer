@@ -19,7 +19,7 @@ alter table public.flash_sales enable row level security;
 drop policy if exists "Public read active flash sales" on public.flash_sales;
 create policy "Public read active flash sales" on public.flash_sales for select using (is_active = true or public.is_admin());
 drop policy if exists "Admin manage flash sales" on public.flash_sales;
-create policy "Admin manage flash sales" on public.flash_sales for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy "Admin manage flash sales" on public.flash_sales for all to authenticated using (public.is_admin_aal2()) with check (public.is_admin_aal2());
 
 do $$ begin
   alter publication supabase_realtime add table public.flash_sales;

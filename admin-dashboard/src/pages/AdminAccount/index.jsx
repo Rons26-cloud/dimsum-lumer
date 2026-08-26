@@ -47,7 +47,7 @@ export default function AdminAccount() {
   const initials = initialName.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join("").toUpperCase() || "AD";
   const strength = useMemo(() => {
     const value = passwords.password;
-    return [value.length >= 8, /[a-z]/.test(value) && /[A-Z]/.test(value), /\d/.test(value), /[^A-Za-z0-9]/.test(value)].filter(Boolean).length;
+    return [value.length >= 12, /[a-z]/.test(value) && /[A-Z]/.test(value), /\d/.test(value), /[^A-Za-z0-9]/.test(value)].filter(Boolean).length;
   }, [passwords.password]);
   const strengthLabel = ["Belum diisi", "Lemah", "Cukup", "Kuat", "Sangat kuat"][strength];
 
@@ -96,7 +96,7 @@ export default function AdminAccount() {
   const savePassword = async (event) => {
     event.preventDefault();
     setSecurityNotice(null);
-    if (passwords.password.length < 8) return setSecurityNotice({ type: "error", text: "Password minimal 8 karakter." });
+    if (passwords.password.length < 12) return setSecurityNotice({ type: "error", text: "Password minimal 12 karakter." });
     if (strength < 3) return setSecurityNotice({ type: "error", text: "Gunakan kombinasi huruf besar, huruf kecil, angka, atau simbol." });
     if (passwords.password !== passwords.confirmation) return setSecurityNotice({ type: "error", text: "Konfirmasi password belum sama." });
     setSavingPassword(true);
@@ -154,8 +154,8 @@ export default function AdminAccount() {
           <div className="mb-5 flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-blue-50 text-blue-600"><KeyRound size={19}/></span><div><h2 className="font-bold text-gray-900">Ubah password</h2><p className="text-xs text-gray-500">Buat password unik yang tidak digunakan di layanan lain.</p></div></div>
           <Notice notice={securityNotice}/>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <label className="text-xs font-semibold text-gray-600">Password baru<div className="relative"><input type={showPassword ? "text" : "password"} autoComplete="new-password" required minLength={8} maxLength={128} value={passwords.password} onChange={(event) => setPasswords({ ...passwords, password: event.target.value })} className={`${fieldClass} pr-11`}/><button type="button" onClick={() => setShowPassword((value) => !value)} className="absolute bottom-0 right-0 grid h-11 w-11 place-items-center text-gray-400" aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}>{showPassword ? <EyeOff size={16}/> : <Eye size={16}/>}</button></div></label>
-            <label className="text-xs font-semibold text-gray-600">Konfirmasi password<div className="relative"><input type={showConfirmation ? "text" : "password"} autoComplete="new-password" required minLength={8} maxLength={128} value={passwords.confirmation} onChange={(event) => setPasswords({ ...passwords, confirmation: event.target.value })} className={`${fieldClass} pr-11`}/><button type="button" onClick={() => setShowConfirmation((value) => !value)} className="absolute bottom-0 right-0 grid h-11 w-11 place-items-center text-gray-400" aria-label={showConfirmation ? "Sembunyikan konfirmasi" : "Tampilkan konfirmasi"}>{showConfirmation ? <EyeOff size={16}/> : <Eye size={16}/>}</button></div></label>
+            <label className="text-xs font-semibold text-gray-600">Password baru<div className="relative"><input type={showPassword ? "text" : "password"} autoComplete="new-password" required minLength={12} maxLength={128} value={passwords.password} onChange={(event) => setPasswords({ ...passwords, password: event.target.value })} className={`${fieldClass} pr-11`}/><button type="button" onClick={() => setShowPassword((value) => !value)} className="absolute bottom-0 right-0 grid h-11 w-11 place-items-center text-gray-400" aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}>{showPassword ? <EyeOff size={16}/> : <Eye size={16}/>}</button></div></label>
+            <label className="text-xs font-semibold text-gray-600">Konfirmasi password<div className="relative"><input type={showConfirmation ? "text" : "password"} autoComplete="new-password" required minLength={12} maxLength={128} value={passwords.confirmation} onChange={(event) => setPasswords({ ...passwords, confirmation: event.target.value })} className={`${fieldClass} pr-11`}/><button type="button" onClick={() => setShowConfirmation((value) => !value)} className="absolute bottom-0 right-0 grid h-11 w-11 place-items-center text-gray-400" aria-label={showConfirmation ? "Sembunyikan konfirmasi" : "Tampilkan konfirmasi"}>{showConfirmation ? <EyeOff size={16}/> : <Eye size={16}/>}</button></div></label>
           </div>
           <div className="mt-3"><div className="flex gap-1">{[1, 2, 3, 4].map((step) => <span key={step} className={`h-1.5 flex-1 rounded-full ${strength >= step ? (strength < 3 ? "bg-amber-400" : "bg-emerald-500") : "bg-gray-100"}`}/>)}</div><p className="mt-1.5 text-[11px] text-gray-500">Kekuatan password: <strong>{strengthLabel}</strong></p></div>
           <button disabled={savingPassword} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gray-900 py-3 text-xs font-bold text-white disabled:opacity-50 sm:w-auto sm:px-5">{savingPassword ? <Loader2 className="animate-spin" size={15}/> : <LockKeyhole size={15}/>}Perbarui Password</button>

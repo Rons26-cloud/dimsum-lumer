@@ -15,7 +15,7 @@ set search_path = ''
 as $$
 declare target_profile public.profiles;
 begin
-  if not public.is_admin() then raise exception 'Akses admin diperlukan'; end if;
+  if not public.is_admin_aal2() then raise exception 'Akses admin dengan MFA diperlukan'; end if;
   select * into target_profile from public.profiles where id=target_user_id;
   if target_profile.id is null then raise exception 'Pelanggan tidak ditemukan'; end if;
   if target_profile.role in ('admin','superadmin') then raise exception 'Akun administrator dilindungi'; end if;
@@ -43,7 +43,7 @@ set search_path = ''
 as $$
 declare target_role text;
 begin
-  if not public.is_admin() then raise exception 'Akses admin diperlukan'; end if;
+  if not public.is_admin_aal2() then raise exception 'Akses admin dengan MFA diperlukan'; end if;
   select role into target_role from public.profiles where id=target_user_id;
   if target_role is null then raise exception 'Pelanggan tidak ditemukan'; end if;
   if target_role in ('admin','superadmin') then raise exception 'Akun administrator dilindungi'; end if;
@@ -60,7 +60,7 @@ set search_path = ''
 as $$
 declare result jsonb;
 begin
-  if not public.is_admin() then raise exception 'Akses admin diperlukan'; end if;
+  if not public.is_admin_aal2() then raise exception 'Akses admin dengan MFA diperlukan'; end if;
   if exists(select 1 from public.profiles where id=target_user_id and role in ('admin','superadmin')) then
     raise exception 'Akun administrator dilindungi';
   end if;

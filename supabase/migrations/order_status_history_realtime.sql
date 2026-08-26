@@ -25,6 +25,10 @@ drop policy if exists "users read own order status history" on public.order_stat
 create policy "users read own order status history"
 on public.order_status_history for select to authenticated
 using (auth.uid() = user_id);
+drop policy if exists "admins read order status history" on public.order_status_history;
+create policy "admins read order status history"
+on public.order_status_history for select to authenticated
+using (public.is_admin_aal2());
 
 create or replace function public.prepare_order_status_change()
 returns trigger

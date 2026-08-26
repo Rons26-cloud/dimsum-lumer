@@ -2,11 +2,11 @@
 create or replace function public.is_admin()
 returns boolean language sql stable security definer set search_path=''
 as $$
-  select exists(select 1 from public.profiles where id=auth.uid() and role in ('admin','superadmin'))
-    or coalesce((auth.jwt()->'app_metadata'->>'role') in ('admin','superadmin'),false);
+  select auth.uid() is not null
+    and exists(select 1 from public.profiles where id=auth.uid() and role in ('admin','superadmin'));
 $$;
 revoke all on function public.is_admin() from public;
-grant execute on function public.is_admin() to authenticated;
+grant execute on function public.is_admin() to anon, authenticated;
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values
@@ -27,11 +27,11 @@ create policy "admin manage control plane files"
 on storage.objects for all to authenticated
 using (
   bucket_id in ('product-images','category-images','banners','store-photos','apk')
-  and public.is_admin()
+  and public.is_admin_aal2()
 )
 with check (
   bucket_id in ('product-images','category-images','banners','store-photos','apk')
-  and public.is_admin()
+  and public.is_admin_aal2()
 );
 
 drop policy if exists "public read control plane files" on storage.objects;

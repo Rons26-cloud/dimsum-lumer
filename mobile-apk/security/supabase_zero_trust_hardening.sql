@@ -9,16 +9,29 @@ returns boolean
 language sql
 stable
 security definer
-set search_path = public, pg_temp
+set search_path = ''
 as $$
-  select exists (
-    select 1 from public.profiles
-    where id = (select auth.uid())
-      and role in ('admin', 'superadmin')
-  );
+  select auth.uid() is not null
+    and exists (
+      select 1 from public.profiles
+      where id = auth.uid() and role in ('admin', 'superadmin')
+    );
 $$;
-revoke all on function public.is_admin() from public, anon;
-grant execute on function public.is_admin() to authenticated;
+revoke all on function public.is_admin() from public;
+grant execute on function public.is_admin() to anon, authenticated;
+
+create or replace function public.is_admin_aal2()
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select public.is_admin()
+    and coalesce(auth.jwt() ->> 'aal', '') = 'aal2';
+$$;
+revoke all on function public.is_admin_aal2() from public;
+grant execute on function public.is_admin_aal2() to anon, authenticated;
 
 -- Remove every accumulated permissive policy from sensitive tables. Multiple
 -- old policies are OR-ed by PostgreSQL, so merely adding stricter ones is not enough.
@@ -66,7 +79,7 @@ using (user_id = (select auth.uid()));
 create policy "order owner or admin read" on public.orders for select to authenticated
 using (user_id = (select auth.uid()) or (select public.is_admin()));
 create policy "admin updates orders" on public.orders for update to authenticated
-using ((select public.is_admin())) with check ((select public.is_admin()));
+using ((select public.is_admin_aal2())) with check ((select public.is_admin_aal2()));
 
 create policy "order item owner or admin read" on public.order_items for select to authenticated
 using ((select public.is_admin()) or exists (
@@ -102,12 +115,12 @@ using (user_id = (select auth.uid()));
 create policy "notification owner marks read" on public.notifications for update to authenticated
 using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 create policy "admin manages notifications" on public.notifications for all to authenticated
-using ((select public.is_admin())) with check ((select public.is_admin()));
+using ((select public.is_admin_aal2())) with check ((select public.is_admin_aal2()));
 
 create policy "admin reads activity logs" on public.activity_logs for select to authenticated
-using ((select public.is_admin()));
+using ((select public.is_admin_aal2()));
 create policy "admin creates activity logs" on public.activity_logs for insert to authenticated
-with check ((select public.is_admin()) and admin_id = (select auth.uid()));
+with check ((select public.is_admin_aal2()) and admin_id = (select auth.uid()));
 
 -- Table privileges are a second barrier in addition to RLS.
 revoke all on public.profiles, public.addresses, public.orders,

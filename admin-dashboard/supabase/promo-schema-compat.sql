@@ -41,7 +41,7 @@ create index if not exists promos_active_created_idx on public.promos(is_active,
 alter table public.promos enable row level security;
 drop policy if exists admin_manage on public.promos;
 create policy admin_manage on public.promos for all to authenticated
-  using (public.is_admin()) with check (public.is_admin());
+  using (public.is_admin_aal2()) with check (public.is_admin_aal2());
 
 do $$ begin
   alter publication supabase_realtime add table public.promos;
